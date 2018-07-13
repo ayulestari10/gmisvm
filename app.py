@@ -1,11 +1,15 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash, redirect, url_for
 from werkzeug.utils import secure_filename
 from libs.GMI import GMI
 import numpy as np
 from PIL import Image
+import zipfile
+from time import gmtime, strftime
+import os as az
 
 
 app = Flask(__name__)
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 @app.route('/')
 def index():
@@ -53,3 +57,35 @@ def upload_file():
 		f = request.files['the_file']
 		f.save('foto/' + secure_filename(f.filename))
 	return render_template('upload.html')
+
+@app.route('/coba')
+def coba():
+	return render_template('layout.html', data = { 'view' : 'upload', 'params': { 'nama': 'h3h3' } })
+
+@app.route('/home')
+def home():
+	return render_template('layout.html', data = { 'view' : 'home'})
+
+# https://stackoverflow.com/questions/41965026/extracting-all-the-files-of-a-selected-extension-from-a-zipped-file
+@app.route('/pelatihan', methods=['GET', 'POST'])
+def pelatihan():
+	if request.method == 'POST':
+		f = request.files['zip_file']
+		filename = 'data/' + secure_filename(strftime("%Y-%m-%d-%H-%M-%S") + '_' + f.filename)
+		f.save(filename)
+		with open(filename, mode = 'r') as file:
+			zip_file = zipfile.ZipFile(filename)
+			files = [zip_file.extract(fl, 'data/training') for fl in zip_file.namelist()]
+			zip_file.close()
+		az.remove(filename)
+
+		# pelatihan disini
+
+		flash('Data pelatihan berhasil dilatih')
+		return redirect(url_for('.pelatihan'))
+
+	return render_template('layout.html', data = { 'view' : 'pelatihan'})
+
+@app.route('/pengujian')
+def pengujian():
+	return render_template('layout.html', data = { 'view' : 'home'})
