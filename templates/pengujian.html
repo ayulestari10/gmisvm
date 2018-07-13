@@ -4,7 +4,7 @@
 
 	        <div class="row">
 	          	<div class="col-md-8 ml-auto mr-auto">
-		            <h2 class="title">Pelatihan</h2>
+		            <h2 class="title">Pengujian</h2>
 		            <!-- <h5 class="description"></h5> -->
 	          	</div>
 	        </div>
@@ -25,7 +25,7 @@
 
 			<div class="row">
 				<div class="col-md-5 ml-auto mr-auto">
-					<form action="{{ url_for('.pelatihan') }}" method="POST" enctype="multipart/form-data">
+					<form action="{{ url_for('.pengujian') }}" method="POST" enctype="multipart/form-data">
 						<div class="form-group form-file-upload form-file-multiple">
 						    <input type="file" name="zip_file" multiple="" class="inputFileHidden">
 						    <div class="input-group">
@@ -37,7 +37,7 @@
 						        </span>
 						    </div>
 						</div>
-						<input type="submit" name="latih" class="btn btn-primary" value="Latih">
+						<input type="submit" name="uji" class="btn btn-primary" value="Uji">
 					</form>
 				</div>
 			</div>

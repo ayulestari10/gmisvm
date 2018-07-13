@@ -64,7 +64,7 @@ def coba():
 
 @app.route('/home')
 def home():
-	return render_template('layout.html', data = { 'view' : 'home'})
+	return render_template('home.html')
 
 # https://stackoverflow.com/questions/41965026/extracting-all-the-files-of-a-selected-extension-from-a-zipped-file
 @app.route('/pelatihan', methods=['GET', 'POST'])
@@ -84,8 +84,8 @@ def pelatihan():
 		flash('Data pelatihan berhasil dilatih')
 		return redirect(url_for('.pelatihan'))
 
-	return render_template('layout.html', data = { 'view' : 'pelatihan'})
+	return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan'})
 
 @app.route('/pengujian')
 def pengujian():
-	return render_template('layout.html', data = { 'view' : 'home'})
+	return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'})
