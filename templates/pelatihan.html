@@ -27,7 +27,7 @@
 				<div class="col-md-5 ml-auto mr-auto">
 					<form action="{{ url_for('.pelatihan') }}" method="POST" enctype="multipart/form-data">
 						<div class="form-group form-file-upload form-file-multiple">
-						    <input type="file" name="zip_file" multiple="" class="inputFileHidden">
+						    <input type="file" name="zip_file" multiple="" class="inputFileHidden" required>
 						    <div class="input-group">
 						        <input type="text" class="form-control inputFileVisible" placeholder="Unggah Data Pelatihan">
 						        <span class="input-group-btn">
