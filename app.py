@@ -57,10 +57,32 @@ def coba():
 def home():
 	return render_template('home.html')
 
+
 # https://stackoverflow.com/questions/41965026/extracting-all-the-files-of-a-selected-extension-from-a-zipped-file
 @app.route('/pelatihan', methods=['GET', 'POST'])
 def pelatihan():
-	print(f"CWD: {os.getcwd()}")
+	# print(f"CWD: {os.getcwd()}")
+
+	citra 		= os.listdir('data/training/')[1]
+	cwd 		= os.getcwd()
+	berkas 		= cwd + '\\data\\training\\' + citra
+
+	im 			= Image.open(berkas)
+	biner		= im.convert('L')
+	pixel 		= np.array(biner)
+	
+	greyscale 	= Image.fromarray(pixel)
+	greyscale.save('result/result_greyscale.jpg')
+
+	threshold 	= 256 / 2
+	binary 		= greyscale.point(lambda p: p > threshold and 255)
+	binary.save('result/result_binary.jpg')
+	pixel_binary= np.array(binary)
+
+	gmi 		= GMI(pixel_binary)
+	gmi.hitungMomenNormalisasi()
+	ciri 		= gmi.hitungCiri()
+	return str(ciri)
 
 	if request.method == 'POST':
 		
@@ -70,21 +92,35 @@ def pelatihan():
 
 		directory = strftime("%Y-%m-%d-%H-%M-%S")
 
-		if not os.path.exists(directory):
-			os.makedirs(directory)
+		# if not os.path.exists(directory):
+		# 	os.makedirs(directory)
 
-			with open(filename, mode = 'r') as file:
-				zip_file = zipfile.ZipFile(filename)
-				files = [zip_file.extract(fl, 'data/training/' + directory) for fl in zip_file.namelist()]
-				zip_file.close()
-			os.remove(filename)
+		with open(filename, mode = 'r') as file:
+			zip_file = zipfile.ZipFile(filename)
+			files = [zip_file.extract(fl, 'data/training/' + directory) for fl in zip_file.namelist()]
+			zip_file.close()
+		os.remove(filename)
 
-			# pelatihan disini
+		# pelatihan disini
+		citra = os.listdir('data/training/')
+		
+		citra[0] 	= Image.open(path).convert('L')
+		pixel 		= np.array(im)
+		greyscale 	= Image.fromarray(pixel)
+		greyscale.save('foto/result_greyscale.jpg')
+
+		threshold 	= 256 / 2
+		binary 		= greyscale.point(lambda p: p > threshold and 255)
+		binary.save('foto/result_binary.jpg')
+
+		gmi 		= GMI(pixel)
+		gmi.hitungMomenNormalisasi()
+		ciri = gmi.hitungCiri()
+		return str(ciri)
 
 
-
-			flash('Data pelatihan berhasil dilatih')
-			return redirect(url_for('.pelatihan'))
+		flash('Data pelatihan berhasil dilatih')
+		return redirect(url_for('.pelatihan'))
 
 	return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan'})
 
