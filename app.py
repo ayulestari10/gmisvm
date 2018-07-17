@@ -8,6 +8,7 @@ from time import gmtime, strftime
 import os
 from flaskext.mysql import MySQL
 import cv2
+from sklearn import svm
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -173,6 +174,33 @@ def insert():
 	print("Berhasil hoye")
 	return redirect('home')
 
+@app.route('/select_ciri')
+def select_ciri():
+	cur = mysql.get_db().cursor()
+	cur.execute("SELECT * FROM ciri")
+
+	# mysql.get_db().commit()
+	data = cur.fetchall()
+
+	x = np.array(data)
+	print(x[:,1])
+	ciri = x[:, 2:]
+
+	return str(ciri)
+
+@app.route('/select_kelas')
+def select_kelas():
+	cur = mysql.get_db().cursor()
+	cur.execute("SELECT * FROM ciri")
+
+	# mysql.get_db().commit()
+	data = cur.fetchall()
+
+	x = np.array(data)
+	kelas = x[:, 1]
+
+	return str(kelas)
+
 
 @app.route('/')
 def index():
@@ -221,7 +249,7 @@ def home():
 	return render_template('home.html')
 
 @app.route('/deteksi_wajah')
-def deteksi_wajah(image, dir1, dir2):
+def deteksi_wajah(proses, image, dir1, dir2):
 	
 	face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
 
@@ -242,7 +270,7 @@ def deteksi_wajah(image, dir1, dir2):
 		cv2.rectangle(img, (x,y), (x+w, y+h), (255, 255, 255))
 		sub_face = img[y:y+h, x:x+w]
 
-		face_file_name = "data/training/" + dir1 + "/" + dir2 + "/" + "01.jpg"
+		face_file_name = "data/" + proses + "/" + dir1 + "/" + dir2 + "/" + "01.jpg"
 		cv2.imwrite(face_file_name, sub_face)
 
 	return face_file_name
@@ -290,7 +318,7 @@ def pelatihan():
 			print("berkas = " + berkas)
 
 			# openCV
-			berkas_citra = deteksi_wajah(berkas, directory, dir2)
+			berkas_citra = deteksi_wajah("training", berkas, directory, dir2)
 
 			im 			= Image.open(berkas_citra)
 			biner		= im.convert('L')
@@ -335,6 +363,61 @@ def pelatihan():
 
 	return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan'})
 
-@app.route('/pengujian')
+
+@app.route('/pengujian', methods=['GET', 'POST'])
 def pengujian():
+
+	if request.method == "POST":
+		f = request.files['foto']
+		
+		directory = strftime("%Y-%m-%d-%H-%M-%S")
+
+		filename = 'data/testing/' + secure_filename(directory + '_' + f.filename)
+		f.save(filename)
+
+		cwd = os.getcwd()
+
+		# file_name	= os.listdir('data/testing/' + directory)[0]	
+		# 	print("file name = " + file_name)
+
+		berkas 		= cwd + "\\data\\testing\\" + secure_filename(directory + '_' + f.filename)
+		print("berkas = " + berkas)
+
+		if not os.path.exists(cwd + "\\data\\testing\\" + directory + "\\coba"):
+			os.makedirs(cwd + "\\data\\testing\\" + directory + "\\coba")
+			print(cwd + "\\data\\testing\\" + directory + "\\coba")
+
+		berkas_citra = deteksi_wajah("testing", berkas, directory, "coba")
+
+		im 			= Image.open(berkas_citra)
+		biner		= im.convert('L')
+		pixel 		= np.array(biner)
+		
+		greyscale 	= Image.fromarray(pixel)
+		greyscale.save('result/result_greyscale.jpg')
+
+		threshold 	= 256 / 2
+		binary 		= greyscale.point(lambda p: p > threshold and 255)
+		binary.save('result/result_binary.jpg')
+		pixel_binary= np.array(binary)
+
+		print(pixel_binary)
+		print(pixel_binary[2])
+
+		gmi 		= GMI(pixel_binary)
+		gmi.hitungMomenNormalisasi()
+		ciri 		= gmi.hitungCiri()
+		print(ciri)
+
+		# Klasifikasi dengan svm
+
+		kumpulan_ciri = select_ciri()
+		kumpulan_kelas= select_kelas()
+
+		clf = svm.SVC()
+		clf.fit(kumpulan_ciri, kumpulan_kelas)
+
+		clf.predict
+
 	return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'})
+
