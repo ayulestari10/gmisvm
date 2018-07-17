@@ -242,7 +242,7 @@ def deteksi_wajah(image, dir1, dir2):
 		cv2.rectangle(img, (x,y), (x+w, y+h), (255, 255, 255))
 		sub_face = img[y:y+h, x:x+w]
 
-		face_file_name = "data/training/" + dir1 + "/" + dir2 + "01.jpg"
+		face_file_name = "data/training/" + dir1 + "/" + dir2 + "/" + "01.jpg"
 		cv2.imwrite(face_file_name, sub_face)
 
 	return face_file_name
@@ -293,14 +293,14 @@ def pelatihan():
 			berkas_citra = deteksi_wajah(berkas, directory, dir2)
 
 			im 			= Image.open(berkas_citra)
-			# biner		= im.convert('L')
-			# pixel 		= np.array(biner)
+			biner		= im.convert('L')
+			pixel 		= np.array(biner)
 			
-			# greyscale 	= Image.fromarray(pixel)
-			# greyscale.save('result/result_greyscale.jpg')
+			greyscale 	= Image.fromarray(pixel)
+			greyscale.save('result/result_greyscale.jpg')
 
 			threshold 	= 256 / 2
-			binary 		= im.point(lambda p: p > threshold and 255)
+			binary 		= greyscale.point(lambda p: p > threshold and 255)
 			binary.save('result/result_binary.jpg')
 			pixel_binary= np.array(binary)
 

@@ -55,6 +55,13 @@ class GMI():
         self.mt12 = self.momenNormalisasi(1, 2)
         self.mt21 = self.momenNormalisasi(2, 1)
         self.mt03 = self.momenNormalisasi(0, 3)
+        print(f"mt20 = {self.mt20}")
+        print(f"mt02 = {self.mt02}")
+        print(f"mt11 = {self.mt11}")
+        print(f"mt30 = {self.mt30}")
+        print(f"mt12 = {self.mt12}")
+        print(f"mt21 = {self.mt21}")
+        print(f"mt03 = {self.mt03}")
         
 
     def hitungCiri(self):
