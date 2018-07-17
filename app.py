@@ -61,8 +61,74 @@ def deteksi2():
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 
-	
+	facecnt = len(faces)
+	print("Detected faces: %d" % facecnt)
+	i = 0
+	height, width = img.shape[:2]
 
+	for (x, y, w, h) in faces:
+		r = max(w, h) / 2
+		centerx = x + w / 2
+		centery = y + h / 2
+		nx = int(centerx - r)
+		ny = int(centery - r)
+		nr = int(r * 2)
+
+		faceimg = img[ny:ny+nr, nx:nx+nr]
+		lastimg = cv2.resize(faceimg, (32, 32))
+		i += 1
+		cv2.imwrite("image%d.jpg" % i, lastimg)
+
+		if __name__ == '__main__':
+			args = sys.argv
+			argc = len(args)
+
+			if (argc != 2):
+			    print('Usage: %s [image file]' % args[0])
+			    quit()
+
+			detecter = FaceCropper()
+			detecter.generate(args[1], True)
+
+
+@app.route('/deteksi3')
+def deteksi3():
+	
+	face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+
+	# eye_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_eye.xml')
+	img = cv2.imread('D:\\coba2.jpg')
+	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+	faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+	for (x,y,w,h) in faces:
+	    cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+	    roi_gray = gray[y:y+h, x:x+w]
+	    roi_color = img[y:y+h, x:x+w]
+	    # eyes = eye_cascade.detectMultiScale(roi_gray)
+	    # for (ex,ey,ew,eh) in eyes:
+	    #     cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+	cv2.imshow('img',img)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
+
+	for f in faces:
+		x, y, w, h = [v for v in f]
+		cv2.rectangle(img, (x,y), (x+w, y+h), (255, 255, 255))
+		sub_face = img[y:y+h, x:x+w]
+
+		face_file_name = "result/face_" + str(y) + ".jpg"
+		cv2.imwrite(face_file_name, sub_face)
+
+	return redirect('home')
+
+	# if __name__ :  
+	# 	facechop("D:\\lena.jpg")
+
+	# 	while(True):
+	# 		key = cv2.waitKey(20)
+	# 		if key in [27, ord('Q'), ord('q')]:
+	# 			break
 
 
 
@@ -154,6 +220,32 @@ def coba():
 def home():
 	return render_template('home.html')
 
+@app.route('/deteksi_wajah')
+def deteksi_wajah(image, dir1, dir2):
+	
+	face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+
+	img = cv2.imread(image)
+	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+	faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+	for (x,y,w,h) in faces:
+	    cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+	    roi_gray = gray[y:y+h, x:x+w]
+	    roi_color = img[y:y+h, x:x+w]
+	cv2.imshow('img',img)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
+
+	for f in faces:
+		x, y, w, h = [v for v in f]
+		cv2.rectangle(img, (x,y), (x+w, y+h), (255, 255, 255))
+		sub_face = img[y:y+h, x:x+w]
+
+		face_file_name = "data/training/" + dir1 + "/" + dir2 + "01.jpg"
+		cv2.imwrite(face_file_name, sub_face)
+
+	return face_file_name
 
 # https://stackoverflow.com/questions/41965026/extracting-all-the-files-of-a-selected-extension-from-a-zipped-file
 @app.route('/pelatihan', methods=['GET', 'POST'])
@@ -196,7 +288,11 @@ def pelatihan():
 			berkas 		= cwd + '\\data\\training\\' + directory + '\\' + dir2 + '\\' + file_name
 
 			print("berkas = " + berkas)
-			im 			= Image.open(berkas)
+
+			# openCV
+			berkas_citra = deteksi_wajah(berkas, directory, dir2)
+
+			im 			= Image.open(berkas_citra)
 			# biner		= im.convert('L')
 			# pixel 		= np.array(biner)
 			
@@ -207,6 +303,9 @@ def pelatihan():
 			binary 		= im.point(lambda p: p > threshold and 255)
 			binary.save('result/result_binary.jpg')
 			pixel_binary= np.array(binary)
+
+			print(pixel_binary)
+			print(pixel_binary[2])
 
 			gmi 		= GMI(pixel_binary)
 			gmi.hitungMomenNormalisasi()
