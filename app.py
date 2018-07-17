@@ -23,17 +23,41 @@ mysql.init_app(app)
 
 @app.route('/insert', methods = ['POST', 'GET'])
 def insert():
-	nilai_ciri1 = 1.1
-	nilai_ciri2 = 1.2
-	nilai_ciri3 = 1.3
-	nilai_ciri4 = 1.4
-	nilai_ciri5 = 1.5
-	nilai_ciri6 = 1.6
-	nilai_ciri7 = 1.7
-	nilai_id_kelas = 2
+	citra 		= os.listdir('data/training/')[1]
+	cwd 		= os.getcwd()
+	berkas 		= cwd + '\\data\\training\\' + citra
+
+	im 			= Image.open(berkas)
+	biner		= im.convert('L')
+	pixel 		= np.array(biner)
+	
+	greyscale 	= Image.fromarray(pixel)
+	greyscale.save('result/result_greyscale.jpg')
+
+	threshold 	= 256 / 2
+	binary 		= greyscale.point(lambda p: p > threshold and 255)
+	binary.save('result/result_binary.jpg')
+	pixel_binary= np.array(binary)
+
+	gmi 		= GMI(pixel_binary)
+	gmi.hitungMomenNormalisasi()
+	ciri 		= gmi.hitungCiri()
+
+	# ciri = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+	jenis_kelas = ['Marah', 'Bahagia']
+		
+	nilai_ciri1 = ciri[0]
+	nilai_ciri2 = ciri[1]
+	nilai_ciri3 = ciri[2]
+	nilai_ciri4 = ciri[3]
+	nilai_ciri5 = ciri[4]
+	nilai_ciri6 = ciri[5]
+	nilai_ciri7 = ciri[6]
+	kelas 		= "Sedih"
 
 	cur = mysql.get_db().cursor()
-	cur.execute("INSERT INTO ciri (id_kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%d, %f, %f, %f, %f, %f, %f, %f )" % (nilai_id_kelas, nilai_ciri1, nilai_ciri2, nilai_ciri3, nilai_ciri4, nilai_ciri5, nilai_ciri6, nilai_ciri7) )
+	cur.execute("INSERT INTO ciri (kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
+
 	mysql.get_db().commit()
 	print("Berhasil hoye")
 	return redirect('home')
@@ -91,45 +115,6 @@ def home():
 def pelatihan():
 	# print(f"CWD: {os.getcwd()}")
 
-	citra 		= os.listdir('data/training/')[1]
-	cwd 		= os.getcwd()
-	berkas 		= cwd + '\\data\\training\\' + citra
-
-	im 			= Image.open(berkas)
-	biner		= im.convert('L')
-	pixel 		= np.array(biner)
-	
-	greyscale 	= Image.fromarray(pixel)
-	greyscale.save('result/result_greyscale.jpg')
-
-	threshold 	= 256 / 2
-	binary 		= greyscale.point(lambda p: p > threshold and 255)
-	binary.save('result/result_binary.jpg')
-	pixel_binary= np.array(binary)
-
-	gmi 		= GMI(pixel_binary)
-	gmi.hitungMomenNormalisasi()
-	ciri 		= gmi.hitungCiri()
-
-	# ciri = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
-		
-	nilai_ciri1 = ciri[0]
-	nilai_ciri2 = ciri[1]
-	nilai_ciri3 = ciri[2]
-	nilai_ciri4 = ciri[3]
-	nilai_ciri5 = ciri[4]
-	nilai_ciri6 = ciri[5]
-	nilai_ciri7 = ciri[6]
-	kelas 		= 1
-
-	cur = mysql.get_db().cursor()
-	cur.execute("INSERT INTO ciri (kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % (kelas, ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]) )
-
-	mysql.get_db().commit()
-	print("Berhasil hoye")
-	return redirect('home')
-
-
 	if request.method == 'POST':
 		
 		f = request.files['zip_file']
@@ -148,21 +133,57 @@ def pelatihan():
 		os.remove(filename)
 
 		# pelatihan disini
-		citra = os.listdir('data/training/')
-		
-		citra[0] 	= Image.open(path).convert('L')
-		pixel 		= np.array(im)
-		greyscale 	= Image.fromarray(pixel)
-		greyscale.save('foto/result_greyscale.jpg')
+		dir1 		= os.listdir('data/training/' + directory)
+		cwd 		= os.getcwd()
 
-		threshold 	= 256 / 2
-		binary 		= greyscale.point(lambda p: p > threshold and 255)
-		binary.save('foto/result_binary.jpg')
+		for i in range(6):
+			print(i)
 
-		gmi 		= GMI(pixel)
-		gmi.hitungMomenNormalisasi()
-		ciri = gmi.hitungCiri()
-		return str(ciri)
+			dir2		= os.listdir('data/training/' + directory + '/') [i]
+			print("dir 2 = " + dir2)
+
+			jenis_kelas = dir1[i]
+			print("jenis kelas = " + jenis_kelas)
+
+			file_name	= os.listdir('data/training/' + directory + '/' + dir2)[0]	
+			print("file name = " + file_name)
+
+			berkas 		= cwd + '\\data\\training\\' + directory + '\\' + dir2 + '\\' + file_name
+
+			print("berkas = " + berkas)
+			im 			= Image.open(berkas)
+			# biner		= im.convert('L')
+			# pixel 		= np.array(biner)
+			
+			# greyscale 	= Image.fromarray(pixel)
+			# greyscale.save('result/result_greyscale.jpg')
+
+			threshold 	= 256 / 2
+			binary 		= im.point(lambda p: p > threshold and 255)
+			binary.save('result/result_binary.jpg')
+			pixel_binary= np.array(binary)
+
+			gmi 		= GMI(pixel_binary)
+			gmi.hitungMomenNormalisasi()
+			ciri 		= gmi.hitungCiri()
+
+			nilai_ciri1 = ciri[0]
+			nilai_ciri2 = ciri[1]
+			nilai_ciri3 = ciri[2]
+			nilai_ciri4 = ciri[3]
+			nilai_ciri5 = ciri[4]
+			nilai_ciri6 = ciri[5]
+			nilai_ciri7 = ciri[6]
+			kelas 		= jenis_kelas
+
+			cur = mysql.get_db().cursor()
+			cur.execute("INSERT INTO ciri (kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
+
+			print("INSERT INTO ciri (kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
+
+			mysql.get_db().commit()
+		# print("Berhasil hoye")
+		# return redirect('home')
 
 
 		flash('Data pelatihan berhasil dilatih')
