@@ -9,6 +9,7 @@ import os
 from flaskext.mysql import MySQL
 import cv2
 from sklearn import svm
+import json
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -21,75 +22,6 @@ app.config['MYSQL_DATABASE_USER'] 		= 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] 	= ''
 app.config['MYSQL_DATABASE_DB'] 			= 'gmisvm'
 mysql.init_app(app)
-
-@app.route('/deteksi')
-def deteksi():
-	face_cascade = cv.CascadeClassifier('haarcascade_frontalface_default.xml')
-	eye_cascade = cv.CascadeClassifier('haarcascade_eye.xml')
-	img = cv.imread('D:\\lena.jpg')
-	gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-
-	faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-	for (x,y,w,h) in faces:
-	    cv.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
-	    roi_gray = gray[y:y+h, x:x+w]
-	    roi_color = img[y:y+h, x:x+w]
-	    eyes = eye_cascade.detectMultiScale(roi_gray)
-	    for (ex,ey,ew,eh) in eyes:
-	        cv.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
-	cv.imshow('img',img)
-	cv.waitKey(0)
-	cv.destroyAllWindows()
-
-@app.route('/deteksi2')
-def deteksi2():
-	
-	face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
-
-	eye_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_eye.xml')
-	img = cv2.imread('D:\\lena.jpg')
-	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-	faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-	for (x,y,w,h) in faces:
-	    cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
-	    roi_gray = gray[y:y+h, x:x+w]
-	    roi_color = img[y:y+h, x:x+w]
-	    eyes = eye_cascade.detectMultiScale(roi_gray)
-	    for (ex,ey,ew,eh) in eyes:
-	        cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
-	cv2.imshow('img',img)
-	cv2.waitKey(0)
-	cv2.destroyAllWindows()
-
-	facecnt = len(faces)
-	print("Detected faces: %d" % facecnt)
-	i = 0
-	height, width = img.shape[:2]
-
-	for (x, y, w, h) in faces:
-		r = max(w, h) / 2
-		centerx = x + w / 2
-		centery = y + h / 2
-		nx = int(centerx - r)
-		ny = int(centery - r)
-		nr = int(r * 2)
-
-		faceimg = img[ny:ny+nr, nx:nx+nr]
-		lastimg = cv2.resize(faceimg, (32, 32))
-		i += 1
-		cv2.imwrite("image%d.jpg" % i, lastimg)
-
-		if __name__ == '__main__':
-			args = sys.argv
-			argc = len(args)
-
-			if (argc != 2):
-			    print('Usage: %s [image file]' % args[0])
-			    quit()
-
-			detecter = FaceCropper()
-			detecter.generate(args[1], True)
 
 
 @app.route('/deteksi3')
@@ -181,12 +113,12 @@ def select_ciri():
 
 	# mysql.get_db().commit()
 	data = cur.fetchall()
-
 	x = np.array(data)
 	print(x[:,1])
 	ciri = x[:, 2:]
+	kum_ciri = ciri.astype(np.float)
 
-	return str(ciri)
+	return kum_ciri
 
 @app.route('/select_kelas')
 def select_kelas():
@@ -412,12 +344,17 @@ def pengujian():
 		# Klasifikasi dengan svm
 
 		kumpulan_ciri = select_ciri()
+		print("Ini ciri")
+		print(kumpulan_ciri)
 		kumpulan_kelas= select_kelas()
 
-		clf = svm.SVC()
-		clf.fit(kumpulan_ciri, kumpulan_kelas)
+		lin_clf = svm.LinearSVC()
+		lin_clf.fit(kumpulan_ciri, kumpulan_kelas)
 
-		clf.predict
+		dec = lin_clf.decision_function([[1]])
+		hasil = dec.shape[1]
+		print("Ini hasilnya = " + hasil)
 
 	return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'})
+
 
