@@ -73,6 +73,6 @@ class GMI():
         ciri[3] = ( (self.mt30 + self.mt12) ** 2 ) + ( (self.mt21 + self.mt03) ** 2 )
         ciri[4] = (self.mt30 - (3*self.mt12)) * (self.mt30 + self.mt12) * (((self.mt30 + self.mt12) ** 2) - (3 * ((self.mt21 + self.mt03) ** 2)) ) + ((3*self.mt21) - self.mt03) * (self.mt21 + self.mt03) * ( ( 3*(self.mt30 + self.mt12)**2 ) - ((self.mt21 + self.mt03) **2 ) )     
         ciri[5] = (self.mt20 - self.mt02) * ( ((self.mt30 + self.mt12) ** 2) - ((self.mt21 + self.mt03) ** 2) ) + 4 * self.mt11 * (self.mt30 + self.mt12) * (self.mt21 + self.mt03)
-        ciri[6] = ((3*(self.mt21)) - self.mt03) * (self.mt30 + self.mt12) * ( ( (self.mt30 + self.mt12) ** 2) - 3 * ((self.mt21 + self.mt03) ** 2)) + ((3*(self.mt30 + self.mt12) ** 2)) * (self.mt21 + self.mt03) * ( (3*(self.mt30 + self.mt12) ** 2) - ((self.mt21 + self.mt03) ** 2) )
+        ciri[6] = ((3*(self.mt21)) - self.mt03) * (self.mt30 + self.mt12) * ( ( (self.mt30 + self.mt12) ** 2) - (3 * (self.mt21 + self.mt03) ** 2) ) + ( (3*self.mt21) - self.mt30) * (self.mt21 + self.mt03) * ( (3*(self.mt30 + self.mt12) ** 2) - ((self.mt21 + self.mt03) ** 2) )
         
         return ciri

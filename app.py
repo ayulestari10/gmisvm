@@ -154,23 +154,23 @@ def index():
 	print("ayu")
 
 	matrix = np.array([
-	    [1, 4, 3],
+	    [1, 4, 3], 
 	    [5, 2, 4],
 	    [9, 7, 8]
 	])
 
-	path = "D:\\Citra Lena.jpg"
+	# path = "D:\\Citra Lena.jpg"
 
-	im = Image.open(path).convert('L')
-	pixel = np.array(im)
-	greyscale = Image.fromarray(pixel)
-	greyscale.save('foto/result_greyscale.jpg')
+	# im = Image.open(path).convert('L')
+	# pixel = np.array(im)
+	# greyscale = Image.fromarray(pixel)
+	# greyscale.save('foto/result_greyscale.jpg')
 
-	threshold = 256 / 2
-	binary = greyscale.point(lambda p: p > threshold and 255)
-	binary.save('foto/result_binary.jpg')
+	# threshold = 256 / 2
+	# binary = greyscale.point(lambda p: p > threshold and 255)
+	# binary.save('foto/result_binary.jpg')
 
-	gmi = GMI(pixel)
+	gmi = GMI(matrix)
 	gmi.hitungMomenNormalisasi()
 	ciri = gmi.hitungCiri()
 	return str(ciri)
@@ -361,7 +361,7 @@ def pengujian():
 		print(kumpulan_ciri)
 		kumpulan_kelas= select_kelasV2()
 		print(f"Features: {kumpulan_ciri.shape}")
-		lin_clf = SVC(kernel='linear', probability=True, class_weight='balanced')
+		lin_clf = SVC(gamma= 0.001, C=100)
 		lin_clf.fit(kumpulan_ciri, encode_class(kumpulan_kelas))
 
 		# dec = lin_clf.decision_function(kumpulan_ciri)
