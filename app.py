@@ -361,7 +361,7 @@ def pengujian():
 		print(kumpulan_ciri)
 		kumpulan_kelas= select_kelasV2()
 		print(f"Features: {kumpulan_ciri.shape}")
-		lin_clf = SVC(gamma= 0.001, C=100)
+		lin_clf = SVC(gamma= 0.1, C=10000, kernel='linear')
 		lin_clf.fit(kumpulan_ciri, encode_class(kumpulan_kelas))
 
 		# dec = lin_clf.decision_function(kumpulan_ciri)
