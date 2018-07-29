@@ -211,6 +211,8 @@ def deteksi_wajah(proses, image, dir1, dir2):
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 
+	global face_file_name
+	
 	for f in faces:
 		x, y, w, h = [v for v in f]
 		cv2.rectangle(img, (x,y), (x+w, y+h), (255, 255, 255))
