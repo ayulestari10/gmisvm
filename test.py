@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import MySQLdb
-from sklearn import svm
-from sklearn.model_selection import GridSearchCV
+from sklearn import svm, tree, datasets
+from sklearn.model_selection import GridSearchCV, KFold
+from sklearn.multiclass import OneVsRestClassifier
 
 db = MySQLdb.connect("localhost", "root", "", "gmisvm")
 cursor = db.cursor()
@@ -24,15 +25,40 @@ def encode_class(labels):
 	}
 	return [dct[str(label)] for label in labels]
 
-parameters = {'kernel': ('linear', 'rbf', 'sigmoid', 'poly'), 'C': [0.1, 1, 10, 100, 1000, 1000, 10000, 100000, 1000000, 2000000], 'gamma': [0.1, 0.001, 0.0001, 0.00001, 1, 10, 100], 'degree': [3, 4, 5, 6, 7]}
-svc = svm.SVC()
-clf = GridSearchCV(svc, parameters)
-clf.fit(features, labels)
-params = clf.best_params_
-print(clf.best_params_)
-svc = svm.SVC(gamma=params["gamma"], C=params["C"], kernel=params["kernel"], degree=params["degree"], random_state=1)
-svc.fit(features, labels)
-print(f"Score: {round(svc.score(features, labels) * 100, 2)}%")
+# parameters = {'kernel': ('linear', 'rbf', 'sigmoid', 'poly'), 'C': [0.1, 1, 10, 100, 1000, 1000, 10000, 100000, 1000000, 2000000], 'gamma': [0.1, 0.001, 0.0001, 0.00001, 1, 10, 100], 'degree': [3, 4, 5, 6, 7]}
+# svc = svm.SVC()
+# clf = GridSearchCV(svc, parameters)
+# clf.fit(features, labels)
+# params = clf.best_params_
+# print(clf.best_params_)
+# svc = svm.SVC(gamma=params["gamma"], C=params["C"], kernel=params["kernel"], degree=params["degree"], random_state=1)
+# svc.fit(features, labels)
+# print(f"Score svm: {round(svc.score(features, labels) * 100, 2)}%")
+from sklearn.neighbors.nearest_centroid import NearestCentroid
+
+
+kf = KFold(n_splits=10, random_state=1, shuffle=True)
+for i, (train_index, test_index) in enumerate(kf.split(features)):
+	# t = tree.DecisionTreeClassifier()
+	# t.fit(X[train_index], y[train_index])
+	# print(f"Score k-{i + 1} tree: {round(t.score(X[test_index], y[test_index]) * 100, 2)}%")
+	# parameters = {'kernel': ('linear', 'rbf', 'sigmoid', 'poly'), 'C': [0.1, 1, 10, 100, 1000, 1000, 10000, 100000, 1000000, 2000000], 'gamma': [0.1, 0.001, 0.0001, 0.00001, 1, 10, 100], 'degree': [3, 4, 5, 6, 7]}
+	clf = NearestCentroid()
+	# print(f"ini param = {parameters}")
+	# clf = GridSearchCV(clf, parameters)
+	# clf.fit(features[train_index], labels[train_index])
+	# params = clf.best_params_
+	# print(clf.best_params_)
+	# clf = svm.SVC(gamma=params["gamma"], C=params["C"], kernel=params["kernel"], degree=params["degree"], random_state=1)
+	clf.fit(features[train_index], labels[train_index])
+	print(f"Score k-{i + 1} svm: {round(clf.score(features[test_index], labels[test_index]) * 100, 2)}%")
+
+# t.fit(features, labels)
+# print(f"Score tree: {round(t.score(features, labels) * 100, 2)}%")
+
+
+
+
 # colors = {
 # 	"bahagia": "red",
 # 	"jijik": "green",

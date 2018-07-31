@@ -25,47 +25,40 @@ app.config['MYSQL_DATABASE_DB'] 			= 'gmisvm'
 mysql.init_app(app)
 
 
-@app.route('/deteksi3')
-def deteksi3():
-	
-	face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+@app.route('/')
+def index():
+	print(app.root_path)
+	print("ayu")
 
-	# eye_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_eye.xml')
-	img = cv2.imread('D:\\coba2.jpg')
-	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+	matrix = np.array([
+	    [1, 4, 3], 
+	    [5, 2, 4],
+	    [9, 7, 8]
+	])
 
-	faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-	for (x,y,w,h) in faces:
-	    cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
-	    roi_gray = gray[y:y+h, x:x+w]
-	    roi_color = img[y:y+h, x:x+w]
-	    # eyes = eye_cascade.detectMultiScale(roi_gray)
-	    # for (ex,ey,ew,eh) in eyes:
-	    #     cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
-	cv2.imshow('img',img)
-	cv2.waitKey(0)
-	cv2.destroyAllWindows()
+	# path = "D:\\Citra Lena.jpg"
 
-	for f in faces:
-		x, y, w, h = [v for v in f]
-		cv2.rectangle(img, (x,y), (x+w, y+h), (255, 255, 255))
-		sub_face = img[y:y+h, x:x+w]
+	# im = Image.open(path).convert('L')
+	# pixel = np.array(im)
+	# greyscale = Image.fromarray(pixel)
+	# greyscale.save('foto/result_greyscale.jpg')
 
-		face_file_name = "result/face_" + str(y) + ".jpg"
-		cv2.imwrite(face_file_name, sub_face)
+	# threshold = 256 / 2
+	# binary = greyscale.point(lambda p: p > threshold and 255)
+	# binary.save('foto/result_binary.jpg')
 
-	return redirect('home')
-
-	# if __name__ :  
-	# 	facechop("D:\\lena.jpg")
-
-	# 	while(True):
-	# 		key = cv2.waitKey(20)
-	# 		if key in [27, ord('Q'), ord('q')]:
-	# 			break
+	gmi = GMI(matrix)
+	gmi.hitungMomenNormalisasi()
+	ciri = gmi.hitungCiri()
+	return str(ciri)
 
 
+@app.route('/home')
+def home():
+	return render_template('home.html')
 
+
+# Berhubungan dengan database
 @app.route('/insert', methods = ['POST', 'GET'])
 def insert():
 	citra 		= os.listdir('data/training/')[1]
@@ -82,7 +75,7 @@ def insert():
 	threshold 	= 256 / 2
 	binary 		= greyscale.point(lambda p: p > threshold and 255)
 	binary.save('result/result_binary.jpg')
-	pixel_binary= np.array(binary)
+	pixel_binary= np.array(binary.point(lambda p : p > threshold and 1))
 
 	gmi 		= GMI(pixel_binary)
 	gmi.hitungMomenNormalisasi()
@@ -147,53 +140,6 @@ def select_kelasV2():
 
 	return kelas
 
-
-@app.route('/')
-def index():
-	print(app.root_path)
-	print("ayu")
-
-	matrix = np.array([
-	    [1, 4, 3], 
-	    [5, 2, 4],
-	    [9, 7, 8]
-	])
-
-	# path = "D:\\Citra Lena.jpg"
-
-	# im = Image.open(path).convert('L')
-	# pixel = np.array(im)
-	# greyscale = Image.fromarray(pixel)
-	# greyscale.save('foto/result_greyscale.jpg')
-
-	# threshold = 256 / 2
-	# binary = greyscale.point(lambda p: p > threshold and 255)
-	# binary.save('foto/result_binary.jpg')
-
-	gmi = GMI(matrix)
-	gmi.hitungMomenNormalisasi()
-	ciri = gmi.hitungCiri()
-	return str(ciri)
-
-@app.route('/hasil')
-def hasil():
-	return render_template('index.html')
-
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_file():
-	if request.method == 'POST':
-		f = request.files['the_file']
-		f.save('foto/' + secure_filename(f.filename))
-	return render_template('upload.html')
-
-@app.route('/coba')
-def coba():
-	return render_template('layout.html', data = { 'view' : 'upload', 'params': { 'nama': 'h3h3' } })
-
-@app.route('/home')
-def home():
-	return render_template('home.html')
-
 @app.route('/deteksi_wajah')
 def deteksi_wajah(proses, image, dir1, dir2):
 	
@@ -223,10 +169,9 @@ def deteksi_wajah(proses, image, dir1, dir2):
 
 	return face_file_name
 
-# https://stackoverflow.com/questions/41965026/extracting-all-the-files-of-a-selected-extension-from-a-zipped-file
+
 @app.route('/pelatihan', methods=['GET', 'POST'])
 def pelatihan():
-	# print(f"CWD: {os.getcwd()}")
 
 	if request.method == 'POST':
 		
@@ -249,7 +194,7 @@ def pelatihan():
 		dir1 		= os.listdir('data/training/' + directory)
 		cwd 		= os.getcwd()
 
-		for i in range(6):
+		for i in range(7):
 			print(i)
 
 			dir2		= os.listdir('data/training/' + directory + '/') [i]
@@ -285,6 +230,13 @@ def pelatihan():
 				gmi 		= GMI(pixel_binary)
 				gmi.hitungMomenNormalisasi()
 				ciri 		= gmi.hitungCiri()
+				print(f"ini ciri sebelum = {ciri}")
+
+				ciri = -np.sign(ciri) * np.log10(np.abs(ciri))
+
+				# HU OpenCV
+				# ciri 		= cv2.HuMoments(cv2.moments(pixel_binary)).flatten()
+				print(f"ini ciri sesudah = {ciri}")
 
 				nilai_ciri1 = ciri[0]
 				nilai_ciri2 = ciri[1]
@@ -301,9 +253,6 @@ def pelatihan():
 				print("INSERT INTO ciri (kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
 
 				mysql.get_db().commit()
-		# print("Berhasil hoye")
-		# return redirect('home')
-
 
 		flash('Data pelatihan berhasil dilatih')
 		return redirect(url_for('.pelatihan'))
@@ -389,6 +338,79 @@ def encode_class(labels):
 
 def decode_class(labels, indices):
 	return [labels[idx] for idx in indices]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# percobaan pembuatan fungsi
+
+
+@app.route('/hasil')
+def hasil():
+	return render_template('index.html')
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+	if request.method == 'POST':
+		f = request.files['the_file']
+		f.save('foto/' + secure_filename(f.filename))
+	return render_template('upload.html')
+
+@app.route('/coba')
+def coba():
+	return render_template('layout.html', data = { 'view' : 'upload', 'params': { 'nama': 'h3h3' } })
+
+@app.route('/deteksi3')
+def deteksi3():
+	
+	face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+
+	# eye_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_eye.xml')
+	img = cv2.imread('D:\\coba2.jpg')
+	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+	faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+	for (x,y,w,h) in faces:
+	    cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+	    roi_gray = gray[y:y+h, x:x+w]
+	    roi_color = img[y:y+h, x:x+w]
+	    # eyes = eye_cascade.detectMultiScale(roi_gray)
+	    # for (ex,ey,ew,eh) in eyes:
+	    #     cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+	cv2.imshow('img',img)
+	cv2.waitKey(0)
+	cv2.destroyAllWindows()
+
+	for f in faces:
+		x, y, w, h = [v for v in f]
+		cv2.rectangle(img, (x,y), (x+w, y+h), (255, 255, 255))
+		sub_face = img[y:y+h, x:x+w]
+
+		face_file_name = "result/face_" + str(y) + ".jpg"
+		cv2.imwrite(face_file_name, sub_face)
+
+	return redirect('home')
+
+	# if __name__ :  
+	# 	facechop("D:\\lena.jpg")
+
+	# 	while(True):
+	# 		key = cv2.waitKey(20)
+	# 		if key in [27, ord('Q'), ord('q')]:
+	# 			break
 
 """
 [[ 2.61513918e-03,  1.01227846e-07,  2.59610000e-09,
