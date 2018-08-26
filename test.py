@@ -37,7 +37,7 @@ def encode_class(labels):
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 
 
-kf = KFold(n_splits=10, random_state=1, shuffle=True)
+kf = KFold(n_splits=2, random_state=1, shuffle=True)
 for i, (train_index, test_index) in enumerate(kf.split(features)):
 	# t = tree.DecisionTreeClassifier()
 	# t.fit(X[train_index], y[train_index])
