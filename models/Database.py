@@ -10,7 +10,7 @@ class Database:
 
 	def select_kelas(self, table):
 		try:
-			self.cur.execute("SELECT * FROM ciri_ck_modif")
+			self.cur.execute("SELECT * FROM ciri_ck")
 
 			data = self.cur.fetchall()
 
@@ -24,7 +24,7 @@ class Database:
 
 	def select_ciri(self, table):
 		try:
-			self.cur.execute("SELECT * FROM ciri_ck_modif")
+			self.cur.execute("SELECT * FROM ciri_ck")
 
 			data = self.cur.fetchall()
 			print(f"SELECTED: {data}")

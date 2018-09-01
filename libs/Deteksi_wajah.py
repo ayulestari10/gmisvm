@@ -1,12 +1,18 @@
 from flask import Flask, Blueprint, abort,  render_template, request, flash, redirect, url_for
 from PIL import Image
 import cv2, numpy as np, random
+from libs.GMI import GMI
+from libs.Praproses import Praproses
+from models.Database import Database
+from libs.Klasifikasi import Klasifikasi
+import MySQLdb
 
 
 class Deteksi_wajah:
 
 	page = Blueprint('Deteksi_wajah_page', __name__, template_folder = 'templates')
 	base = '/deteksi-wajah'
+	Db 	 = Database('localhost', 'root', '', 'gmisvm')
 
 	def __init__(self):
 		self.rectColor = {
@@ -63,19 +69,25 @@ class Deteksi_wajah:
 			cv2.imwrite(face_file_name, sub_face)
 
 			## start - klasifikasi
-			## ekspresi = classifier.predict(face_file_name)
-
-
-
-			## end - klasifikasi
-
-			# cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi]) 
-
-			# return face_file_name
-
-
-
-
 			
-		cv2.imwrite(f'data/testing/{directory}/img.jpg', img)
+			pra = Praproses()
+			sub_face = pra.biner(face_file_name)
+			print(f"Praproses = {sub_face}")
+
+			gmi 		= GMI(sub_face) 
+			gmi.hitungMomenNormalisasi()
+			ciri 		= gmi.hitungCiri()
+
+			kumpulan_ciri = Deteksi_wajah.Db.select_ciri('ciri')
+			kumpulan_kelas= Deteksi_wajah.Db.select_kelas('ciri')
+			
+			kl 			= Klasifikasi(kumpulan_ciri, kumpulan_kelas)			
+			ekspresi 	= kl.classify([ciri])
+			print(f'Klasifikasi = {ekspresi}')
+
+			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi]) 
+			
+			# end - klasifikasi
+
+		cv2.imwrite(f'data/testing/{directory}/Hasil.jpg', img)
 
