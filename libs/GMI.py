@@ -1,8 +1,10 @@
+from flask import Flask, Blueprint, abort
 import numpy as np
 
 class GMI():
     
-    # momenTernormalisasi20
+    page = Blueprint('GMI_page', __name__, template_folder = 'templates')
+    base = '/gmi'
     
     
     def __init__(self, img):

@@ -12,7 +12,19 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.multiclass import OneVsRestClassifier
 import json
 
+
+from libs.Deteksi_wajah import Deteksi_wajah
+from libs.Praproses import Praproses
+from libs.GMI import GMI
+from libs.Klasifikasi import Klasifikasi
+
 app = Flask(__name__)
+app.register_blueprint(Deteksi_wajah.page)
+app.register_blueprint(Praproses.page)
+app.register_blueprint(GMI.page)
+app.register_blueprint(Klasifikasi.page)
+
+
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
  
 mysql = MySQL()
@@ -60,7 +72,7 @@ def home():
 @app.route('/select_ciri')
 def select_ciri():
 	cur = mysql.get_db().cursor()
-	cur.execute("SELECT * FROM ciri_tanpa_biner")
+	cur.execute("SELECT * FROM ciri_ck_modif")
 
 	# mysql.get_db().commit()
 	data = cur.fetchall()
@@ -87,7 +99,7 @@ def select_kelas():
 
 def select_kelasV2():
 	cur = mysql.get_db().cursor()
-	cur.execute("SELECT * FROM ciri_tanpa_biner")
+	cur.execute("SELECT * FROM ciri_ck_modif")
 
 	# mysql.get_db().commit()
 	data = cur.fetchall()
@@ -106,13 +118,13 @@ def deteksi_wajah(proses, image, dir1, dir2):
 	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 	faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-	for (x,y,w,h) in faces:
-	    cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
-	    roi_gray = gray[y:y+h, x:x+w]
-	    roi_color = img[y:y+h, x:x+w]
+	# for (x,y,w,h) in faces: 
+	    # cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+	    # roi_gray = gray[y:y+h, x:x+w]
+	    # roi_color = img[y:y+h, x:x+w]
 	# cv2.imshow('img',img)
-	cv2.waitKey(0)
-	cv2.destroyAllWindows()
+	# cv2.waitKey(0)
+	# cv2.destroyAllWindows()
 
 	global face_file_name
 	
@@ -173,21 +185,35 @@ def pelatihan():
 				berkas_citra = deteksi_wajah("training", berkas, directory, dir2)
 
 				im 			= Image.open(berkas_citra)
-				biner		= im.convert('L')
-				pixel 		= np.array(biner)
+				im			= im.convert('L')
+				im 			= np.array(im)
+
+
+				equ = cv2.equalizeHist(im)
+
+				# Create our shapening kernel, it must equal to one eventually
+				# kernel_sharpening = np.array([[-1,-1,-1], [-1, 9,-1], [-1,-1,-1]])
+
+				# applying the sharpening kernel to the input image & displaying it.
+				# sharpened = cv2.filter2D(im, -1, kernel_sharpening)
+
 				
-				# greyscale 	= Image.fromarray(pixel)
-				# greyscale.save('result/result_greyscale.jpg')
+				greyscale 	= Image.fromarray(equ)
+				greyscale.save('result/equ/' + file + '.png')
+
+				 
+
 
 				# threshold 	= 256 / 2
 				# binary 		= greyscale.point(lambda p: p > threshold and 255)
-				# binary.save('result/result_binary.jpg')
+				# binary.save('result/result_binary9.jpg')
 				# pixel_binary= np.array(binary)
-				# gmi 		= GMI(pixel_binary)
 
-				gmi 		= GMI(pixel)
+				gmi 		= GMI(equ) 
 				gmi.hitungMomenNormalisasi()
 				ciri 		= gmi.hitungCiri()
+				
+
 				# print(f"ini ciri sebelum = {ciri}")
 
 				# ciri = -np.sign(ciri) * np.log10(np.abs(ciri))
@@ -206,9 +232,9 @@ def pelatihan():
 				kelas 		= jenis_kelas
 
 				cur = mysql.get_db().cursor()
-				cur.execute("INSERT INTO ciri_tanpa_biner (kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
+				cur.execute("INSERT INTO ciri_his_equ(kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
 
-				print("INSERT INTO ciri_tanpa_biner (kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
+				print("INSERT INTO ciri_his_equ(kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
 
 				mysql.get_db().commit()
 
@@ -216,6 +242,22 @@ def pelatihan():
 		return redirect(url_for('.pelatihan'))
 
 	return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan'})
+
+def encode_class(labels):
+	dct = {
+		"bahagia": 0,
+		"jijik": 1,
+		"kaget": 2,
+		"marah": 3,
+		"natural": 4,
+		"sedih": 5,
+		"takut": 6
+	}
+	return [dct[str(label)] for label in labels]
+
+def decode_class(labels, indices):
+	return [labels[idx] for idx in indices]
+
 
 
 @app.route('/pengujian', methods=['GET', 'POST'])
@@ -267,11 +309,13 @@ def pengujian():
 		# Klasifikasi dengan svm
 
 		kumpulan_ciri = select_ciri()
-		print("Ini ciri")
-		print(kumpulan_ciri)
+		# print("Ini ciri")
+		# print(kumpulan_ciri)
 		kumpulan_kelas= select_kelasV2()
-		print(f"Features: {kumpulan_ciri.shape}")
-		lin_clf = SVC(gamma= 0.1, C=10000, kernel='linear')
+		# print(f"Features: {kumpulan_ciri.shape}")
+		
+		# lin_clf = SVC(gamma= 0.1, C=10000, kernel='linear')
+		lin_clf = LinearSVC()
 		lin_clf.fit(kumpulan_ciri, encode_class(kumpulan_kelas))
 
 		# dec = lin_clf.decision_function(kumpulan_ciri)
@@ -287,20 +331,49 @@ def pengujian():
 	return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'})
 
 
-def encode_class(labels):
-	dct = {
-		"bahagia": 0,
-		"jijik": 1,
-		"kaget": 2,
-		"marah": 3,
-		"natural": 4,
-		"sedih": 5,
-		"takut": 6
-	}
-	return [dct[str(label)] for label in labels]
 
-def decode_class(labels, indices):
-	return [labels[idx] for idx in indices]
+
+
+
+def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
+    # initialize the dimensions of the image to be resized and
+    # grab the image size
+    dim = None
+    (h, w) = image.shape[:2]
+
+    # if both the width and height are None, then return the
+    # original image
+    if width is None and height is None:
+        return image
+
+    # check to see if the width is None
+    if width is None:
+        # calculate the ratio of the height and construct the
+        # dimensions
+        r = height / float(h)
+        dim = (int(w * r), height)
+
+    # otherwise, the height is None
+    else:
+        # calculate the ratio of the width and construct the
+        # dimensions
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    # resize the image
+    resized = cv2.resize(image, dim, interpolation = inter)
+
+    # return the resized image
+    return resized
+
+
+
+
+
+
+
+
+
 
 
 

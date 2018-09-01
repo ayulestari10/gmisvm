@@ -7,7 +7,7 @@ from sklearn.multiclass import OneVsRestClassifier
 
 db = MySQLdb.connect("localhost", "root", "", "gmisvm")
 cursor = db.cursor()
-cursor.execute("SELECT * FROM ciri_tanpa_biner")
+cursor.execute("SELECT * FROM data_60")
 data = list(cursor.fetchall())
 data = np.array(list(data))
 features = data[:, 2:].astype(np.float64)
@@ -38,11 +38,12 @@ from sklearn import datasets
 
 
 k_scores = []
-kf = KFold(n_splits=5, random_state=1, shuffle=True)
+kf = KFold(n_splits=10, random_state=1, shuffle=True)
 
 for i, (train_index, test_index) in enumerate(kf.split(features)):
 
-	clf = svm.SVC(gamma=0.1, C=10000, kernel="linear")
+	# clf = OneVsRestClassifier(svm.LinearSVC())
+	clf = BernoulliNB()
 	clf.fit(features[train_index], labels[train_index])
 	scores = round(clf.score(features[test_index], labels[test_index]) * 100, 2)
 	k_scores.append(scores)
