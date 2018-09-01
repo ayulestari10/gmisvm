@@ -6,7 +6,6 @@ from PIL import Image
 import zipfile
 from time import gmtime, strftime
 import os
-from flaskext.mysql import MySQL
 import cv2
 from sklearn.svm import SVC, LinearSVC
 from sklearn.multiclass import OneVsRestClassifier
@@ -19,6 +18,7 @@ from libs.Deteksi_wajah import Deteksi_wajah
 from libs.Praproses import Praproses
 from libs.GMI import GMI
 from libs.Klasifikasi import Klasifikasi
+# from models.Database import Database
 
 app = Flask(__name__)
 app.register_blueprint(Ekspresi_wajah.page)
@@ -30,14 +30,12 @@ app.register_blueprint(Klasifikasi.page)
 
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
  
-mysql = MySQL()
 
 # MySQL configurations
-app.config['MYSQL_DATABASE_HOST'] 		= 'localhost'
-app.config['MYSQL_DATABASE_USER'] 		= 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] 	= ''
-app.config['MYSQL_DATABASE_DB'] 			= 'gmisvm'
-mysql.init_app(app)
+# app.config['MYSQL_DATABASE_HOST'] 		= 'localhost'
+# app.config['MYSQL_DATABASE_USER'] 		= 'root'
+# app.config['MYSQL_DATABASE_PASSWORD'] 	= ''
+# app.config['MYSQL_DATABASE_DB'] 		= 'gmisvm'
 
 
 @app.route('/')

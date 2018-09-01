@@ -1,39 +1,48 @@
 from flask import Flask, Blueprint, abort
-
-mysql = MySQL()
-
-# MySQL configurations
-app.config['MYSQL_DATABASE_HOST'] 		= 'localhost'
-app.config['MYSQL_DATABASE_USER'] 		= 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] 	= ''
-app.config['MYSQL_DATABASE_DB'] 			= 'gmisvm'
-mysql.init_app(app)
+import MySQLdb
+import numpy as np
 
 class Database:
 
-	page = Blueprint('Database_page', __name__, template_folder = 'templates')
-	base = 'database'
+	def __init__(self, hostname, username, password, database):
+		self.db = MySQLdb.connect(hostname, username, password, database)
+		self.cur = self.db.cursor()
 
-	def select_kelas(table):
-		cur = mysql.get_db().cursor()
-		cur.execute("SELECT * FROM ciri_ck_modif")
+	def select_kelas(self, table):
+		try:
+			self.cur.execute("SELECT * FROM ciri_ck_modif")
 
-		data = cur.fetchall()
+			data = self.cur.fetchall()
 
-		x = np.array(data)
-		kelas = x[:, 1]
+			x = np.array(data)
+			kelas = x[:, 1]
 
-		return kelas
+			return kelas
+		except:
+			print("error")
+			return None
 
-	def select_ciri(table):
-		cur = mysql.get_db().cursor()
-		cur.execute("SELECT * FROM ciri_ck_modif")
+	def select_ciri(self, table):
+		try:
+			self.cur.execute("SELECT * FROM ciri_ck_modif")
 
-		data = cur.fetchall()
-		print(f"SELECTED: {data}")
-		x = np.array(data)
-		print(x[:,1])
-		ciri = x[:, 2:]
-		kum_ciri = ciri.astype(np.float64)
+			data = self.cur.fetchall()
+			print(f"SELECTED: {data}")
+			x = np.array(data)
+			print(x[:,1])
+			ciri = x[:, 2:]
+			kum_ciri = ciri.astype(np.float64)
 
-		return kum_ciri
+			return kum_ciri
+		except:
+			print("error")
+			return None
+
+	def insert_ciri(self, table, kelas, ciri):
+
+		try:
+			self.cur.execute("INSERT INTO "+ table +"(kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
+
+			self.db.commit()
+		except:
+			self.db.rollback()

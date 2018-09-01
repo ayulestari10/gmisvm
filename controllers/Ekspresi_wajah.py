@@ -1,12 +1,23 @@
 from flask import Flask, Blueprint, abort,  render_template, request, flash, redirect, url_for
 from PIL import Image
 from jinja2 import TemplateNotFound
+import numpy as np
+import zipfile
+from time import gmtime, strftime
+import os
+from werkzeug.utils import secure_filename
+
+from libs.Deteksi_wajah import Deteksi_wajah
+from libs.GMI import GMI
+from models.Database import Database
+from libs.Klasifikasi import Klasifikasi
 
 class Ekspresi_wajah:
 
 	page = Blueprint('Ekspresi_wajah_page', __name__, template_folder = 'templates')
 	base = '/ekspresi-wajah'
-
+	Db = Database('localhost', 'root', '', 'gmisvm')
+	Dw = Deteksi_wajah()
 
 	@page.route(f'{base}/')
 	def home():
@@ -15,7 +26,7 @@ class Ekspresi_wajah:
 		except TemplateNotFound:
 			abort(404)
 
-	@page.route(f'{base}/pelatihan')
+	@page.route(f'{base}/pelatihan', methods=['GET', 'POST'])
 	def pelatihan():
 		if request.method == 'POST':
 		
@@ -57,108 +68,87 @@ class Ekspresi_wajah:
 					print("berkas = " + berkas)
 
 					# openCV
-					berkas_citra = deteksi_wajah("training", berkas, directory, dir2)
+					berkas_citra = Ekspresi_wajah.Dw.deteksi(berkas, directory, dir2)
 
 					im 			= Image.open(berkas_citra)
 					im			= im.convert('L')
 					im 			= np.array(im)
 
-					greyscale 	= Image.fromarray(equ)
-					greyscale.save('result/equ/' + file + '.png')
+					grayscale 	= Image.fromarray(im)
+					threshold 	= 256 / 2
+					binary 		= grayscale.point(lambda p: p > threshold and 255)
+					binary.save('result/'+ file +'.png')
+					pixel_binary= np.array(binary)
 
-					# threshold 	= 256 / 2
-					# binary 		= greyscale.point(lambda p: p > threshold and 255)
-					# binary.save('result/result_binary9.jpg')
-					# pixel_binary= np.array(binary)
-
-					gmi 		= GMI(equ) 
+					gmi 		= GMI(pixel_binary) 
 					gmi.hitungMomenNormalisasi()
 					ciri 		= gmi.hitungCiri()
-					
-
-					# print(f"ini ciri sebelum = {ciri}")
-
-					# ciri = -np.sign(ciri) * np.log10(np.abs(ciri))
-
-					# HU OpenCV
-					# ciri 		= cv2.HuMoments(cv2.moments(pixel_binary)).flatten()
-					# print(f"ini ciri sesudah = {ciri}")
-
-					nilai_ciri1 = ciri[0]
-					nilai_ciri2 = ciri[1]
-					nilai_ciri3 = ciri[2]
-					nilai_ciri4 = ciri[3]
-					nilai_ciri5 = ciri[4]
-					nilai_ciri6 = ciri[5]
-					nilai_ciri7 = ciri[6]
 					kelas 		= jenis_kelas
 
-					cur = mysql.get_db().cursor()
-					cur.execute("INSERT INTO ciri_his_equ(kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
-
-					print("INSERT INTO ciri_his_equ(kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
-
-					mysql.get_db().commit()
+					Ekspresi_wajah.Db.insert_ciri("ciri", kelas, ciri)
 
 			flash('Data pelatihan berhasil dilatih')
 			return redirect(url_for('.pelatihan'))
 
 		return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan'})
 
-	@page.route(f'{base}/pengujian')
+	@page.route(f'{base}/pengujian', methods=['GET', 'POST'])
 	def pengujian():
+		hitung = 0
+
 		if request.method == "POST":
 			f = request.files['foto']
 			
 			directory = strftime("%Y-%m-%d-%H-%M-%S")
 
-			filename = 'data/testing/' + secure_filename(directory + '_' + f.filename)
+			# nama_file = f.filename
+
+			# if nama_file.endswith('.png')
+			# 	filename = 'data/testing/'+ directory + '/' + nama_file
+			# 	f.save(filename)
+
+			# elif nama_file.endswith('.jpg')
+			# 	filename = 'data/testing/'+ directory + '/' + nama_file
+			# 	f.save(filename)
+
+			filename = 'data\\testing\\' + secure_filename(directory + '_' + f.filename)
 			f.save(filename)
+
+			os.makedirs(f'data/testing/{directory}')
 
 			cwd = os.getcwd()
 
-			berkas 		= cwd + "\\data\\testing\\" + secure_filename(directory + '_' + f.filename)
-			print("berkas = " + berkas)
+			# berkas 	= cwd + '\\' + filename
+			berkas 		= cwd + '\\data\\testing\\' + secure_filename(directory + '_' + f.filename)
+			print(berkas)
 
-			if not os.path.exists(cwd + "\\data\\testing\\" + directory + "\\coba"):
-				os.makedirs(cwd + "\\data\\testing\\" + directory + "\\coba")
-				print(cwd + "\\data\\testing\\" + directory + "\\coba")
+			# if not os.path.exists(cwd + "\\data\\testing\\" + directory + "\\coba"):
+			# 	os.makedirs(cwd + "\\data\\testing\\" + directory + "\\coba")
+			# 	print(cwd + "\\data\\testing\\" + directory + "\\coba")
 
-			berkas_citra = deteksi_wajah("testing", berkas, directory, "coba")
+			berkas_citra = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
 
-			im 			= Image.open(berkas_citra)
-			biner		= im.convert('L')
-			pixel 		= np.array(biner)
+			# im 			= Image.open(berkas_citra)
+			# im			= im.convert('L')
+			# im 			= np.array(im)
+
+			# grayscale 	= Image.fromarray(im)
+			# threshold 	= 256 / 2
+			# binary 		= grayscale.point(lambda p: p > threshold and 255)
+			# pixel_binary= np.array(binary)
+
+			# gmi 		= GMI(pixel_binary) 
+			# gmi.hitungMomenNormalisasi()
+			# ciri 		= gmi.hitungCiri()
+
+			# Klasifikasi dengan Multi-SVM
+			# kumpulan_ciri = Ekspresi_wajah.Db.select_ciri('ciri')
+			# kumpulan_kelas= Ekspresi_wajah.Db.select_kelas('ciri')
 			
-			greyscale 	= Image.fromarray(pixel)
-			# greyscale.save('result/result_greyscale.jpg')
+			# kl 			= Klasifikasi(kumpulan_ciri, kumpulan_kelas)			
+			# hitung 		= kl.classify([ciri])
 
-			threshold 	= 256 / 2
-			binary 		= greyscale.point(lambda p: p > threshold and 255)
-			# binary.save('result/result_binary.jpg')
-			pixel_binary= np.array(binary)
+			# flash('Data berhasil diuji!')			
 
-			gmi 		= GMI(pixel_binary)
-			gmi.hitungMomenNormalisasi()
-			ciri 		= gmi.hitungCiri()
-			print(ciri)
-
-			# Klasifikasi dengan svm
-
-			kumpulan_ciri = select_ciri()
-			kumpulan_kelas= select_kelasV2()
-			lin_clf = LinearSVC()
-			lin_clf.fit(kumpulan_ciri, encode_class(kumpulan_kelas))
-
-			# dec = lin_clf.decision_function(kumpulan_ciri)
-			# hasil = dec.shape[1]
-			# print(f"Ini hasilnya = {hasil}")
-			
-			# con = confusion_matrix(kumpulan_kelas, ["jijik"])
-			# print(f"Confusion Matrix = {con}")
-			result = lin_clf.predict([ciri])
-			
-			print(f"Kelas: {decode_class(kumpulan_kelas, result)}")
-
-		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'})
+		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = hitung )
 
