@@ -126,7 +126,8 @@ class Ekspresi_wajah:
 			# 	os.makedirs(cwd + "\\data\\testing\\" + directory + "\\coba")
 			# 	print(cwd + "\\data\\testing\\" + directory + "\\coba")
 
-			berkas_citra = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
+			ekspresi = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
+			print(f'ini ekspresi : {ekspresi}')  
 
 			# im 			= Image.open(berkas_citra)
 			# im			= im.convert('L')
@@ -150,5 +151,5 @@ class Ekspresi_wajah:
 
 			# flash('Data berhasil diuji!')			
 
-		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = hitung )
+		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi )
 

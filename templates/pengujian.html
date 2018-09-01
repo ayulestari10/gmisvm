@@ -23,15 +23,6 @@
 				</div>
 			</div>
 
-			{% if hasil %}
-				<div class="row">
-					<div class="col-md-5 ml-auto mr-auto">
-						<strong>CITRA TERKLASIFIKASI {{ hasil.upper() }}</strong>
-						Coba Lagi?
-					</div>
-				</div>
-			{% endif %}
-
 			<div class="row">
 				<div class="col-md-5 ml-auto mr-auto">
 					<form action="{{ url_for('.pengujian') }}" method="POST" enctype="multipart/form-data">
@@ -50,6 +41,15 @@
 					</form>
 				</div>
 			</div>
+
+			<!-- {% if hasil %} -->
+				<div class="row">
+					<div class="col-md-12 ml-auto mr-auto">
+					<h2><strong>HASIL</strong></h2>
+						<img src="{{ url_for('static', filename='data/testing/' + hasil) }}" style="margin: 0 auto;" width = "500" height="500">
+					</div>
+				</div>
+			<!-- {% endif %} -->
 
 
 		</div>

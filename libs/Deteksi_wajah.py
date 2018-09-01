@@ -6,6 +6,7 @@ from libs.Praproses import Praproses
 from models.Database import Database
 from libs.Klasifikasi import Klasifikasi
 import MySQLdb
+import os
 
 
 class Deteksi_wajah:
@@ -89,5 +90,13 @@ class Deteksi_wajah:
 			
 			# end - klasifikasi
 
-		cv2.imwrite(f'data/testing/{directory}/Hasil.jpg', img)
+
+		cwd = os.getcwd()
+		dir_file_name = 'static\\data\\testing\\'+ directory + ' Hasil.png'
+		file_name = directory + ' Hasil.png'
+		cv2.imwrite(dir_file_name, img)
+
+		# file = cwd + file_name
+
+		return file_name
 
