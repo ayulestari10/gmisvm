@@ -1,4 +1,5 @@
 from flask import Flask, Blueprint, abort
+from flaskext.mysql import MySQL
 
 class Praproses:
 
