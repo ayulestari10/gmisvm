@@ -1,0 +1,20 @@
+@startuml
+| Peneliti |
+start
+:Memilih menu pelatihan atau pengujian;
+| Sistem |
+:Menampilkan halaman pelatihan atau pengujian;
+| Peneliti |
+:Menekan tombol pilih berkas;
+| Sistem |
+:Menampilkan kotak dialog pencarian berkas;
+| Peneliti |
+:Memilih berkas citra yang akan dilakukan pelatihan atau pengujian;
+| Sistem |
+:Melakukan deteksi wajah ;
+| Sistem |
+:Melakukan praproses citra wajah;
+| Sistem |
+:Ekstraksi ciri citra wajah dengan Geometric Moment Invariants  ;
+stop
+@enduml

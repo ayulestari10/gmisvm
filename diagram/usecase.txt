@@ -1,0 +1,14 @@
+@startuml
+
+left to right direction
+skinparam packageStyle rectangle
+actor Peneliti
+
+rectangle Sistem {
+	(Ekstraksi Ciri dengan Geometric Moment Invariants) .> (Klasifikasi Ekspresi Wajah) : extends
+	Peneliti --> (Ekstraksi Ciri dengan Geometric Moment Invariants)
+	(Ekstraksi Ciri dengan Geometric Moment Invariants) ..> (Praproses Wajah) : include
+	(Ekstraksi Ciri dengan Geometric Moment Invariants) ..> (Deteksi Wajah) : include
+}
+
+@enduml
