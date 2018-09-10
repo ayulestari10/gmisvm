@@ -25,6 +25,57 @@ class Deteksi_wajah:
 			'marah': (255, 0, 0)
 		}
 
+	def deteksi_wajah(self):
+		# Praproses Ke Gray Scale
+
+		# image = "D:\\bahagia.png"
+
+		# im 	= Image.open(image)
+		# im	= im.convert('L') 
+		# im 	= np.array(im)
+
+		im = np.array([
+			[1, 2, 3],
+			[2, 3, 4],
+			[4, 5, 1]
+		])
+
+		im2 = np.array([
+			[228,	10, 	10]
+			[30, 	10, 	228],
+			[128, 	20, 	220],
+			[111, 	20, 	218],
+		])
+
+		# Fitur Haar
+		im_haar = self.haar_feature(im2)
+
+		# Integral Image
+		im_integral = self.integral_image(im)
+		print(im_integral)		
+
+
+		# Algoritma Adaboost
+
+
+		# Cascade Classifier
+
+	# jika nilai mendekati 255 maka terdapat haar feature / threshold
+	def haar_feature(self, im):
+		for x in 25:
+			for y, col in enumerate(row):
+
+
+	def integral_image(self, im):
+		for x, row in enumerate(im):
+			for y, col in enumerate(row):
+				if x > 0: im[x][y] += im[x - 1][y]
+				if y > 0: im[x][y] += im[x][y - 1]
+				if x > 0 and y > 0: im[x][y] -= im[x - 1][y - 1]
+		return im
+
+
+
 	# @page.route(f'{base}/')
 	def deteksi(self, image, dir1, dir2):
 		
@@ -88,8 +139,8 @@ class Deteksi_wajah:
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi]) 
 			
+			Ekspresi_wajah.Db.insert_ciri("ciri", kelas, ciri)
 			# end - klasifikasi
-
 
 		cwd = os.getcwd()
 		dir_file_name = 'static\\data\\testing\\'+ directory + ' Hasil.png'

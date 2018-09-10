@@ -26,6 +26,79 @@ class Ekspresi_wajah:
 		except TemplateNotFound:
 			abort(404)
 
+
+	@page.route(f'{base}/pelatihan', methods=['GET', 'POST'])
+	def pelatihan_pengujian():
+		if request.method == 'POST':
+		
+			f = request.files['zip_file']
+			filename = 'data/' + secure_filename(strftime("%Y-%m-%d-%H-%M-%S") + '_' + f.filename)
+			f.save(filename)
+
+			directory = strftime("%Y-%m-%d-%H-%M-%S")
+
+			# if not os.path.exists(directory):
+			# 	os.makedirs(directory)
+
+			with open(filename, mode = 'r') as file:
+				zip_file = zipfile.ZipFile(filename)
+				files = [zip_file.extract(fl, 'data/training/' + directory) for fl in zip_file.namelist()]
+				zip_file.close()
+			os.remove(filename)
+
+			# pelatihan disini
+			dir1 		= os.listdir('data/training/' + directory)
+			cwd 		= os.getcwd()
+
+			for i in range(len(dir1)):
+				print(i)
+
+				dir2		= os.listdir('data/training/' + directory + '/') [i]
+				print("dir 2 = " + dir2)
+
+				jenis_kelas = dir1[i]
+				print("jenis kelas = " + jenis_kelas)
+
+				file_name	= os.listdir('data/training/' + directory + '/' + dir2)[0]	
+				print("file name = " + file_name)
+				files	= os.listdir('data/training/' + directory + '/' + dir2)
+				for file in files:
+					berkas 		= cwd + '\\data\\training\\' + directory + '\\' + dir2 + '\\' + file
+
+					print("berkas = " + berkas)
+
+					if dir2 == "multiple_face":
+						ekspresi = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
+
+					# openCV
+					berkas_citra = Ekspresi_wajah.Dw.deteksi(berkas, directory, dir2)
+
+					im 			= Image.open(berkas_citra)
+					im			= im.convert('L')
+					im 			= np.array(im)
+
+					grayscale 	= Image.fromarray(im)
+					threshold 	= 256 / 2
+					binary 		= grayscale.point(lambda p: p > threshold and 255)
+					binary.save('result/'+ file +'.png')
+					pixel_binary= np.array(binary)
+
+					gmi 		= GMI(pixel_binary) 
+					gmi.hitungMomenNormalisasi()
+					ciri 		= gmi.hitungCiri()
+					kelas 		= jenis_kelas
+
+					Ekspresi_wajah.Db.insert_ciri("ciri", kelas, ciri)
+
+			flash('Data berhasil dilatih dan diuji')
+			return redirect(url_for('.pelatihan'))
+
+		return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan'})
+
+
+
+
+
 	@page.route(f'{base}/pelatihan', methods=['GET', 'POST'])
 	def pelatihan():
 		if request.method == 'POST':
@@ -153,3 +226,9 @@ class Ekspresi_wajah:
 
 		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi )
 
+
+	@page.route(f'{base}/cob', methods=['GET', 'POST'])
+	def cob():
+		Ekspresi_wajah.Dw.deteksi_wajah()
+
+		return "hay"
