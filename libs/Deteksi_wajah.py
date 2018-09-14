@@ -28,31 +28,35 @@ class Deteksi_wajah:
 	def deteksi_wajah(self):
 		# Praproses Ke Gray Scale
 
-		# image = "D:\\bahagia.png"
+		image = "D:\\bahagia.png"
+
+		im = self.resize_image(image)
+
+		print(im)
 
 		# im 	= Image.open(image)
 		# im	= im.convert('L') 
 		# im 	= np.array(im)
 
-		im = np.array([
-			[1, 2, 3],
-			[2, 3, 4],
-			[4, 5, 1]
-		])
+		# im = np.array([
+		# 	[1, 2, 3],
+		# 	[2, 3, 4],
+		# 	[4, 5, 1]
+		# ])
 
-		im2 = np.array([
-			[228,	10, 	10]
-			[30, 	10, 	228],
-			[128, 	20, 	220],
-			[111, 	20, 	218],
-		])
+		# im2 = np.array([
+		# 	[228,	10, 	10]
+		# 	[30, 	10, 	228],
+		# 	[128, 	20, 	220],
+		# 	[111, 	20, 	218],
+		# ])
 
-		# Fitur Haar
-		im_haar = self.haar_feature(im2)
+		# # Fitur Haar
+		# im_haar = self.haar_feature(im2)
 
-		# Integral Image
-		im_integral = self.integral_image(im)
-		print(im_integral)		
+		# # Integral Image
+		# im_integral = self.integral_image(im)
+		# print(im_integral)		
 
 
 		# Algoritma Adaboost
@@ -61,9 +65,9 @@ class Deteksi_wajah:
 		# Cascade Classifier
 
 	# jika nilai mendekati 255 maka terdapat haar feature / threshold
-	def haar_feature(self, im):
-		for x in 25:
-			for y, col in enumerate(row):
+	# def haar_feature(self, im):
+	# 	for x in 25:
+	# 		for y, col in enumerate(row):
 
 
 	def integral_image(self, im):
@@ -74,7 +78,17 @@ class Deteksi_wajah:
 				if x > 0 and y > 0: im[x][y] -= im[x - 1][y - 1]
 		return im
 
+	def resize_image(self, im):
+		size = 288, 384
 
+		img = Image.open(im)
+		img = np.array(img)
+		img.resize((384, 288), Image.ANTIALIAS)
+
+		path = "data/training/resize/hasil_resize.png"
+		cv2.imwrite(path, img)
+
+		return img
 
 	# @page.route(f'{base}/')
 	def deteksi(self, image, dir1, dir2):
