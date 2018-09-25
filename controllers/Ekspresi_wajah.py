@@ -89,7 +89,7 @@ class Ekspresi_wajah:
 					ciri 		= gmi.hitungCiri()
 					kelas 		= jenis_kelas
 
-					Ekspresi_wajah.Db.insert_ciri("ciri", kelas, ciri)
+					Ekspresi_wajah.Db.insert_ciri("ciri_ck_setara", kelas, ciri)
 
 			flash('Data pelatihan berhasil dilatih')
 			return redirect(url_for('.pelatihan'))
@@ -145,7 +145,7 @@ class Ekspresi_wajah:
 
 		return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan2'})
 
-	@page.route(f'{base}/pelatihan', methods=['GET', 'POST'])
+	@page.route(f'{base}/pelatihan3', methods=['GET', 'POST'])
 	def pelatihan3():
 		if request.method == 'POST':
 			# f = request.files['zip_file']
@@ -180,7 +180,7 @@ class Ekspresi_wajah:
 				ciri 		= gmi.hitungCiri()
 				kelas 		= selected_label
 
-				Ekspresi_wajah.Db.insert_ciri("ciri", kelas, ciri)
+				Ekspresi_wajah.Db.insert_ciri("ciri_ck_setara", kelas, ciri)
 
 			# for i in range(len(dir1)):
 			# 	print(i)
@@ -238,16 +238,6 @@ class Ekspresi_wajah:
 			
 			directory = strftime("%Y-%m-%d-%H-%M-%S")
 
-			# nama_file = f.filename
-
-			# if nama_file.endswith('.png')
-			# 	filename = 'data/testing/'+ directory + '/' + nama_file
-			# 	f.save(filename)
-
-			# elif nama_file.endswith('.jpg')
-			# 	filename = 'data/testing/'+ directory + '/' + nama_file
-			# 	f.save(filename)
-
 			filename = 'data\\testing\\' + secure_filename(directory + '_' + f.filename)
 			f.save(filename)
 
@@ -255,38 +245,11 @@ class Ekspresi_wajah:
 
 			cwd = os.getcwd()
 
-			# berkas 	= cwd + '\\' + filename
 			berkas 		= cwd + '\\data\\testing\\' + secure_filename(directory + '_' + f.filename)
 			print(berkas)
 
-			# if not os.path.exists(cwd + "\\data\\testing\\" + directory + "\\coba"):
-			# 	os.makedirs(cwd + "\\data\\testing\\" + directory + "\\coba")
-			# 	print(cwd + "\\data\\testing\\" + directory + "\\coba")
-
 			ekspresi = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
-			# print(f'ini ekspresi : {ekspresi}')  
-
-			# im 			= Image.open(berkas_citra)
-			# im			= im.convert('L')
-			# im 			= np.array(im)
-
-			# grayscale 	= Image.fromarray(im)
-			# threshold 	= 256 / 2
-			# binary 		= grayscale.point(lambda p: p > threshold and 255)
-			# pixel_binary= np.array(binary)
-
-			# gmi 		= GMI(pixel_binary) 
-			# gmi.hitungMomenNormalisasi()
-			# ciri 		= gmi.hitungCiri()
-
-			# Klasifikasi dengan Multi-SVM
-			# kumpulan_ciri = Ekspresi_wajah.Db.select_ciri('ciri')
-			# kumpulan_kelas= Ekspresi_wajah.Db.select_kelas('ciri')
-			
-			# kl 			= Klasifikasi(kumpulan_ciri, kumpulan_kelas)			
-			# hitung 		= kl.classify([ciri])
-
-			# flash('Data berhasil diuji!')			
+		
 		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi)
 
 	@page.route(f'{base}/rata-rata-ciri', methods=['GET', 'POST'])
