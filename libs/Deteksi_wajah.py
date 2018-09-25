@@ -25,6 +25,7 @@ class Deteksi_wajah:
 			'marah': (255, 0, 0)
 		}
 
+	# fungsi untuk mengambil piksel sub window
 	def get_sliding_window(self, matrix, x, y, size = 24):
 		return matrix[x:x+size, y:y+size]
 
@@ -141,7 +142,10 @@ class Deteksi_wajah:
 
 		return abs(black - white)
 
-	def deteksi_wajah(self):
+
+
+
+	def deteksi2(self):
 		# Praproses Ke Gray Scale
 
 		image = "D:\\bahagia.png"
@@ -228,13 +232,49 @@ class Deteksi_wajah:
 		
 		for f in faces:
 			x, y, w, h = [v for v in f]
-			cv2.rectangle(img, (x,y), (x+w, y+h), (255, 255, 255))
+			# cv2.rectangle(img, (x,y), (x+w, y+h), (255, 255, 255))
 			sub_face = img[y:y+h, x:x+w]
 
 			face_file_name = "data/training/" + dir1 + "/" + dir2 + "/" + "01.jpg"
 			cv2.imwrite(face_file_name, sub_face)
 
 		return face_file_name
+
+
+	def deteksi_single(self, image, directory, ekspresi):
+		
+		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+
+		img = cv2.imread(image)
+		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+		ekspr = list(self.rectColor.values())
+
+		global face_file_name
+		for i, f in enumerate(faces):
+			x, y, w, h = np.array([v for v in f], dtype=np.int64)
+			sub_face = img[y:y+h, x:x+w]
+
+			face_file_name = 'data/training/' + directory + '/' + str(i) + ".png"
+			cv2.imwrite(face_file_name, sub_face)
+			
+			pra = Praproses()
+			sub_face = pra.biner(face_file_name)
+
+			gmi 		= GMI(sub_face) 
+			gmi.hitungMomenNormalisasi()
+			ciri 		= gmi.hitungCiri()
+			
+			Deteksi_wajah.Db.insert_ciri("ciri", ekspresi, ciri)
+
+
+		cwd = os.getcwd()
+		dir_file_name = 'static\\data\\training\\'+ directory + ' Hasil.png'
+		file_name = directory + ' Hasil.png'
+		cv2.imwrite(dir_file_name, img)
+
+		return file_name
 
 
 	def deteksi_multi_face(self, image, directory):
@@ -247,6 +287,14 @@ class Deteksi_wajah:
 		ekspr = list(self.rectColor.values())
 
 		global face_file_name
+
+		kumpulan_ciri = Deteksi_wajah.Db.select_ciri('ciri')
+		kumpulan_kelas = Deteksi_wajah.Db.select_kelas('ciri')
+
+		rata_rata_ciri = {}
+		for kelas in kumpulan_kelas:
+			rata_rata_ciri[kelas] = Deteksi_wajah.Db.select_avg(kelas)
+
 		for i, f in enumerate(faces):
 			x, y, w, h = np.array([v for v in f], dtype=np.int64)
 
@@ -255,29 +303,43 @@ class Deteksi_wajah:
 			# cv2.rectangle(img, (x,y), (x+w, y+h), color)
 			sub_face = img[y:y+h, x:x+w]
 
-			face_file_name = 'data/testing/' + directory + '/' + str(i) + ".png"
+			face_file_name = 'data/testing/' + directory + '/' + str(i) + ".jpg"
 			cv2.imwrite(face_file_name, sub_face)
 
 			## start - klasifikasi
 			
 			pra = Praproses()
 			sub_face = pra.biner(face_file_name)
-			print(f"Praproses = {sub_face}")
+			# print(f"Praproses = {sub_face}")
 
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
 			ciri 		= gmi.hitungCiri()
 
-			kumpulan_ciri = Deteksi_wajah.Db.select_ciri('ciri')
-			kumpulan_kelas= Deteksi_wajah.Db.select_kelas('ciri')
+			ciricv = cv2.HuMoments(cv2.moments(sub_face)).flatten()
+
+			print(f"Kumpulan Ciri : {kumpulan_ciri}")
+			print(f"Kumpulan Kelas : {kumpulan_kelas}")
 			
 			kl 			= Klasifikasi(kumpulan_ciri, kumpulan_kelas)			
 			ekspresi 	= kl.classify([ciri])
-			print(f'Klasifikasi = {ekspresi}')
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi]) 
-			
-			Ekspresi_wajah.Db.insert_ciri("ciri", kelas, ciri)
+			distance = Deteksi_wajah.distance(rata_rata_ciri[ekspresi], ciri)
+			Deteksi_wajah.Db.insert_ciri_test("ciri_test", ekspresi, ciri, distance)
+
+			ciri = np.array(ciri)
+			ciri_bahagia = np.array(kumpulan_ciri[0])
+			jarak = ciri - ciri_bahagia
+
+			print(f"Ciri Data Uji = {ciri}")
+			print(f"Rata-rata ciri {ekspresi} = {rata_rata_ciri[ekspresi]}")
+			print(f"Jarak ciri = {distance}")
+			print("______")
+			print(f"Ciri GMI: {ciri}")
+			print(f"Ciri CV: {ciricv}")
+			print(f"Jarak GMI - CV: {Deteksi_wajah.distance(ciri, ciricv)}")
+
 			# end - klasifikasi
 
 		cwd = os.getcwd()
@@ -289,3 +351,7 @@ class Deteksi_wajah:
 
 		return file_name
 
+	def distance(data1, data2):
+		data1 = np.array(data1)
+		data2 = np.array(data2)
+		return np.linalg.norm(data1 - data2)

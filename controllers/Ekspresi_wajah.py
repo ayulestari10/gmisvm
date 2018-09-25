@@ -11,6 +11,7 @@ from libs.Deteksi_wajah import Deteksi_wajah
 from libs.GMI import GMI
 from models.Database import Database
 from libs.Klasifikasi import Klasifikasi
+from libs.Praproses import Praproses
 
 class Ekspresi_wajah:
 
@@ -25,79 +26,6 @@ class Ekspresi_wajah:
 			return render_template('home.html')
 		except TemplateNotFound:
 			abort(404)
-
-
-	@page.route(f'{base}/pelatihan', methods=['GET', 'POST'])
-	def pelatihan_pengujian():
-		if request.method == 'POST':
-		
-			f = request.files['zip_file']
-			filename = 'data/' + secure_filename(strftime("%Y-%m-%d-%H-%M-%S") + '_' + f.filename)
-			f.save(filename)
-
-			directory = strftime("%Y-%m-%d-%H-%M-%S")
-
-			# if not os.path.exists(directory):
-			# 	os.makedirs(directory)
-
-			with open(filename, mode = 'r') as file:
-				zip_file = zipfile.ZipFile(filename)
-				files = [zip_file.extract(fl, 'data/training/' + directory) for fl in zip_file.namelist()]
-				zip_file.close()
-			os.remove(filename)
-
-			# pelatihan disini
-			dir1 		= os.listdir('data/training/' + directory)
-			cwd 		= os.getcwd()
-
-			for i in range(len(dir1)):
-				print(i)
-
-				dir2		= os.listdir('data/training/' + directory + '/') [i]
-				print("dir 2 = " + dir2)
-
-				jenis_kelas = dir1[i]
-				print("jenis kelas = " + jenis_kelas)
-
-				file_name	= os.listdir('data/training/' + directory + '/' + dir2)[0]	
-				print("file name = " + file_name)
-				files	= os.listdir('data/training/' + directory + '/' + dir2)
-				for file in files:
-					berkas 		= cwd + '\\data\\training\\' + directory + '\\' + dir2 + '\\' + file
-
-					print("berkas = " + berkas)
-
-					if dir2 == "multiple_face":
-						ekspresi = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
-
-					# openCV
-					berkas_citra = Ekspresi_wajah.Dw.deteksi(berkas, directory, dir2)
-
-					im 			= Image.open(berkas_citra)
-					im			= im.convert('L')
-					im 			= np.array(im)
-
-					grayscale 	= Image.fromarray(im)
-					threshold 	= 256 / 2
-					binary 		= grayscale.point(lambda p: p > threshold and 255)
-					binary.save('result/'+ file +'.png')
-					pixel_binary= np.array(binary)
-
-					gmi 		= GMI(pixel_binary) 
-					gmi.hitungMomenNormalisasi()
-					ciri 		= gmi.hitungCiri()
-					kelas 		= jenis_kelas
-
-					Ekspresi_wajah.Db.insert_ciri("ciri", kelas, ciri)
-
-			flash('Data berhasil dilatih dan diuji')
-			return redirect(url_for('.pelatihan'))
-
-		return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan'})
-
-
-
-
 
 	@page.route(f'{base}/pelatihan', methods=['GET', 'POST'])
 	def pelatihan():
@@ -143,15 +71,18 @@ class Ekspresi_wajah:
 					# openCV
 					berkas_citra = Ekspresi_wajah.Dw.deteksi(berkas, directory, dir2)
 
-					im 			= Image.open(berkas_citra)
-					im			= im.convert('L')
-					im 			= np.array(im)
+					# im 			= Image.open(berkas_citra)
+					# im			= im.convert('L')
+					# im 			= np.array(im)
 
-					grayscale 	= Image.fromarray(im)
-					threshold 	= 256 / 2
-					binary 		= grayscale.point(lambda p: p > threshold and 255)
-					binary.save('result/'+ file +'.png')
-					pixel_binary= np.array(binary)
+					# grayscale 	= Image.fromarray(im)
+					# threshold 	= 256 / 2
+					# binary 		= grayscale.point(lambda p: p > threshold and 255)
+					# binary.save('result/'+ file +'.png')
+					# pixel_binary= np.array(binary)
+
+					pra = Praproses()
+					pixel_binary = pra.biner(berkas_citra)
 
 					gmi 		= GMI(pixel_binary) 
 					gmi.hitungMomenNormalisasi()
@@ -165,9 +96,142 @@ class Ekspresi_wajah:
 
 		return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan'})
 
+	@page.route(f'{base}/pelatihan2', methods=['GET', 'POST'])
+	def pelatihan2():
+		if request.method == 'POST':
+		
+			f = request.files['zip_file']
+			filename = 'data/' + secure_filename(strftime("%Y-%m-%d-%H-%M-%S") + '_' + f.filename)
+			f.save(filename)
+
+			directory = strftime("%Y-%m-%d-%H-%M-%S")
+
+			# if not os.path.exists(directory):
+			# 	os.makedirs(directory)
+
+			with open(filename, mode = 'r') as file:
+				zip_file = zipfile.ZipFile(filename)
+				files = [zip_file.extract(fl, 'data/training/' + directory) for fl in zip_file.namelist()]
+				zip_file.close()
+			os.remove(filename)
+
+			# pelatihan disini
+			dir1 		= os.listdir('data/training/' + directory)
+			cwd 		= os.getcwd()
+
+			for i in range(len(dir1)):
+				print(i)
+
+				dir2		= os.listdir('data/training/' + directory + '/') [i]
+				print("dir 2 = " + dir2)
+
+				jenis_kelas = dir1[i]
+				print("jenis kelas = " + jenis_kelas)
+
+				file_name	= os.listdir('data/training/' + directory + '/' + dir2)[0]	
+				print("file name = " + file_name)
+				files	= os.listdir('data/training/' + directory + '/' + dir2)
+				for file in files:
+
+					berkas 		= cwd + '\\data\\training\\' + directory + '\\' + dir2 + '\\' + file
+
+					print("berkas = " + berkas)
+
+					# openCV
+					berkas_citra = Ekspresi_wajah.Dw.deteksi_single(berkas, directory, jenis_kelas)
+
+			flash('Data pelatihan berhasil dilatih')
+			return redirect(url_for('.pelatihan'))
+
+		return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan2'})
+
+	@page.route(f'{base}/pelatihan', methods=['GET', 'POST'])
+	def pelatihan3():
+		if request.method == 'POST':
+			# f = request.files['zip_file']
+			# filename = 'data/' + secure_filename(strftime("%Y-%m-%d-%H-%M-%S") + '_' + f.filename)
+			# f.save(filename)
+
+			selected_label = request.form.get('label')
+			time = strftime("%Y-%m-%d-%H-%M-%S")
+			directory = time + '/' + selected_label
+
+			if not os.path.exists('data/training/' + directory):
+				os.makedirs('data/training/' + directory)
+
+			# with open(filename, mode = 'r') as file:
+			# 	zip_file = zipfile.ZipFile(filename)
+			# 	files = [zip_file.extract(fl, 'data/training/' + directory) for fl in zip_file.namelist()]
+			# 	zip_file.close()
+			# os.remove(filename)
+			Ekspresi_wajah.upload_multiple_files('zip_file[]', 'data/training/' + directory)
+
+			# pelatihan disini
+			dir1 		= os.listdir('data/training/' + directory)
+			cwd 		= os.getcwd()
+
+			for file in dir1:
+				berkas = cwd + '\\data\\training\\' + directory + '\\' + file
+				face = Ekspresi_wajah.Dw.deteksi(berkas, time, selected_label)
+				praproses = Praproses()
+				pixel_binary = praproses.biner(face)
+				gmi 		= GMI(pixel_binary) 
+				gmi.hitungMomenNormalisasi()
+				ciri 		= gmi.hitungCiri()
+				kelas 		= selected_label
+
+				Ekspresi_wajah.Db.insert_ciri("ciri", kelas, ciri)
+
+			# for i in range(len(dir1)):
+			# 	print(i)
+
+			# 	dir2		= os.listdir('data/training/' + directory + '/') [i]
+			# 	print("dir 2 = " + dir2)
+
+			# 	jenis_kelas = dir1[i]
+			# 	print("jenis kelas = " + jenis_kelas)
+
+			# 	file_name	= os.listdir('data/training/' + directory + '/' + dir2)[0]	
+			# 	print("file name = " + file_name)
+			# 	files	= os.listdir('data/training/' + directory + '/' + dir2)
+			# 	for file in files:
+
+			# 		berkas 		= cwd + '\\data\\training\\' + directory + '\\' + dir2 + '\\' + file
+
+			# 		print("berkas = " + berkas)
+
+			# 		# openCV
+			# 		berkas_citra = Ekspresi_wajah.Dw.deteksi(berkas, directory, dir2)
+
+			# 		# im 			= Image.open(berkas_citra)
+			# 		# im			= im.convert('L')
+			# 		# im 			= np.array(im)
+
+			# 		# grayscale 	= Image.fromarray(im)
+			# 		# threshold 	= 256 / 2
+			# 		# binary 		= grayscale.point(lambda p: p > threshold and 255)
+			# 		# binary.save('result/'+ file +'.png')
+			# 		# pixel_binary= np.array(binary)
+
+			# 		pra = Praproses()
+			# 		pixel_binary = pra.biner(berkas_citra)
+
+			# 		gmi 		= GMI(pixel_binary) 
+			# 		gmi.hitungMomenNormalisasi()
+			# 		ciri 		= gmi.hitungCiri()
+			# 		kelas 		= jenis_kelas
+
+			# 		Ekspresi_wajah.Db.insert_ciri("ciri", kelas, ciri)
+
+			flash('Data pelatihan berhasil dilatih')
+			return redirect(url_for('.pelatihan'))
+
+		return render_template('layout.html', data = { 'view' : 'pelatihan3', 'title' : 'Pelatihan'})
+
 	@page.route(f'{base}/pengujian', methods=['GET', 'POST'])
 	def pengujian():
 		hitung = 0
+		ekspresi = ""
 
 		if request.method == "POST":
 			f = request.files['foto']
@@ -200,7 +264,7 @@ class Ekspresi_wajah:
 			# 	print(cwd + "\\data\\testing\\" + directory + "\\coba")
 
 			ekspresi = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
-			print(f'ini ekspresi : {ekspresi}')  
+			# print(f'ini ekspresi : {ekspresi}')  
 
 			# im 			= Image.open(berkas_citra)
 			# im			= im.convert('L')
@@ -223,12 +287,8 @@ class Ekspresi_wajah:
 			# hitung 		= kl.classify([ciri])
 
 			# flash('Data berhasil diuji!')			
+		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi)
 
-		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi )
-
-
-	@page.route(f'{base}/cob', methods=['GET', 'POST'])
-	def cob():
-		Ekspresi_wajah.Dw.deteksi_wajah()
-
-		return "hay"
+	@page.route(f'{base}/rata-rata-ciri', methods=['GET', 'POST'])
+	def rata_rata_ciri():
+		return str(Ekspresi_wajah.Db.select_avg("bahagia"))
