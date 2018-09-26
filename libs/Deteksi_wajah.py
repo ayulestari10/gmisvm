@@ -18,12 +18,13 @@ class Deteksi_wajah:
 	def __init__(self):
 		self.rectColor = {
 			
-			'bahagia': (255, 255, 0),	# kuning
-			'sedih': (0, 0, 255),		# biru
+			'bahagia': (0, 255, 255),	# kuning
+			'sedih': (255, 0, 0),		# biru
 			'jijik': (0, 255, 0),		# hijau
 			'takut': (238,130,238),		# ungu
 			'natural': (255, 255, 255),	# putih
-			'marah': (255, 0, 0)  		# merah
+			'marah': (0, 0, 255),  	# pink
+			'kaget' : (0, 0, 0)			# hitam
 		}
 
 	# fungsi untuk mengambil piksel sub window
@@ -263,7 +264,7 @@ class Deteksi_wajah:
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
 			ciri 		= gmi.hitungCiri()
-			print(f"ciri data ke-{i} = {ciri}")
+			# print(f"ciri data ke-{i} = {ciri}")
 			
 			Deteksi_wajah.Db.insert_ciri("ciri_ck_setara", ekspresi, ciri)
 
@@ -294,14 +295,11 @@ class Deteksi_wajah:
 		for kelas in kumpulan_kelas:
 			rata_rata_ciri[kelas] = Deteksi_wajah.Db.select_avg('ciri_ck_setara', kelas)
 
-		print(f"rata-rata = {rata_rata_ciri}")
+		# print(f"rata-rata = {rata_rata_ciri}")
 		
 		for i, f in enumerate(faces):
 			x, y, w, h = np.array([v for v in f], dtype=np.int64)
 
-			# color = random.choice(ekspr)
-			# print(color)
-			# cv2.rectangle(img, (x,y), (x+w, y+h), color)
 			sub_face = img[y:y+h, x:x+w]
 
 			face_file_name = 'data/testing/' + directory + '/' + str(i) + ".png"
@@ -311,8 +309,6 @@ class Deteksi_wajah:
 			
 			pra = Praproses()
 			sub_face = pra.biner(face_file_name)
-			# print(f"Praproses = {sub_face}")
-
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
 			ciri 		= gmi.hitungCiri()
@@ -324,8 +320,11 @@ class Deteksi_wajah:
 			
 			kl 			= Klasifikasi(kumpulan_ciri, kumpulan_kelas)			
 			ekspresi 	= kl.classify([ciri])
+			print(f"Ekspresi = {ekspresi}")
 
-			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi]) 
+			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi])
+			cv2.rectangle(img, (x, y - 30), (x + 100, y), self.rectColor[ekspresi], -1)
+			cv2.putText(img, ekspresi, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 2)
 			distance = Deteksi_wajah.distance(rata_rata_ciri[ekspresi], ciri)
 
 			Deteksi_wajah.Db.insert_ciri_test("ciri_test", ekspresi, ciri, distance)
@@ -343,21 +342,20 @@ class Deteksi_wajah:
 			data_jarak = np.array([jarak_marah, jarak_jijik, jarak_takut, jarak_bahagia, jarak_sedih, jarak_kaget, jarak_natural])
 
 			Deteksi_wajah.Db.insert_jarak(data_jarak, id_tes)
-			# data_jarak = Deteksi_wajah.Db.select_jarak(id_tes)
 
-			id_tes = str(id_tes)
-			jar = Deteksi_wajah.Db.insert_jarak_min(id_tes, data_jarak)
-			# print(f"Jarak min = {jar}")
-			# print(type(jar))
+			id_tes 		= str(id_tes)
+			jarak_min 	= Deteksi_wajah.Db.insert_jarak_min(id_tes, data_jarak)
+			print(f"Jarak min = {jarak_min}")
 
-			# jar2, = jar
-			# print(f"Jarak min2 = {jar2}")
-			# print(type(jar2))
-
-
-			# jar3, = jar2
-			# print(f"Jarak min3 = {jar3}")
-			# print(type(jar3))
+			jarak = {
+				'marah'		: jarak_marah,
+				'sedih'		: jarak_sedih,
+				'takut'		: jarak_takut,
+				'jijik'		: jarak_jijik,
+				'kaget'		: jarak_kaget,
+				'bahagia'	: jarak_bahagia,
+				'jarak_min'	: jarak_min
+			}
 
 			ciri = np.array(ciri)
 			print(f"Ciri Data Uji = {ciri}")
@@ -375,9 +373,7 @@ class Deteksi_wajah:
 		file_name = directory + ' Hasil.png'
 		cv2.imwrite(dir_file_name, img)
 
-		# file = cwd + file_name
-
-		return file_name
+		return file_name, jarak, ciri, ciricv, rata_rata_ciri
 
 	def distance(data1, data2):
 		data1 = np.array(data1)

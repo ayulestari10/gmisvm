@@ -232,6 +232,10 @@ class Ekspresi_wajah:
 	def pengujian():
 		hitung = 0
 		ekspresi = ""
+		jarak = {}
+		ciri = []
+		ciricv = []
+		rata_rata_ciri = {}
 
 		if request.method == "POST":
 			f = request.files['foto']
@@ -248,9 +252,9 @@ class Ekspresi_wajah:
 			berkas 		= cwd + '\\data\\testing\\' + secure_filename(directory + '_' + f.filename)
 			print(berkas)
 
-			ekspresi = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
+			ekspresi, jarak, ciri, ciricv, rata_rata_ciri = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
 		
-		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi)
+		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi, jarak = jarak, ciri = ciri, ciricv = ciricv, rata_rata_ciri = rata_rata_ciri)
 
 	@page.route(f'{base}/rata-rata-ciri', methods=['GET', 'POST'])
 	def rata_rata_ciri():

@@ -42,16 +42,68 @@
 				</div>
 			</div>
 
-			<!-- {% if hasil %} -->
+			{% if hasil %}
 				<div class="row">
 					<div class="col-md-12 ml-auto mr-auto">
-					<h2><strong>HASIL</strong></h2>
-					<h4>{{ hasil }}</h4>
-						<img src="{{ url_for('static', filename='data/testing/' + hasil) }}" style="margin: 0 auto;" width = "500" height="500">
+						<h2><strong>HASIL</strong></h2>
+						<h4>{{ hasil }}</h4>
 					</div>
 				</div>
-			<!-- {% endif %} -->
-
+				<div class="row">
+					<div class="col-md-8 ml-auto mr-auto">
+						<img src="{{ url_for('static', filename='data/testing/' + hasil) }}" style="margin: 0 auto;" width = "400" height="400">
+					</div>
+					<div class="col-md-4 ml-auto mr-auto">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Label</th>
+									<th>Jarak</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for y, d in jarak.items() %}
+									<tr>
+										<td>{{ y }}</td>
+										<td>{{ d }}</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<br/>
+				<div class="row">
+					<div class="col-md-12 ml-auto mr-auto">
+						<table class="table table-responsive">
+							<thead>
+								<th>Code</th>
+								<th>Ciri 1</th>
+								<th>Ciri 2</th>
+								<th>Ciri 3</th>
+								<th>Ciri 4</th>
+								<th>Ciri 5</th>
+								<th>Ciri 6</th>
+								<th>Ciri 7</th>
+							</thead>
+							<tbody>
+								<tr>
+									<td><b>Koding Sendiri</b></td>
+									{% for x in ciri %}
+										<td>{{ x }}</td>
+									{% endfor %}
+								</tr>
+								<tr>
+									<td><b>OpenCV</b></td>
+									{% for x in ciricv %}
+										<td>{{ x }}</td>
+									{% endfor %}
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			{% endif %}
 
 		</div>
 	</div>

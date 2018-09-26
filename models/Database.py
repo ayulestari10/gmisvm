@@ -75,6 +75,8 @@ class Database:
 			jarak_min3  = str(jarak_min3)
 			self.cur.execute("UPDATE jarak SET jarak_min = " + jarak_min3 + " WHERE id_tes = " + id_tes)
 			self.db.commit()
+
+			return jarak_min3
 		except:
 			print("Error Jarak Min")
 			self.db.rollback()
