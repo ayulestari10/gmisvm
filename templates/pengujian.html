@@ -32,7 +32,7 @@
 						        <input type="text" class="form-control inputFileVisible" placeholder="Unggah Foto">
 						        <span class="input-group-btn">
 						            <button type="button" class="btn btn-fab btn-round btn-primary">
-						                <i class="material-icons">attach_file</i>
+						                <i class="fa fa-file"></i>
 						            </button>
 						        </span>
 						    </div>
@@ -42,19 +42,25 @@
 				</div>
 			</div>
 
+			<hr><hr>
+
 			{% if hasil %}
 				<div class="row">
 					<div class="col-md-12 ml-auto mr-auto">
-						<h2><strong>HASIL</strong></h2>
-						<h4>{{ hasil }}</h4>
+						<h2 class="title"><strong>Hasil</strong></h2>
 					</div>
 				</div>
-				<div class="row">
-					<div class="col-md-8 ml-auto mr-auto">
-						<img src="{{ url_for('static', filename='data/testing/' + hasil) }}" style="margin: 0 auto;" width = "400" height="400">
+				<div class="row" style="margin-top: 2%;">
+					<div class="col-md-6">
+						<img src="{{ url_for('static', filename='data/testing/' + hasil) }}" style="width: 100%;" width = "400" >
 					</div>
-					<div class="col-md-4 ml-auto mr-auto">
-						<table class="table">
+					<div class="col-md-1">
+						<div class="foto">
+							<img src="{{ url_for('static', filename='data/testing/' + directory + '_0.png') }}" style="width: 80%;" width = "40"  alt="Foto">
+						</div>
+					</div>
+					<div class="col-md-4 ml-auto mr-auto" style="border: 1px solid gray;">
+						<table class="table" style="text-align: left;">
 							<thead>
 								<tr>
 									<th>Label</th>
@@ -72,8 +78,8 @@
 						</table>
 					</div>
 				</div>
-				<br/>
-				<div class="row">
+				
+				<div class="row" style="margin-top: 4%; text-align: left;">
 					<div class="col-md-12 ml-auto mr-auto">
 						<table class="table table-responsive">
 							<thead>

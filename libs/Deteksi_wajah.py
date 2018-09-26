@@ -302,8 +302,11 @@ class Deteksi_wajah:
 
 			sub_face = img[y:y+h, x:x+w]
 
-			face_file_name = 'data/testing/' + directory + '/' + str(i) + ".png"
+			face_file_name = 'data/testing/' + directory + '/' + str(i) + '.png'
 			cv2.imwrite(face_file_name, sub_face)
+
+			dir_file_name = 'static\\data\\testing\\'+ directory + '_' + str(i) + '.png'
+			cv2.imwrite(dir_file_name, sub_face)
 
 			## start - klasifikasi
 			
@@ -314,9 +317,6 @@ class Deteksi_wajah:
 			ciri 		= gmi.hitungCiri()
 
 			ciricv = cv2.HuMoments(cv2.moments(sub_face)).flatten()
-
-			# print(f"Kumpulan Ciri : {kumpulan_ciri}")
-			# print(f"Kumpulan Kelas : {kumpulan_kelas}")
 			
 			kl 			= Klasifikasi(kumpulan_ciri, kumpulan_kelas)			
 			ekspresi 	= kl.classify([ciri])
@@ -325,6 +325,9 @@ class Deteksi_wajah:
 			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi])
 			cv2.rectangle(img, (x, y - 30), (x + 100, y), self.rectColor[ekspresi], -1)
 			cv2.putText(img, ekspresi, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 2)
+			
+			#simpan gambar yang telah dilabel, dicrop
+
 			distance = Deteksi_wajah.distance(rata_rata_ciri[ekspresi], ciri)
 
 			Deteksi_wajah.Db.insert_ciri_test("ciri_test", ekspresi, ciri, distance)
