@@ -294,8 +294,6 @@ class Deteksi_wajah:
 		rata_rata_ciri = {}
 		for kelas in kumpulan_kelas:
 			rata_rata_ciri[kelas] = Deteksi_wajah.Db.select_avg('ciri_ck_setara', kelas)
-
-		# print(f"rata-rata = {rata_rata_ciri}")
 		
 		for i, f in enumerate(faces):
 			x, y, w, h = np.array([v for v in f], dtype=np.int64)
@@ -316,7 +314,8 @@ class Deteksi_wajah:
 			gmi.hitungMomenNormalisasi()
 			ciri 		= gmi.hitungCiri()
 
-			ciricv = cv2.HuMoments(cv2.moments(sub_face)).flatten()
+			momen = cv2.moments(sub_face)
+			ciricv = cv2.HuMoments(momen).flatten()
 			
 			kl 			= Klasifikasi(kumpulan_ciri, kumpulan_kelas)			
 			ekspresi 	= kl.classify([ciri])
@@ -361,13 +360,24 @@ class Deteksi_wajah:
 			}
 
 			ciri = np.array(ciri)
-			print(f"Ciri Data Uji = {ciri}")
-			print(f"Rata-rata ciri {ekspresi} = {rata_rata_ciri[ekspresi]}")
-			print(f"Jarak ciri = {distance}")
-			print("______")
+			# print(f"Ciri Data Uji = {ciri}")
+			# print(f"Rata-rata ciri {ekspresi} = {rata_rata_ciri[ekspresi]}")
+			# print(f"Jarak ciri = {distance}")
+			# print("______")
 			print(f"Ciri GMI: {ciri}")
 			print(f"Ciri CV: {ciricv}")
-			print(f"Jarak GMI - CV: {Deteksi_wajah.distance(ciri, ciricv)}")
+
+			error = self.hitung_error(ciricv, ciri)
+
+			print('________________________________________')
+			print(f"Momen CV: {momen}")
+			print(f"Tipe Momen CV: {type(momen['m00'])}")
+			x = momen['m10']/momen['m00']
+			y = momen['m01']/momen['m00']
+			print(f"Xbar = {x}")
+			print(f"Ybar = {y}")
+
+			# print(f"Jarak GMI - CV: {Deteksi_wajah.distance(ciri, ciricv)}")
 
 			# end - klasifikasi
 
@@ -382,3 +392,8 @@ class Deteksi_wajah:
 		data1 = np.array(data1)
 		data2 = np.array(data2)
 		return np.linalg.norm(data1 - data2)
+
+	def hitung_error(self, data1, data2):
+		# MAE (Mean Absolute Error)
+		E = (np.sum(np.abs(data1 - data2)) )/ 7
+		print(f"Nilai Mean Absolute Error = {E}")

@@ -236,6 +236,7 @@ class Ekspresi_wajah:
 		ciri = []
 		ciricv = []
 		rata_rata_ciri = {}
+		directory = ""
 
 		if request.method == "POST":
 			f = request.files['foto']
