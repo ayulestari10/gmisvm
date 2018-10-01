@@ -8,30 +8,30 @@ class Database:
 		self.db = MySQLdb.connect(hostname, username, password, database)
 		self.cur = self.db.cursor()
 
-	def select_kelas(self, table):
+	def select_kelas(self, table, ket):
 		try:
 
-			query = "SELECT * FROM " + table
+			query = "SELECT * FROM " + table + ' WHERE ket = "' + ket + '"'
 			self.cur.execute(query)
 
 			data = self.cur.fetchall()
 
 			x = np.array(data)
-			kelas = x[:, 1]
+			kelas = x[:, 2]
 
 			return kelas
 		except:
 			print("error")
 			return None
 
-	def select_ciri(self, table):
+	def select_ciri(self, table, ket):
 		try:
-			query = "SELECT * FROM " + table
+			query = 'SELECT * FROM ' + table + ' WHERE ket = "' + ket + '"'
 			self.cur.execute(query)
 
 			data = self.cur.fetchall()
 			x = np.array(data)
-			ciri = x[:, 2:]
+			ciri = x[:, 3:]
 			kum_ciri = ciri.astype(np.float64)
 
 			return kum_ciri
@@ -39,18 +39,28 @@ class Database:
 			print("error")
 			return None
 
-	def insert_ciri(self, table, kelas, ciri):
+	def insert_ciri(self, table, kelas, ciri, ket):
 
 		try:
-			self.cur.execute("INSERT INTO "+ table +"(kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
+			self.cur.execute("INSERT INTO "+ table +"(ket, kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + ket + "'", "'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
 
 			self.db.commit()
 		except:
 			self.db.rollback()
 
-	def insert_ciri_test(self, table, kelas, ciri, jarak):
+	def insert_pengujian(self, data):
+
 		try:
-			self.cur.execute("INSERT INTO "+ table +"(kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7, jarak) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6], jarak))
+			self.cur.execute("INSERT INTO pengujian(id_ciri_pengujian_s, id_ciri_pengujian_o, nama_file, hasil_opencv, hasil_sendiri) VALUES (%s, %s, %s, %s, %s)" % (data['id_ciri_pengujian_s'], data['id_ciri_pengujian_o'], data[nama_file], data['hasil_opencv'], data['hasil_sendiri']))
+
+			self.db.commit()
+		except:
+			print("error pengujian")
+			self.db.rollback()
+
+	def insert_ciri_pengujian(self, table, kelas, ciri):
+		try:
+			self.cur.execute("INSERT INTO "+ table +"(kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)" % ("'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
 
 			self.db.commit()
 		except:
@@ -92,7 +102,7 @@ class Database:
 
 	def select_first_row(self):
 		try:
-			self.cur.execute("SELECT * FROM ciri_test ORDER BY id_ciri DESC LIMIT 1")
+			self.cur.execute("SELECT * FROM ciri_pengujian ORDER BY id_pengujian DESC LIMIT 1")
 			data = self.cur.fetchall()
 			return data
 		except:

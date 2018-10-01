@@ -7,6 +7,7 @@ from models.Database import Database
 from libs.Klasifikasi import Klasifikasi
 import MySQLdb
 import os
+from time import gmtime, strftime
 
 
 class Deteksi_wajah:
@@ -234,6 +235,157 @@ class Deteksi_wajah:
 			x, y, w, h = [v for v in f]
 			sub_face = img[y:y+h, x:x+w]
 
+			face_file_name = "data/latih_uji/" + dir1 + "/" + dir2 + "/" + "01.png"
+			cv2.imwrite(face_file_name, sub_face)
+
+		return face_file_name
+
+	def deteksi_multi_face(self, image):
+		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+
+		dir_image = 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\' + image
+		img = cv2.imread(dir_image)
+		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+		ekspr = list(self.rectColor.values())
+
+		global face_file_name
+
+		# ciri dan kelas sendiri
+		kumpulan_ciri_s 	= Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
+		kumpulan_kelas_s 	= Deteksi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
+
+		# ciri dan kelas openCV
+		kumpulan_ciri_o 	= Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'O')
+		kumpulan_kelas_o 	= Deteksi_wajah.Db.select_kelas('ciri_pelatihan', 'O')
+
+		rata_rata_ciri = {}
+		# for kelas in kumpulan_kelas:
+		# 	rata_rata_ciri[kelas] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas)
+
+		for i, f in enumerate(faces):
+			x, y, w, h = np.array([v for v in f], dtype=np.int64)
+
+			sub_face = img[y:y+h, x:x+w]
+
+			face_file_name = 'data/uji/' + str(i) + '.png'
+			cv2.imwrite(face_file_name, sub_face)
+
+			## start - klasifikasi
+			
+			pra = Praproses()
+			sub_face = pra.biner(face_file_name)
+			gmi 		= GMI(sub_face) 
+			gmi.hitungMomenNormalisasi()
+			ciri 		= gmi.hitungCiri()
+
+			momen = cv2.moments(sub_face)
+			ciricv = cv2.HuMoments(momen).flatten()
+			
+			# klasifikasi sendiri
+			kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)			
+			ekspresi_s 	= kl_s.classify([ciri])
+			print(f"Ekspresi Sendiri = {ekspresi_s}")
+
+			# klasifikasi openCV
+			kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)
+			ekspresi_o 	= kl_o.classify([ciricv])
+			print(f"Ekspresi OpenCV = {ekspresi_o}")
+
+			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi_s])
+			cv2.rectangle(img, (x, y - 30), (x + 100, y), self.rectColor[ekspresi_s], -1)
+			cv2.putText(img, ekspresi_s, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 2)
+			
+			#simpan gambar yang telah dilabel, dicrop
+
+			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ekspresi_s, ciri, 'S')
+			data_pengujian_s= Deteksi_wajah.Db.select_first_row()
+			id_pengujian_s 	= data_pengujian_s[0][0]
+
+			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ekspresi, ciricv, 'O')
+			data_pengujian_o= Deteksi_wajah.Db.select_first_row()
+			id_pengujian_o 	= data_pengujian_o[0][0]
+
+			jarak_natural	= Deteksi_wajah.distance(rata_rata_ciri['natural'], ciri)
+			jarak_bahagia 	= Deteksi_wajah.distance(rata_rata_ciri['bahagia'], ciri)
+			jarak_sedih		= Deteksi_wajah.distance(rata_rata_ciri['sedih'], ciri)
+			jarak_jijik		= Deteksi_wajah.distance(rata_rata_ciri['jijik'], ciri)
+			jarak_marah		= Deteksi_wajah.distance(rata_rata_ciri['marah'], ciri)
+			jarak_takut		= Deteksi_wajah.distance(rata_rata_ciri['takut'], ciri)
+			jarak_kaget		= Deteksi_wajah.distance(rata_rata_ciri['kaget'], ciri)
+
+			data_pengujian 	= {
+				'id_pengujian_o'	: str(id_pengujian_o),
+				'id_pengujian_s'	: str(id_pengujian_s),
+				'nama_file'			: image,
+				'hasil_sendiri'		: ekspresi_s,
+				'hasil_opencv'		: ekspresi_o
+			}
+			pengujian = Deteksi_wajah.Db.insert_pengujian(data_pengujian)
+			
+			# data_jarak = np.array([jarak_marah, jarak_jijik, jarak_takut, jarak_bahagia, jarak_sedih, jarak_kaget, jarak_natural])
+
+			# Deteksi_wajah.Db.insert_jarak(data_jarak, id_tes)
+
+			# id_tes 		= str(id_tes)
+			# jarak_min 	= Deteksi_wajah.Db.insert_jarak_min(id_tes, data_jarak)
+			# print(f"Jarak min = {jarak_min}")
+
+			# jarak = {
+			# 	'marah'		: jarak_marah,
+			# 	'sedih'		: jarak_sedih,
+			# 	'takut'		: jarak_takut,
+			# 	'jijik'		: jarak_jijik,
+			# 	'kaget'		: jarak_kaget,
+			# 	'bahagia'	: jarak_bahagia,
+			# 	'jarak_min'	: jarak_min
+			# }
+
+			# ciri = np.array(ciri)
+			# # print(f"Ciri Data Uji = {ciri}")
+			# # print(f"Rata-rata ciri {ekspresi} = {rata_rata_ciri[ekspresi]}")
+			# # print(f"Jarak ciri = {distance}")
+			# # print("______")
+			# print(f"Ciri GMI: {ciri}")
+			# print(f"Ciri CV: {ciricv}")
+
+			# error = self.hitung_error(ciricv, ciri)
+
+			# print('________________________________________')
+			# print(f"Momen CV: {momen}")
+			# print(f"Tipe Momen CV: {type(momen['m00'])}")
+			# x = momen['m10']/momen['m00']
+			# y = momen['m01']/momen['m00']
+			# print(f"Xbar = {x}")
+			# print(f"Ybar = {y}")
+
+			# # print(f"Jarak GMI - CV: {Deteksi_wajah.distance(ciri, ciricv)}")
+
+			# # end - klasifikasi
+
+		cwd = os.getcwd()
+		dir_file_name = 'static\\data\\latih_uji\\'+ directory + ' Hasil.png'
+		file_name = directory + ' Hasil.png'
+		cv2.imwrite(dir_file_name, img)
+
+		return file_name, jarak, ciri, ciricv, rata_rata_ciri
+
+	def deteksi2(self, image, dir1, dir2):
+		
+		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+
+		img = cv2.imread(image)
+		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+
+		global face_file_name
+		
+		for f in faces:
+			x, y, w, h = [v for v in f]
+			sub_face = img[y:y+h, x:x+w]
+
 			face_file_name = "data/training/" + dir1 + "/" + dir2 + "/" + "01.png"
 			cv2.imwrite(face_file_name, sub_face)
 
@@ -277,7 +429,7 @@ class Deteksi_wajah:
 		return file_name
 
 
-	def deteksi_multi_face(self, image, directory):
+	def deteksi_multi_face2(self, image, directory):
 		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
 
 		img = cv2.imread(image)
@@ -329,7 +481,7 @@ class Deteksi_wajah:
 
 			distance = Deteksi_wajah.distance(rata_rata_ciri[ekspresi], ciri)
 
-			Deteksi_wajah.Db.insert_ciri_test("ciri_test", ekspresi, ciri, distance)
+			Deteksi_wajah.Db.insert_ciri_pengujian("ciri_pengujian", ekspresi, ciri)
 			data_satu = Deteksi_wajah.Db.select_first_row()
 			id_tes = data_satu[0][0]
 
@@ -397,3 +549,5 @@ class Deteksi_wajah:
 		# MAE (Mean Absolute Error)
 		E = (np.sum(np.abs(data1 - data2)) )/ 7
 		print(f"Nilai Mean Absolute Error = {E}")
+
+
