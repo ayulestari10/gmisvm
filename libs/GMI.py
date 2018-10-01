@@ -30,7 +30,7 @@ class GMI():
             for y in range(ukuran[1]):
                 hasil += (x**p) * (y**q) * (self.matrix[x][y])
         m = hasil + float(0.0) 
-        print(f"m{p}{q} = {m}, tipe = {type(m)}")
+        # print(f"m{p}{q} = {m}, tipe = {type(m)}")
         return m
 
     def hitungMomenPusat2(self):
@@ -52,17 +52,17 @@ class GMI():
             for y in range(ukuran[1]):
                 hasil += (self.matrix[x][y]) * ((x - self.xbar)**p) * ((y - self.ybar)**q)
 
-        print(f"mu{p}{q} = {hasil}, tipe = {type(hasil)}")
+        # print(f"mu{p}{q} = {hasil}, tipe = {type(hasil)}")
         return hasil
         
     def x_bar(self):
         x = self.hitungMomen(1, 0) / self.hitungMomen(0, 0)
-        print(f"Xbar = {x}")
+        # print(f"Xbar = {x}")
         return x
         
     def y_bar(self):
         y = self.hitungMomen(0, 1) / self.hitungMomen(0, 0)
-        print(f"Ybar = {y}")
+        # print(f"Ybar = {y}")
         return y
 
     def momenNormalisasi(self, p, q):
@@ -74,7 +74,7 @@ class GMI():
         return ((p+q)/2)+1 
 
     def momenNormalisasi2(self, p, q):
-        print(f"mu{p}{q} = {self.n[p][q]}, tipe = {type(self.n[p][q])}")
+        # print(f"mu{p}{q} = {self.n[p][q]}, tipe = {type(self.n[p][q])}")
         return self.n[p][q] / (self.n[0][0] ** self.gamma(p, q))
         
     def hitungMomenNormalisasi(self):
@@ -85,13 +85,13 @@ class GMI():
         self.mt12 = self.momenNormalisasi(1, 2)
         self.mt21 = self.momenNormalisasi(2, 1)
         self.mt03 = self.momenNormalisasi(0, 3)
-        print(f"nu20 = {self.mt20}")
-        print(f"nu02 = {self.mt02}")
-        print(f"nu11 = {self.mt11}")
-        print(f"nu30 = {self.mt30}")
-        print(f"nu12 = {self.mt12}")
-        print(f"nu21 = {self.mt21}")
-        print(f"nu03 = {self.mt03}")
+        # print(f"nu20 = {self.mt20}")
+        # print(f"nu02 = {self.mt02}")
+        # print(f"nu11 = {self.mt11}")
+        # print(f"nu30 = {self.mt30}")
+        # print(f"nu12 = {self.mt12}")
+        # print(f"nu21 = {self.mt21}")
+        # print(f"nu03 = {self.mt03}")
 
     def hitungCiri(self):
         ciri = np.zeros((7))

@@ -303,17 +303,17 @@ class Deteksi_wajah:
 			data_pengujian_s= Deteksi_wajah.Db.select_first_row()
 			id_pengujian_s 	= data_pengujian_s[0][0]
 
-			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ekspresi, ciricv, 'O')
+			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ekspresi_o, ciricv, 'O')
 			data_pengujian_o= Deteksi_wajah.Db.select_first_row()
 			id_pengujian_o 	= data_pengujian_o[0][0]
 
-			jarak_natural	= Deteksi_wajah.distance(rata_rata_ciri['natural'], ciri)
-			jarak_bahagia 	= Deteksi_wajah.distance(rata_rata_ciri['bahagia'], ciri)
-			jarak_sedih		= Deteksi_wajah.distance(rata_rata_ciri['sedih'], ciri)
-			jarak_jijik		= Deteksi_wajah.distance(rata_rata_ciri['jijik'], ciri)
-			jarak_marah		= Deteksi_wajah.distance(rata_rata_ciri['marah'], ciri)
-			jarak_takut		= Deteksi_wajah.distance(rata_rata_ciri['takut'], ciri)
-			jarak_kaget		= Deteksi_wajah.distance(rata_rata_ciri['kaget'], ciri)
+			# jarak_natural	= Deteksi_wajah.distance(rata_rata_ciri['natural'], ciri)
+			# jarak_bahagia 	= Deteksi_wajah.distance(rata_rata_ciri['bahagia'], ciri)
+			# jarak_sedih		= Deteksi_wajah.distance(rata_rata_ciri['sedih'], ciri)
+			# jarak_jijik		= Deteksi_wajah.distance(rata_rata_ciri['jijik'], ciri)
+			# jarak_marah		= Deteksi_wajah.distance(rata_rata_ciri['marah'], ciri)
+			# jarak_takut		= Deteksi_wajah.distance(rata_rata_ciri['takut'], ciri)
+			# jarak_kaget		= Deteksi_wajah.distance(rata_rata_ciri['kaget'], ciri)
 
 			data_pengujian 	= {
 				'id_pengujian_o'	: str(id_pengujian_o),
@@ -322,7 +322,8 @@ class Deteksi_wajah:
 				'hasil_sendiri'		: ekspresi_s,
 				'hasil_opencv'		: ekspresi_o
 			}
-			pengujian = Deteksi_wajah.Db.insert_pengujian(data_pengujian)
+			print(f"Ini ya = {data_pengujian['id_pengujian_s']} tipe = {type(data_pengujian['id_pengujian_s'])}") 
+			pengujian = Deteksi_wajah.Db.insert_peng(image)
 			
 			# data_jarak = np.array([jarak_marah, jarak_jijik, jarak_takut, jarak_bahagia, jarak_sedih, jarak_kaget, jarak_natural])
 
@@ -365,11 +366,11 @@ class Deteksi_wajah:
 			# # end - klasifikasi
 
 		cwd = os.getcwd()
-		dir_file_name = 'static\\data\\latih_uji\\'+ directory + ' Hasil.png'
-		file_name = directory + ' Hasil.png'
+		dir_file_name = 'static\\data\\latih_uji\\ Hasil.png'
+		file_name = ' Hasil.png'
 		cv2.imwrite(dir_file_name, img)
 
-		return file_name, jarak, ciri, ciricv, rata_rata_ciri
+		return file_name
 
 	def deteksi2(self, image, dir1, dir2):
 		

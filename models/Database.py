@@ -51,11 +51,23 @@ class Database:
 	def insert_pengujian(self, data):
 
 		try:
-			self.cur.execute("INSERT INTO pengujian(id_ciri_pengujian_s, id_ciri_pengujian_o, nama_file, hasil_opencv, hasil_sendiri) VALUES (%s, %s, %s, %s, %s)" % (data['id_ciri_pengujian_s'], data['id_ciri_pengujian_o'], data[nama_file], data['hasil_opencv'], data['hasil_sendiri']))
+			print(f"Datta = {data}")
+			print(f"___..___")
+			self.cur.execute("INSERT INTO pengujian(id_ciri_pengujian_s, id_ciri_pengujian_o, nama_file, hasil_opencv, hasil_sendiri) VALUES (%s, %s, %s, %s, %s)" % (data['id_ciri_pengujian_s'], data['id_ciri_pengujian_o'], data['nama_file'], data['hasil_opencv'], data['hasil_sendiri']))
 
 			self.db.commit()
 		except:
 			print("error pengujian")
+			self.db.rollback()
+
+	def insert_peng(self, nama_file):
+
+		try:
+			self.cur.execute("INSERT INTO pengujian(nama_file) VALUES (%s)" % (nama_file))
+
+			self.db.commit()
+		except:
+			print("error pengujian 2")
 			self.db.rollback()
 
 	def insert_ciri_pengujian(self, table, kelas, ciri):
@@ -102,7 +114,7 @@ class Database:
 
 	def select_first_row(self):
 		try:
-			self.cur.execute("SELECT * FROM ciri_pengujian ORDER BY id_pengujian DESC LIMIT 1")
+			self.cur.execute("SELECT * FROM ciri_pengujian ORDER BY id_ciri_pengujian DESC LIMIT 1")
 			data = self.cur.fetchall()
 			return data
 		except:
