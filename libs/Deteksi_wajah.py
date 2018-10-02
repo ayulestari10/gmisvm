@@ -8,6 +8,7 @@ from libs.Klasifikasi import Klasifikasi
 import MySQLdb
 import os
 from time import gmtime, strftime
+from collections import Counter
 
 
 class Deteksi_wajah:
@@ -240,7 +241,7 @@ class Deteksi_wajah:
 
 		return face_file_name
 
-	def deteksi_multi_face(self, image):
+	def deteksi_multi_face(self, id_file, image):
 		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
 
 		dir_image = 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\' + image
@@ -252,17 +253,25 @@ class Deteksi_wajah:
 
 		global face_file_name
 
+		print(f"Ini jumlah face = {len(faces)}")
+
 		# ciri dan kelas sendiri
 		kumpulan_ciri_s 	= Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
 		kumpulan_kelas_s 	= Deteksi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
+
+		rata_rata_ciri_s = {}
+		for kelas_s in kumpulan_kelas_s:
+			rata_rata_ciri_s[kelas_s] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas_s)
 
 		# ciri dan kelas openCV
 		kumpulan_ciri_o 	= Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'O')
 		kumpulan_kelas_o 	= Deteksi_wajah.Db.select_kelas('ciri_pelatihan', 'O')
 
-		rata_rata_ciri = {}
-		# for kelas in kumpulan_kelas:
-		# 	rata_rata_ciri[kelas] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas)
+		rata_rata_ciri_o = {}
+		for kelas_o in kumpulan_kelas_o:
+			rata_rata_ciri_o[kelas_o] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas_o)
+
+		ekspresi_openCV = []
 
 		for i, f in enumerate(faces):
 			x, y, w, h = np.array([v for v in f], dtype=np.int64)
@@ -288,9 +297,10 @@ class Deteksi_wajah:
 			ekspresi_s 	= kl_s.classify([ciri])
 			print(f"Ekspresi Sendiri = {ekspresi_s}")
 
-			# klasifikasi openCV
+			# klasifikasi hasil ciri openCV
 			kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)
 			ekspresi_o 	= kl_o.classify([ciricv])
+			# ekspresi_openCV = ekspresi_o
 			print(f"Ekspresi OpenCV = {ekspresi_o}")
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi_s])
@@ -299,78 +309,153 @@ class Deteksi_wajah:
 			
 			#simpan gambar yang telah dilabel, dicrop
 
-			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ekspresi_s, ciri, 'S')
-			data_pengujian_s= Deteksi_wajah.Db.select_first_row()
-			id_pengujian_s 	= data_pengujian_s[0][0]
+			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ciri, 'S')
+			data_pengujian_s	= Deteksi_wajah.Db.select_first_row()
+			id_ciri_pengujian_s	= str(data_pengujian_s[0][0])
 
-			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ekspresi_o, ciricv, 'O')
-			data_pengujian_o= Deteksi_wajah.Db.select_first_row()
-			id_pengujian_o 	= data_pengujian_o[0][0]
+			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ciricv, 'O')
+			data_pengujian_o	= Deteksi_wajah.Db.select_first_row()
+			id_ciri_pengujian_o = str(data_pengujian_o[0][0])
 
-			# jarak_natural	= Deteksi_wajah.distance(rata_rata_ciri['natural'], ciri)
-			# jarak_bahagia 	= Deteksi_wajah.distance(rata_rata_ciri['bahagia'], ciri)
-			# jarak_sedih		= Deteksi_wajah.distance(rata_rata_ciri['sedih'], ciri)
-			# jarak_jijik		= Deteksi_wajah.distance(rata_rata_ciri['jijik'], ciri)
-			# jarak_marah		= Deteksi_wajah.distance(rata_rata_ciri['marah'], ciri)
-			# jarak_takut		= Deteksi_wajah.distance(rata_rata_ciri['takut'], ciri)
-			# jarak_kaget		= Deteksi_wajah.distance(rata_rata_ciri['kaget'], ciri)
+			# insert pengujian
+			waktu = strftime("%Y-%m-%d %H:%M:%S")
+			print(f"waktu = {waktu} dan tipe = {type(waktu)}")
 
 			data_pengujian 	= {
-				'id_pengujian_o'	: str(id_pengujian_o),
-				'id_pengujian_s'	: str(id_pengujian_s),
-				'nama_file'			: image,
-				'hasil_sendiri'		: ekspresi_s,
-				'hasil_opencv'		: ekspresi_o
+				'id_file'				: str(id_file),
+				'id_ciri_pengujian_o'	: id_ciri_pengujian_o,
+				'id_ciri_pengujian_s'	: id_ciri_pengujian_s,
+				'waktu'					: waktu,
+				'hasil_sendiri'			: ekspresi_s,
+				'hasil_opencv'			: ekspresi_o
 			}
-			print(f"Ini ya = {data_pengujian['id_pengujian_s']} tipe = {type(data_pengujian['id_pengujian_s'])}") 
-			pengujian = Deteksi_wajah.Db.insert_peng(image)
-			
-			# data_jarak = np.array([jarak_marah, jarak_jijik, jarak_takut, jarak_bahagia, jarak_sedih, jarak_kaget, jarak_natural])
+			pengujian = Deteksi_wajah.Db.insert_pengujian(data_pengujian)
 
-			# Deteksi_wajah.Db.insert_jarak(data_jarak, id_tes)
 
-			# id_tes 		= str(id_tes)
-			# jarak_min 	= Deteksi_wajah.Db.insert_jarak_min(id_tes, data_jarak)
-			# print(f"Jarak min = {jarak_min}")
+			# Jarak Setiap Ciri Koding Sendiri
 
-			# jarak = {
-			# 	'marah'		: jarak_marah,
-			# 	'sedih'		: jarak_sedih,
-			# 	'takut'		: jarak_takut,
-			# 	'jijik'		: jarak_jijik,
-			# 	'kaget'		: jarak_kaget,
-			# 	'bahagia'	: jarak_bahagia,
-			# 	'jarak_min'	: jarak_min
-			# }
+			jarak_bahagia_s = []
+			for i in range(7):
+				jarak_bahagia_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['bahagia'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'bahagia', jarak_bahagia_s)
 
-			# ciri = np.array(ciri)
-			# # print(f"Ciri Data Uji = {ciri}")
-			# # print(f"Rata-rata ciri {ekspresi} = {rata_rata_ciri[ekspresi]}")
-			# # print(f"Jarak ciri = {distance}")
-			# # print("______")
-			# print(f"Ciri GMI: {ciri}")
-			# print(f"Ciri CV: {ciricv}")
+			jarak_sedih_s = []
+			for i in range(7):
+				jarak_sedih_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['sedih'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'sedih', jarak_sedih_s)
 
-			# error = self.hitung_error(ciricv, ciri)
+			jarak_marah_s = []
+			for i in range(7):
+				jarak_marah_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['marah'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'marah', jarak_marah_s)
 
-			# print('________________________________________')
-			# print(f"Momen CV: {momen}")
-			# print(f"Tipe Momen CV: {type(momen['m00'])}")
-			# x = momen['m10']/momen['m00']
-			# y = momen['m01']/momen['m00']
-			# print(f"Xbar = {x}")
-			# print(f"Ybar = {y}")
+			jarak_jijik_s = []
+			for i in range(7):
+				jarak_jijik_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['jijik'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'jijik', jarak_jijik_s)
 
-			# # print(f"Jarak GMI - CV: {Deteksi_wajah.distance(ciri, ciricv)}")
+			jarak_kaget_s = []
+			for i in range(7):
+				jarak_kaget_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['kaget'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'kaget', jarak_kaget_s)
 
-			# # end - klasifikasi
+			jarak_takut_s = []
+			for i in range(7):
+				jarak_takut_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['takut'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'takut', jarak_takut_s)
 
-		cwd = os.getcwd()
-		dir_file_name = 'static\\data\\latih_uji\\ Hasil.png'
-		file_name = ' Hasil.png'
-		cv2.imwrite(dir_file_name, img)
+			jarak_natural_s = []
+			for i in range(7):
+				jarak_natural_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['natural'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'natural', jarak_natural_s)
+				
 
-		return file_name
+			# Jarak Setiap Ciri OpenCV
+
+			jarak_bahagia_o = []
+			for i in range(7):
+				jarak_bahagia_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['bahagia'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'bahagia', jarak_bahagia_o)
+
+			jarak_sedih_o = []
+			for i in range(7):
+				jarak_sedih_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['sedih'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'sedih', jarak_sedih_o)
+
+			jarak_marah_o = []
+			for i in range(7):
+				jarak_marah_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['marah'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'marah', jarak_marah_o)
+
+			jarak_jijik_o = []
+			for i in range(7):
+				jarak_jijik_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['jijik'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'jijik', jarak_jijik_o)
+
+			jarak_kaget_o = []
+			for i in range(7):
+				jarak_kaget_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['kaget'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'kaget', jarak_kaget_o)
+
+			jarak_takut_o = []
+			for i in range(7):
+				jarak_takut_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['takut'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'takut', jarak_takut_o)
+
+			jarak_natural_o = []
+			for i in range(7):
+				jarak_natural_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['natural'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'natural', jarak_natural_o)
+
+		# select data hasil pengujian sendiri dan insert hasil sendiri
+		hasil_s = Deteksi_wajah.Db.select_hasil('hasil_sendiri', str(id_file), waktu)
+		hitung_s = Counter(elem[0] for elem in hasil_s)
+
+		hasil_all_s = {
+			'id_file'	: id_file,
+			'ket'		: 'S', 
+			'wajah' 	: len(faces),
+			'bahagia'	: hitung_s['bahagia'],
+			'sedih'		: hitung_s['sedih'],
+			'marah'		: hitung_s['marah'],
+			'jijik'		: hitung_s['jijik'],
+			'kaget'		: hitung_s['kaget'],
+			'takut'		: hitung_s['takut'],
+			'natural'	: hitung_s['natural']
+		}
+		Deteksi_wajah.Db.insert_hasil(hasil_all_s)
+
+		# select data hasil pengujian openCV dan insert hasil openCV
+		hasil_o = Deteksi_wajah.Db.select_hasil('hasil_opencv', str(id_file), waktu)
+		hitung_o = Counter(elem[0] for elem in hasil_o)
+
+		hasil_all_o = {
+			'id_file'	: id_file,
+			'ket'		: 'O',
+			'wajah' 	: len(faces),
+			'bahagia'	: hitung_o['bahagia'],
+			'sedih'		: hitung_o['sedih'],
+			'marah'		: hitung_o['marah'],
+			'jijik'		: hitung_o['jijik'],
+			'kaget'		: hitung_o['kaget'],
+			'takut'		: hitung_o['takut'],
+			'natural'	: hitung_o['natural']
+		}
+		Deteksi_wajah.Db.insert_hasil(hasil_all_o)
+
+		print(f"Ekspresi OpenCV = {ekspresi_openCV}")
+
+		waktu = strftime("%Y-%m-%d %H:%M:%S")
+
+		dir_file_name1 	= 'static\\data\\latih_uji\\Hasil Sendiri ' + waktu
+		file_name1 		= 'Hasil Sendiri ' + waktu
+		cv2.imwrite(dir_file_name1, img)
+
+		dir_file_name2 	= 'static\\data\\latih_uji\\Hasil OpenCV ' + waktu
+		file_name2 		= 'Hasil OpenCV ' + waktu
+		cv2.imwrite(dir_file_name2, img)
+
+		return file_name1, file_name2
 
 	def deteksi2(self, image, dir1, dir2):
 		
@@ -419,7 +504,7 @@ class Deteksi_wajah:
 			ciri 		= gmi.hitungCiri()
 			# print(f"ciri data ke-{i} = {ciri}")
 			
-			Deteksi_wajah.Db.insert_ciri("ciri_ck_setara", ekspresi, ciri)
+			Deteksi_wajah.Db.insert_ciri2("ciri_ck_setara", ekspresi, ciri)
 
 
 		cwd = os.getcwd()
@@ -545,6 +630,9 @@ class Deteksi_wajah:
 		data1 = np.array(data1)
 		data2 = np.array(data2)
 		return np.linalg.norm(data1 - data2)
+
+	def hitung_jarak(data1, data2):
+		return abs(data1-data2)
 
 	def hitung_error(self, data1, data2):
 		# MAE (Mean Absolute Error)

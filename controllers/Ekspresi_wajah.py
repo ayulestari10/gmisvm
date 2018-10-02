@@ -320,10 +320,17 @@ class Ekspresi_wajah:
 		ciricv = []
 		rata_rata_ciri = {}
 		directory = ""
-		cwd 		= os.getcwd()
-		dirs 	  = cwd + '\\data\\uji\\bahagia.png'
 
-		return Ekspresi_wajah.Dw.deteksi_multi_face('bahagia.png')
+		data_uji = Ekspresi_wajah.Db.select_data_uji()
+		jumlah_data = len(data_uji)
+
+		for i in range(jumlah_data):
+			Ekspresi_wajah.Dw.deteksi_multi_face(data_uji[i][0], data_uji[i][1])
+
+
+		# return Ekspresi_wajah.Dw.deteksi_multi_face('bahagia.png')
+
+		return "Ayu Cantik"
 
 		# dir1 		= os.listdir('data/uji/' + directory)
 		# cwd 		= os.getcwd()

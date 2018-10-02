@@ -39,10 +39,10 @@ class Database:
 			print("error")
 			return None
 
-	def insert_ciri(self, table, kelas, ciri, ket):
+	def insert_ciri(self, table, ciri, ket):
 
 		try:
-			self.cur.execute("INSERT INTO "+ table +"(ket, kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + ket + "'", "'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
+			self.cur.execute("INSERT INTO "+ table +"(ket, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + ket + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
 
 			self.db.commit()
 		except:
@@ -51,24 +51,57 @@ class Database:
 	def insert_pengujian(self, data):
 
 		try:
-			print(f"Datta = {data}")
-			print(f"___..___")
-			self.cur.execute("INSERT INTO pengujian(id_ciri_pengujian_s, id_ciri_pengujian_o, nama_file, hasil_opencv, hasil_sendiri) VALUES (%s, %s, %s, %s, %s)" % (data['id_ciri_pengujian_s'], data['id_ciri_pengujian_o'], data['nama_file'], data['hasil_opencv'], data['hasil_sendiri']))
+			self.cur.execute("INSERT INTO pengujian(id_file, id_ciri_pengujian_s, id_ciri_pengujian_o, waktu, hasil_opencv, hasil_sendiri) VALUES (%s, %s, %s, %s, %s, %s)" % ("'" + data['id_file'] + "'", "'" + data['id_ciri_pengujian_s'] + "'", "'" + data['id_ciri_pengujian_o'] + "'", "'" + data['waktu'] + "'", "'" + data['hasil_opencv'] + "'", "'" + data['hasil_sendiri'] + "'"))
 
 			self.db.commit()
 		except:
 			print("error pengujian")
 			self.db.rollback()
 
-	def insert_peng(self, nama_file):
-
+	def insert_jarak_ciri(self, id_ciri_pengujian, kelas, data):
 		try:
-			self.cur.execute("INSERT INTO pengujian(nama_file) VALUES (%s)" % (nama_file))
+			self.cur.execute("INSERT INTO jarak(id_ciri_pengujian, kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)" % (id_ciri_pengujian, "'" + kelas + "'", data[0], data[1], data[2], data[3], data[4], data[5], data[6]))
 
 			self.db.commit()
 		except:
-			print("error pengujian 2")
+			print("Error Insert Jarak Ciri")
 			self.db.rollback()
+
+	def select_hasil(self, col, id_file, waktu):
+		try:
+			self.cur.execute("SELECT "+ col +" FROM pengujian WHERE id_file = '" + id_file + "' AND waktu = '" + waktu + "'")
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select hasil")
+			return None
+
+
+	def insert_hasil(self, data):
+
+		try:
+			print(f"hasil wajah= {data['wajah']} dan tipe = {type(data['wajah'])}")
+			self.cur.execute("INSERT INTO hasil(id_file, ket, jumlah_wajah_terdeteksi, klasifikasi_bahagia, klasifikasi_sedih, klasifikasi_marah, klasifikasi_jijik, klasifikasi_kaget, klasifikasi_takut, klasifikasi_natural) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % (data['id_file'], "'" + data['ket'] + "'", data['wajah'], data['bahagia'], data['sedih'], data['marah'], data['jijik'], data['kaget'], data['takut'], data['natural'] ))
+
+			self.db.commit()
+		except:
+			print("error insert hasil")
+			self.db.rollback()
+
+
+	def select_data_uji(self):
+		try:
+			self.cur.execute("SELECT * FROM file_uji")
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select file uji")
+			return None
+
+
+	# ####
+
+
 
 	def insert_ciri_pengujian(self, table, kelas, ciri):
 		try:
@@ -78,7 +111,7 @@ class Database:
 		except:
 			self.db.rollback()
 
-	def insert_jarak(self, data, id_tes):
+	def insert_jarak2(self, data, id_tes):
 		try:
 			self.cur.execute("INSERT INTO jarak(id_tes, jarak_marah, jarak_jijik, jarak_takut, jarak_bahagia, jarak_sedih, jarak_kaget, jarak_natural) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)" % (id_tes, data[0], data[1], data[2], data[3], data[4], data[5], data[6]))
 
