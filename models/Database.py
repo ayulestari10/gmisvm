@@ -51,11 +51,23 @@ class Database:
 	def insert_pengujian(self, data):
 
 		try:
-			self.cur.execute("INSERT INTO pengujian(id_file, id_ciri_pengujian_s, id_ciri_pengujian_o, waktu, hasil_opencv, hasil_sendiri) VALUES (%s, %s, %s, %s, %s, %s)" % ("'" + data['id_file'] + "'", "'" + data['id_ciri_pengujian_s'] + "'", "'" + data['id_ciri_pengujian_o'] + "'", "'" + data['waktu'] + "'", "'" + data['hasil_opencv'] + "'", "'" + data['hasil_sendiri'] + "'"))
+			self.cur.execute("INSERT INTO pengujian(id_file, id_ciri_pengujian_s, waktu, hasil_sendiri) VALUES (%s, %s, %s, %s)" % ("'" + data['id_file'] + "'", "'" + data['id_ciri_pengujian_s'] + "'", "'" + data['waktu'] + "'", "'" + data['hasil_sendiri'] + "'"))
 
 			self.db.commit()
 		except:
 			print("error pengujian")
+			self.db.rollback()
+
+	def update_pengujian(self, data):
+
+		try:
+			print(f"Data = {data}")
+			print(f"Data id_ciri_pengujian_o = {data['id_ciri_pengujian_o']}")
+			self.cur.execute("UPDATE pengujian SET id_ciri_pengujian_o = '" + data['id_ciri_pengujian_o'] + "', hasil_opencv = '" + data['hasil_opencv'] + "' WHERE waktu = '" + data['waktu'] + "'")
+
+			self.db.commit()
+		except:
+			print("error update pengujian")
 			self.db.rollback()
 
 	def insert_jarak_ciri(self, id_ciri_pengujian, kelas, data):
@@ -80,7 +92,6 @@ class Database:
 	def insert_hasil(self, data):
 
 		try:
-			print(f"hasil wajah= {data['wajah']} dan tipe = {type(data['wajah'])}")
 			self.cur.execute("INSERT INTO hasil(id_file, ket, jumlah_wajah_terdeteksi, klasifikasi_bahagia, klasifikasi_sedih, klasifikasi_marah, klasifikasi_jijik, klasifikasi_kaget, klasifikasi_takut, klasifikasi_natural) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % (data['id_file'], "'" + data['ket'] + "'", data['wajah'], data['bahagia'], data['sedih'], data['marah'], data['jijik'], data['kaget'], data['takut'], data['natural'] ))
 
 			self.db.commit()

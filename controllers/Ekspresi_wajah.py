@@ -323,11 +323,12 @@ class Ekspresi_wajah:
 
 		data_uji = Ekspresi_wajah.Db.select_data_uji()
 		jumlah_data = len(data_uji)
-
+		file_name = []
 		for i in range(jumlah_data):
-			Ekspresi_wajah.Dw.deteksi_multi_face(data_uji[i][0], data_uji[i][1])
+			file_name = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
+			file_name = Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1])
 
-
+		print(f"File name = {file_name}")
 		# return Ekspresi_wajah.Dw.deteksi_multi_face('bahagia.png')
 
 		return "Ayu Cantik"
