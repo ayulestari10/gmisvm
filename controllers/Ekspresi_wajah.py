@@ -241,14 +241,16 @@ class Ekspresi_wajah:
 			berkas 		= cwd + '\\data\\testing\\' + secure_filename(directory + '_' + f.filename)
 			print(berkas)
 
-			ekspresi, jarak, ciri, ciricv, rata_rata_ciri = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
+			ekspresi, jarak, ciri, ciricv, rata_rata_ciri = Ekspresi_wajah.Dw.deteksi_multi_face2(berkas, directory)
 		
 		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi, jarak = jarak, ciri = ciri, ciricv = ciricv, rata_rata_ciri = rata_rata_ciri, directory = directory)
 
 
 
 	@page.route(f'{base}/latih-uji', methods=['GET', 'POST'])
-	def latih_uji():
+	def latih_uji(): 
+		file_hasil = []
+
 		if request.method == 'POST':
 		
 			f = request.files['zip_file']
@@ -264,11 +266,10 @@ class Ekspresi_wajah:
 			os.remove(filename)
 
 			Ekspresi_wajah.latih(files, directory)
+			file_hasil = Ekspresi_wajah.uji()
+			flash('Data berhasil dilatih dan diuji!')
 
-			return redirect(url_for('.latih_uji'))
-			
-
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pelatihan dan Pengujian'})
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pelatihan dan Pengujian'}, hasil = file_hasil)
 
 
 	def latih(files, directory):
@@ -302,85 +303,128 @@ class Ekspresi_wajah:
 				gmi.hitungMomenNormalisasi()
 				ciri 		= gmi.hitungCiri()
 				kelas 		= jenis_kelas
-				Ekspresi_wajah.Db.insert_ciri('ciri_pelatihan', kelas, ciri, 'S')
+				Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciri, 'S')
 
 				momen = cv2.moments(pixel_binary)
 				ciricv 		= cv2.HuMoments(momen).flatten()
 
-				Ekspresi_wajah.Db.insert_ciri('ciri_pelatihan', kelas, ciricv, 'O')
+				Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciricv, 'O')
 
 		return True
 
-	@page.route(f'{base}/uji', methods=['GET', 'POST'])
 	def uji():
-		hitung = 0
-		ekspresi = ""
+		jarak_s = {}
+		jarak_o = {}
 		jarak = {}
-		ciri = []
-		ciricv = []
-		rata_rata_ciri = {}
-		directory = ""
+		files = {}
+		file_name_s = []
+		file_name_o = []
+
+		data_uji 	= Ekspresi_wajah.Db.select_data_uji()
+		jumlah_data = len(data_uji)
+		file_name 	= []
+		for i in range(jumlah_data):
+			file_name_s, jarak_s = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
+			file_name_o, jarak_o = Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1])
+
+		
+		print(f"file name = {file_name_s} dan tipe = {type(file_name_s)}")
+		print(f"file name len = {len(file_name_s)} dan tipe = {type(file_name_s)}")
+
+
+		files = {
+			'jumlah_file_name_s'	: len(file_name_s),
+			'file_s'				: file_name_s,
+			'jumlah_file_name_o'	: len(file_name_o),
+			'file_o'				: file_name_o
+		}
+
+		jarak = {
+			'jarak_all_s'			: jarak_s,
+			'jumlah_jarak_all_s'	: len(jarak_s),
+			'jarak_all_o'			: jarak_o,
+			'jumlah_jarak_all_o'	: len(jarak_o)  
+		}
+
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files)
+
+	def uji2():
+		jarak_s = {}
+		jarak_o = {}
+		jarak = {}
+		files = {}
+		file_name_s = []
+		file_name_o = []
 
 		data_uji = Ekspresi_wajah.Db.select_data_uji()
 		jumlah_data = len(data_uji)
 		file_name = []
 		for i in range(jumlah_data):
-			file_name = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
-			file_name = Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1])
+			file_name.append(Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1]))
+			file_name.append(Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1]))
 
-		print(f"File name = {file_name}")
-		# return Ekspresi_wajah.Dw.deteksi_multi_face('bahagia.png')
+		print(f"File name = {file_name} dan tipe = {type(file_name)}")
 
-		return "Ayu Cantik"
+		return file_name
+	
 
-		# dir1 		= os.listdir('data/uji/' + directory)
-		# cwd 		= os.getcwd()
+	@page.route(f'{base}/lakukan-uji', methods=['GET', 'POST'])
+	def lakukan_uji():
+		jarak_s = {}
+		jarak_o = {}
+		jarak = {}
+		files = {}
+		file_name_s = []
+		file_name_o = []
 
-		# for i in range(len(dir1)):
-		# 	print(i)
+		data_uji 	= Ekspresi_wajah.Db.select_data_uji()
+		jumlah_data = len(data_uji)
+		file_name 	= []
+		for i in range(1):
+			file_name_s, jarak_s = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
+			file_name_o, jarak_o = Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1])
 
-		# 	dir2		= os.listdir('data/uji/' + directory + '/') [i]
-		# 	print("dir 2 = " + dir2)
-
-		# 	jenis_kelas = dir1[i]
-		# 	print("jenis kelas = " + jenis_kelas)
-
-		# 	file_name	= os.listdir('data/uji/' + directory + '/' + dir2)[0]	
-		# 	print("file name = " + file_name)
-		# 	files	= os.listdir('data/uji/' + directory + '/' + dir2)
-		# 	for file in files:
-
-		# 		berkas 		= cwd + '\\data\\uji\\' + directory + '\\' + dir2 + '\\' + file
-
-		# 		print("berkas = " + berkas)
-
-		# 		berkas_citra = Ekspresi_wajah.Dw.deteksi(berkas, directory, dir2)
-
-		# 		pra = Praproses()
-		# 		pixel_binary = pra.biner(berkas_citra)
-
-		# 		gmi 		= GMI(pixel_binary) 
-		# 		gmi.hitungMomenNormalisasi()
-		# 		ciri 		= gmi.hitungCiri()
-		# 		kelas 		= jenis_kelas
-
-		# 		Ekspresi_wajah.Db.insert_ciri("ciri_pengujian", kelas, ciri)
-
-		# if request.method == "POST":
-		# 	f = request.files['foto']
-			
-		# 	directory = strftime("%Y-%m-%d-%H-%M-%S")
-
-		# 	filename = 'data\\testing\\' + secure_filename(directory + '_' + f.filename)
-		# 	f.save(filename)
-
-		# 	os.makedirs(f'data/testing/{directory}')
-
-		# 	cwd = os.getcwd()
-
-		# 	berkas 		= cwd + '\\data\\testing\\' + secure_filename(directory + '_' + f.filename)
-		# 	print(berkas)
-
-		# 	ekspresi, jarak, ciri, ciricv, rata_rata_ciri = Ekspresi_wajah.Dw.deteksi_multi_face(berkas, directory)
 		
-		# return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi, jarak = jarak, ciri = ciri, ciricv = ciricv, rata_rata_ciri = rata_rata_ciri, directory = directory)
+		# print(f"file name = {file_name_s} dan tipe = {type(file_name_s)}")
+		# print(f"file name len = {len(file_name_s)} dan tipe = {type(file_name_s)}")
+
+
+		files = {
+			'jumlah_file_name_s'	: len(file_name_s),
+			'file_s'				: file_name_s,
+			'jumlah_file_name_o'	: len(file_name_o),
+			'file_o'				: file_name_o
+		}
+
+		jarak = {
+			'jarak_all_s'			: jarak_s,
+			'jumlah_jarak_all_s'	: len(jarak_s),
+			'jarak_all_o'			: jarak_o,
+			'jumlah_jarak_all_o'	: len(jarak_o)  
+		}
+
+		hasil_akhir_s = Ekspresi_wajah.Db.select_join_hasil('S')
+		print(f"Hasil akhir s = {hasil_akhir_s} dan tipe = {type (hasil_akhir_s)}")
+		hasil_akhir_o = Ekspresi_wajah.Db.select_join_hasil('O')
+
+		# print(f"Jarak all s = {jarak} dan tipe = {type(jarak)}")
+		# print(f"Jarak bahagia jmlh = {jarak['jumlah_jarak_all_s']} dan tipe = {type(jarak['jumlah_jarak_all_s'])}")
+
+		# print(f"Jarak [0]= {jarak['jarak_all_s'][0]} dan tipe = {type(jarak['jarak_all_s'][0])}")
+		# print(f"Jarak bahagia = {jarak['jarak_all_s'][0]['bahagia']} dan tipe = {type(jarak['jarak_all_s'][0]['bahagia'])}")
+
+		# print(f"File = {files} dan tipe = {type(files)}")
+		# print(f"File jmlh = {files['jumlah_file_name_s']} dan tipe = {type(files['jumlah_file_name_s'])}")
+
+		# print(f"File-file = {files['file']} dan tipe = {type(files['file'])}")
+		# print(f"File-file = {files['file'][0]} dan tipe = {type(files['file'][0])}")
+
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files)
+
+	@page.route(f'{base}/hasil', methods=['GET', 'POST'])
+	def hasil():
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'})
+
+	@page.route(f'{base}/hasil_detail', methods=['GET', 'POST'])
+	def hasil_detail():
+		return render_template('layout.html', data = { 'view' : 'detail', 'title' : 'Pengujian dan Pelatihan'})

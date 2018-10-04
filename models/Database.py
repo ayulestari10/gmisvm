@@ -48,6 +48,15 @@ class Database:
 		except:
 			self.db.rollback()
 
+	def insert_ciri_pelatihan(self, table, kelas, ciri, ket):
+
+		try:
+			self.cur.execute("INSERT INTO "+ table +"(ket, kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + ket + "'", "'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
+
+			self.db.commit()
+		except:
+			self.db.rollback()
+
 	def insert_pengujian(self, data):
 
 		try:
@@ -61,8 +70,6 @@ class Database:
 	def update_pengujian(self, data):
 
 		try:
-			print(f"Data = {data}")
-			print(f"Data id_ciri_pengujian_o = {data['id_ciri_pengujian_o']}")
 			self.cur.execute("UPDATE pengujian SET id_ciri_pengujian_o = '" + data['id_ciri_pengujian_o'] + "', hasil_opencv = '" + data['hasil_opencv'] + "' WHERE waktu = '" + data['waktu'] + "'")
 
 			self.db.commit()
@@ -108,6 +115,16 @@ class Database:
 		except:
 			print("Error select file uji")
 			return None
+
+	def select_join_hasil(self, ket):
+		try:
+			self.cur.execute("SELECT * FROM hasil inner join file_uji on hasil.id_file = file_uji.id_file WHERE hasil.ket = '" + ket + "'")
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select hasil uji")
+			return None
+		
 
 
 	# ####

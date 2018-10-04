@@ -19,23 +19,6 @@
 
 					<form action="{{ url_for('.latih_uji') }}" method="POST" enctype="multipart/form-data" style="margin-top: 5%;">
 
-						<!-- <h5 class="text-left" style="font-weight: bold; margin-top: 10%;">Parameter Multi Class Support Vector Machine</h5>
-						<div class="form-group">
-						    <label for="Nilai C">Nilai C</label>
-							<input type="number" name="nilai_c" class="form-control" required>
-						</div>
-
-						<div class="form-group">
-						    <label for="Nilai Gamma">Nilai Gamma</label>
-							<input type="number" name="nilai_gamma" class="form-control" required>
-						</div>
-
-						<h5 class="text-left" style="font-weight: bold; margin-top: 10%;">Pilih Nilai K-Fold Cross Validation</h5>
-						<div class="form-group">
-						    <label for="Nilai K">Nilai K</label>
-							<input type="number" name="nilai_k" class="form-control" required>
-						</div> -->
-
 						<h5 class="text-left" style="font-weight: bold; margin-top: 10%;">Unggah Data</h5>
 						<div class="form-group form-file-upload form-file-multiple">
 						    <input type="file" name="zip_file" multiple="" class="inputFileHidden" required>
@@ -52,59 +35,94 @@
 					</form>
 				</div>
 
-				<!-- <div class="col-md-5 ml-auto mr-auto">
+				<div class="col-md-5 ml-auto mr-auto">
 					<div class="row">
 						<div class="col-md-12 ml-auto mr-auto">
-							<h3 class="title">Hasil</h3>
-							<img src="{{ url_for('static', filename='data/testing/cobaaa.jpg') }}" width = "100%">
+							<h3 class="title">Lakukan Pengujian</h3>
+							<a href="{{ url_for('.lakukan_uji') }}" class="btn btn-lg btn-info"><i class="info"></i> UJI</a>
 						</div>
 					</div>
-				</div> -->
+				</div>
 			</div>
 
 			<style type="text/css">
 				table{width: 100%}
+				.foto{width:100px; height:100px;}
 			</style>
 
-			<!-- <div class="row">
-				<div class="col-md-12 ml-auto mr-auto">
-					<div class="row">
-						<div class="col-md-12 ml-auto mr-auto">
-							<h3 class="title">Ciri Setiap Kelas</h3>
-							<div>
-								<table class="table table-hover table-bordered">
-									<thead>
-										<tr class="danger">
-											<th></th>
-											<th>Kelas</th>
-											<th>Ciri 1</th>
-											<th>Ciri 2</th>
-											<th>Ciri 3</th>
-											<th>Ciri 4</th>
-											<th>Ciri 5</th>
-											<th>Ciri 6</th>
-											<th>Ciri 7</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td>1</td>
-											<td>Sedih</td>
-											<td>0.1</td>
-											<td>0.1</td>
-											<td>0.1</td>
-											<td>0.1</td>
-											<td>0.1</td>
-											<td>0.1</td>
-											<td>0.1</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
+			<hr><hr>
+				<div class="row">
+					<div class="col-md-12 ml-auto mr-auto">
+						<h2 class="title"><strong>Hasil Pengujian</strong></h2>
 					</div>
 				</div>
-			</div> -->
+				
+				<div class="row" style="margin-top: 2%;">
+					<div class="col-md-12">
+						<table class="table table-bordered" style="text-align: center;">
+							<thead style="background-color: lightgray; font-weight: bold;">
+								<tr>
+									<th rowspan="2">No</th>
+									<th rowspan="2">File Name</th>
+									<th rowspan="2">Thumbnail</th>
+									<th rowspan="2">Target</th>
+									<th colspan="2">Hasil</th>
+									<th colspan="2">Jarak</th>
+									<th rowspan="2">Aksi</th>
+								</tr>
+								<tr>
+									<th>Kode Sendiri</th>
+									<th>OpenCV</th>
+									<th>Kode Sendiri</th>
+									<th>OpenCV</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr style="text-align: left;">
+									<td>1</td>
+									<td>Bahagia.png</td>
+									<td style="width: 100px;">
+										<img src="{{ url_for('static', filename='data/latih_uji/2018-10-03_13-42-22_Hasil_Sendiri.png') }}" class="foto" alt="Gambar">
+									</td>
+									<td>
+										WT = 6</br>
+										B = 4</br>
+										S = 2</br>
+									</td>
+									<td>
+										WS = 5</br>
+										B = 3</br>
+										S = 1</br>
+										T = 1</br>
+									</td>
+									<td>
+										WO = 5</br>
+										B = 3</br>
+										S = 1</br>
+										T = 1</br>
+									</td>
+									<td>
+										W1 = 0.01</br>
+										W2 = 0.0031</br>
+										W3 = 0.0131</br>
+										W4 = 0.0111</br>
+									</td>
+									<td>
+										W1 = 0.01</br>
+										W2 = 0.0031</br>
+										W3 = 0.0131</br>
+										W4 = 0.0111</br>
+									</td>
+									<td>
+										<a href="{{ url_for('.hasil_detail') }}" class="btn btn-info"><i class="fa fa-info"></i> DETAIL</a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					
+				</div>
 		</div>
 	</div>
 </div>

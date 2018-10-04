@@ -29,6 +29,7 @@ class Deteksi_wajah:
 			'kaget' : (0, 0, 0)			# hitam
 		}
 		self.waktu_s = ""
+		self.jarak = 0
 
 	# fungsi untuk mengambil piksel sub window
 	def get_sliding_window(self, matrix, x, y, size = 24):
@@ -243,6 +244,8 @@ class Deteksi_wajah:
 		return face_file_name
 
 	def deteksi_multi_face_sendiri(self, id_file, image):
+		jarak_all_s = []
+
 		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
 
 		dir_image 	= 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\' + image
@@ -253,6 +256,10 @@ class Deteksi_wajah:
 		ekspr 		= list(self.rectColor.values())
 
 		global face_file_name
+		directory = strftime("%Y-%m-%d_%H-%M-%S")
+
+		path = 'static/data/latih_uji/' + directory
+		os.mkdir(path, 0755);
 
 		print(f"Ini jumlah face = {len(faces)}")
 
@@ -268,7 +275,7 @@ class Deteksi_wajah:
 			x, y, w, h 		= np.array([v for v in f], dtype=np.int64)
 
 			sub_face 		= img[y:y+h, x:x+w]
-			face_file_name 	= 'data/uji/' + str(i) + '.png'
+			face_file_name 	= 'static/data/latih_uji/' + str(i) + '.png'
 			cv2.imwrite(face_file_name, sub_face)
 
 			## start - klasifikasi
@@ -343,7 +350,21 @@ class Deteksi_wajah:
 				jarak_natural_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['natural'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'natural', jarak_natural_s)
 				
+			jarak_all = {
+				'bahagia'	: jarak_bahagia_s,
+				'sedih'		: jarak_sedih_s,
+				'marah'		: jarak_marah_s, 
+				'jijik'		: jarak_jijik_s,
+				'kaget'		: jarak_kaget_s,
+				'takut'		: jarak_takut_s,
+				'natural'	: jarak_natural_s
+			}
 
+			jarak_all_s.append(jarak_all)
+
+		
+		# print(f"Jarak all s = {jarak_all_s} dan tipe = {type(jarak_all_s)}")
+		# print(f"Jarak bahagia = {jarak_all_s[0]['bahagia']} dan tipe = {type(jarak_all_s[0]['bahagia'])}")
 		# select data hasil pengujian sendiri dan insert hasil sendiri
 		hasil_s 	= Deteksi_wajah.Db.select_hasil('hasil_sendiri', str(id_file), self.waktu_s)
 		hitung_s 	= Counter(elem[0] for elem in hasil_s)
@@ -362,16 +383,17 @@ class Deteksi_wajah:
 		}
 		Deteksi_wajah.Db.insert_hasil(hasil_all_s)
 
-		cwd = os.getcwd()
+		file_name_s = []
+
 		dir_file_name 	= 'static/data/latih_uji/' + self.waktu_s + '_Hasil_Sendiri.png'
-		print(f"dir = {dir_file_name}")
-		file_name 		= self.waktu_s + '_Hasil_Sendiri.png'
-		print(f"file name = {file_name}")
+		file_name_s.append(self.waktu_s + '_Hasil_Sendiri.png')
 		cv2.imwrite(dir_file_name, img)
 
-		return file_name
+		return file_name_s, jarak_all_s
 
 	def deteksi_multi_face_opencv(self, id_file, image):
+		jarak_all_o = []
+
 		face_cascade= cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
 
 		dir_image 	= 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\' + image
@@ -407,10 +429,6 @@ class Deteksi_wajah:
 			
 			pra 		= Praproses()
 			sub_face 	= pra.biner(face_file_name)
-			gmi 		= GMI(sub_face) 
-			gmi.hitungMomenNormalisasi()
-			ciri 		= gmi.hitungCiri()
-
 			momen 		= cv2.moments(sub_face)
 			ciricv 		= cv2.HuMoments(momen).flatten()
 			
@@ -440,38 +458,50 @@ class Deteksi_wajah:
 
 			jarak_bahagia_o = []
 			for i in range(7):
-				jarak_bahagia_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['bahagia'][i]))
+				jarak_bahagia_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['bahagia'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'bahagia', jarak_bahagia_o)
 
 			jarak_sedih_o = []
 			for i in range(7):
-				jarak_sedih_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['sedih'][i]))
+				jarak_sedih_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['sedih'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'sedih', jarak_sedih_o)
 
 			jarak_marah_o = []
 			for i in range(7):
-				jarak_marah_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['marah'][i]))
+				jarak_marah_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['marah'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'marah', jarak_marah_o)
 
 			jarak_jijik_o = []
 			for i in range(7):
-				jarak_jijik_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['jijik'][i]))
+				jarak_jijik_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['jijik'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'jijik', jarak_jijik_o)
 
 			jarak_kaget_o = []
 			for i in range(7):
-				jarak_kaget_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['kaget'][i]))
+				jarak_kaget_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['kaget'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'kaget', jarak_kaget_o)
 
 			jarak_takut_o = []
 			for i in range(7):
-				jarak_takut_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['takut'][i]))
+				jarak_takut_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['takut'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'takut', jarak_takut_o)
 
 			jarak_natural_o = []
 			for i in range(7):
-				jarak_natural_o.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_o['natural'][i]))
+				jarak_natural_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['natural'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'natural', jarak_natural_o)
+
+			jarak_all__o = {
+				'bahagia'	: jarak_bahagia_o,
+				'sedih'		: jarak_sedih_o,
+				'marah'		: jarak_marah_o, 
+				'jijik'		: jarak_jijik_o,
+				'kaget'		: jarak_kaget_o,
+				'takut'		: jarak_takut_o,
+				'natural'	: jarak_natural_o
+			}
+
+			jarak_all_o.append(jarak_all__o)
 
 		# select data hasil pengujian openCV dan insert hasil openCV
 		hasil_o = Deteksi_wajah.Db.select_hasil('hasil_opencv', str(id_file), self.waktu_s)
@@ -491,12 +521,12 @@ class Deteksi_wajah:
 		}
 		Deteksi_wajah.Db.insert_hasil(hasil_all_o)
 
-		cwd = os.getcwd()
+		file_name_o = []
 		dir_file_name 	= 'static/data/latih_uji/' + self.waktu_s + '_Hasil_OpenCV.png'
-		file_name 		= self.waktu_s + '_Hasil_OpenCV.png'
+		file_name_o.append(self.waktu_s + '_Hasil_OpenCV.png')
 		cv2.imwrite(dir_file_name, img)
 
-		return file_name
+		return file_name_o, jarak_all_o
 
 
 	def deteksi2(self, image, dir1, dir2):

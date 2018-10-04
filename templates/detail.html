@@ -1,0 +1,70 @@
+<div class="" style="margin-top: -8%; background: #FFFFFF; min-height: 550px;">
+    <div class="container">
+      	<div class="section text-center" style="margin: auto 0 !important;">
+
+			<style type="text/css">
+				table{width: 100%}
+				.foto{width: 400px; height: 400px;}
+			</style>
+
+			<hr><hr>
+				<div class="row">
+					<div class="col-md-12 ml-auto mr-auto">
+						<h2 class="title"><strong>Detail Hasil</strong></h2>
+					</div>
+				</div>
+				<div class="row" style="margin-top: 2%; margin-left: -9%;">
+					<div class="col-md-6">
+						<img src="{{ url_for('static', filename='data/latih_uji/2018-10-03_13-42-22_Hasil_Sendiri.png') }}" class="foto">
+					</div> 
+				</div>
+
+				<div class="row">
+					<div class="col-md-12">
+						<h3 class="title" style="text-align: left;"><strong>Hasil Ekstraksi Ciri</strong></h3>
+					</div>
+				</div>
+				
+				<div class="row" style="margin-top: 2%;">
+					<div class="col-md-6">
+						<table class="table table-bordered">
+							<thead style="background-color: lightgrey; text-align: center;">
+								<tr>
+									<th rowspan="2">Wajah</th>
+									<th rowspan="2">Thumbnail</th>
+									<th colspan="2">Metode GMI</th>
+									<th colspan="7">Ciri</th>
+								</tr>
+								<tr>
+									<th>Code Sendiri</th>
+									<th>OpenCV</th>
+									<th>1</th>
+									<th>2</th>
+									<th>3</th>
+									<th>4</th>
+									<th>5</th>
+									<th>6</th>
+									<th>7</th>
+								</tr>
+							</thead>
+							<tbody style="text-align: left;">
+								<tr>
+									<td>1</td>
+									<td style="width: 100px;">
+										<img src="{{ url_for('static', filename='data/latih_uji/2018-10-03_13-42-22_Hasil_Sendiri.png') }}" class="foto" alt="Gambar">
+									</td>
+									<td>0.0000017716161</td>
+									<td>0.0000017716161</td>
+									<td>0.0000017716161</td>
+									<td>0.0000017716161</td>
+									<td>0.0000017716161</td>
+									<td>0.0000017716161</td>
+									<td>0.0000017716161</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+		</div>
+	</div>
+</div>
