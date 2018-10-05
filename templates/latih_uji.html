@@ -117,6 +117,51 @@
 										<a href="{{ url_for('.hasil_detail') }}" class="btn btn-info"><i class="fa fa-info"></i> DETAIL</a>
 									</td>
 								</tr>
+								{% for i in range(files['jumlah_data']) %}
+									<tr style="text-align: left;">
+										<td>{{ i + 1 }}</td>
+										<td>{{ files['data_uji'][i][1] }}</td>
+										<td style="width: 100px;">
+											<img src="{{ url_for('static', filename='data/latih_uji/' + files['file_s'][i]) }}" class="foto" alt="Gambar {{ files['file_s'][i] }}">
+										</td>  
+										<td>
+											{% for key, value in target[i].items(): %}
+												{% if value != 0: %}
+													{{ key + '=' + value|string}}</br>
+												{% endif %}
+											{% endfor %}
+										</td>
+										<td>
+											{% for key, value in hasil_all_s[i].items(): %}
+												{% if value != 0: %}
+													{{ key + '=' + value|string}}</br>
+												{% endif %}
+											{% endfor %}
+										</td>
+										<td>
+											{% for key, value in hasil_all_o[i].items(): %}
+												{% if value != 0: %}
+													{{ key + '=' + value|string}}</br>
+												{% endif %}
+											{% endfor %}
+										</td>
+										<td>
+											W1 = 0.01</br>
+											W2 = 0.0031</br>
+											W3 = 0.0131</br>
+											W4 = 0.0111</br>
+										</td>
+										<td>
+											W1 = 0.01</br>
+											W2 = 0.0031</br>
+											W3 = 0.0131</br>
+											W4 = 0.0111</br>
+										</td>
+										<td>
+											<a href="{{ url_for('.hasil_detail') }}" class="btn btn-info"><i class="fa fa-info"></i> DETAIL</a>
+										</td>
+									</tr>
+								{% endfor %}
 							</tbody>
 						</table>
 					</div>

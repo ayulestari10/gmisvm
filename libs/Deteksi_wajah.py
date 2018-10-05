@@ -259,7 +259,8 @@ class Deteksi_wajah:
 		directory = strftime("%Y-%m-%d_%H-%M-%S")
 
 		path = 'static/data/latih_uji/' + directory
-		os.mkdir(path, 0755);
+		if os.path.exists(path) is False:
+			os.mkdir(path)
 
 		print(f"Ini jumlah face = {len(faces)}")
 
@@ -271,11 +272,13 @@ class Deteksi_wajah:
 		for kelas_s in kumpulan_kelas_s:
 			rata_rata_ciri_s[kelas_s] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas_s)
 
+		self.waktu_s = strftime("%Y-%m-%d_%H-%M-%S")
+		
 		for i, f in enumerate(faces):
 			x, y, w, h 		= np.array([v for v in f], dtype=np.int64)
 
 			sub_face 		= img[y:y+h, x:x+w]
-			face_file_name 	= 'static/data/latih_uji/' + str(i) + '.png'
+			face_file_name 	= path + '/' + str(i) + '.png'
 			cv2.imwrite(face_file_name, sub_face)
 
 			## start - klasifikasi
@@ -304,7 +307,6 @@ class Deteksi_wajah:
 			id_ciri_pengujian_s	= str(data_pengujian_s[0][0])
 
 			# insert pengujian
-			self.waktu_s = strftime("%Y-%m-%d_%H-%M-%S")
 
 			data_pengujian 	= {
 				'id_file'				: str(id_file),
@@ -362,9 +364,6 @@ class Deteksi_wajah:
 
 			jarak_all_s.append(jarak_all)
 
-		
-		# print(f"Jarak all s = {jarak_all_s} dan tipe = {type(jarak_all_s)}")
-		# print(f"Jarak bahagia = {jarak_all_s[0]['bahagia']} dan tipe = {type(jarak_all_s[0]['bahagia'])}")
 		# select data hasil pengujian sendiri dan insert hasil sendiri
 		hasil_s 	= Deteksi_wajah.Db.select_hasil('hasil_sendiri', str(id_file), self.waktu_s)
 		hitung_s 	= Counter(elem[0] for elem in hasil_s)
@@ -383,15 +382,13 @@ class Deteksi_wajah:
 		}
 		Deteksi_wajah.Db.insert_hasil(hasil_all_s)
 
-		file_name_s = []
-
-		dir_file_name 	= 'static/data/latih_uji/' + self.waktu_s + '_Hasil_Sendiri.png'
-		file_name_s.append(self.waktu_s + '_Hasil_Sendiri.png')
+		dir_file_name 	= 'static/data/latih_uji/' + directory + '_Hasil_Sendiri.png'
+		file_name_s		= directory + '_Hasil_Sendiri.png'
 		cv2.imwrite(dir_file_name, img)
 
-		return file_name_s, jarak_all_s
+		return file_name_s, jarak_all_s, directory, hasil_all_s
 
-	def deteksi_multi_face_opencv(self, id_file, image):
+	def deteksi_multi_face_opencv(self, id_file, image, directory):
 		jarak_all_o = []
 
 		face_cascade= cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
@@ -422,11 +419,10 @@ class Deteksi_wajah:
 
 			sub_face = img[y:y+h, x:x+w]
 
-			face_file_name = 'data/uji/' + str(i) + '__.png'
+			face_file_name = 'static/data/latih_uji/' + directory + '/' + str(i) + '_.png'
 			cv2.imwrite(face_file_name, sub_face)
 
 			## start - klasifikasi
-			
 			pra 		= Praproses()
 			sub_face 	= pra.biner(face_file_name)
 			momen 		= cv2.moments(sub_face)
@@ -521,12 +517,11 @@ class Deteksi_wajah:
 		}
 		Deteksi_wajah.Db.insert_hasil(hasil_all_o)
 
-		file_name_o = []
-		dir_file_name 	= 'static/data/latih_uji/' + self.waktu_s + '_Hasil_OpenCV.png'
-		file_name_o.append(self.waktu_s + '_Hasil_OpenCV.png')
+		dir_file_name 	= 'static/data/latih_uji/' + directory + '_Hasil_OpenCV.png'
+		file_name_o		= directory + '_Hasil_OpenCV.png'
 		cv2.imwrite(dir_file_name, img)
 
-		return file_name_o, jarak_all_o
+		return file_name_o, jarak_all_o, hasil_all_o
 
 
 	def deteksi2(self, image, dir1, dir2):

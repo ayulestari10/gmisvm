@@ -124,7 +124,15 @@ class Database:
 		except:
 			print("Error select hasil uji")
 			return None
-		
+	
+	def select_target(self, id_file):
+		try:
+			self.cur.execute("SELECT * FROM file_uji WHERE id_file = '" + str(id_file) + "'")
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select target")
+			return None
 
 
 	# ####

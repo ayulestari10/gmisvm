@@ -370,31 +370,63 @@ class Ekspresi_wajah:
 
 	@page.route(f'{base}/lakukan-uji', methods=['GET', 'POST'])
 	def lakukan_uji():
-		jarak_s = {}
-		jarak_o = {}
-		jarak = {}
-		files = {}
-		file_name_s = []
-		file_name_o = []
+		jarak_s 		= {}
+		jarak_o 		= {}
+		jarak 			= {}
+		files 			= {}
+		file_name_s 	= []
+		file_name_o 	= []
+		directory 		= []
+		hasil_all_s 	= []
+		hasil_final_s 	= []
+		hasil_all_o 	= []
+		hasil_final_o 	= []
+		target 			= []
 
-		data_uji 	= Ekspresi_wajah.Db.select_data_uji()
+		data_uji 		= Ekspresi_wajah.Db.select_data_uji()
+		# print(f"Data uji = {data_uji} dan tipe = {type(data_uji)}") 
+		# print(f"Data uji1 = {data_uji[1]} dan tipe = {type(data_uji[1])}")
+		# print(f"Data uji w = {data_uji[1][2]} dan tipe = {type(data_uji[1][2])}")
+
 		jumlah_data = len(data_uji)
-		file_name 	= []
-		for i in range(1):
-			file_name_s, jarak_s = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
-			file_name_o, jarak_o = Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1])
 
-		
-		# print(f"file name = {file_name_s} dan tipe = {type(file_name_s)}")
-		# print(f"file name len = {len(file_name_s)} dan tipe = {type(file_name_s)}")
-
+		for i in range(jumlah_data):
+			file_name__s, jarak_s, directory, hasil_all_s = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
+			file_name_s.append(file_name__s)
+			hasil_final_s.append({
+				'WS'	: hasil_all_s['wajah'],
+				'B'		: hasil_all_s['bahagia'],
+				'S'		: hasil_all_s['sedih'],
+				'M'		: hasil_all_s['marah'],
+				'J'		: hasil_all_s['jijik'],
+				'K'		: hasil_all_s['kaget'],
+				'T'		: hasil_all_s['takut'],
+				'N'		: hasil_all_s['natural']
+			})
+ 
+			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1], directory)
+			hasil_final_o.append({
+				'WO'	: hasil_all_o['wajah'],
+				'B'		: hasil_all_o['bahagia'],
+				'S'		: hasil_all_o['sedih'],
+				'M'		: hasil_all_o['marah'],
+				'J'		: hasil_all_o['jijik'],
+				'K'		: hasil_all_o['kaget'],
+				'T'		: hasil_all_o['takut'],
+				'N'		: hasil_all_o['natural']
+			})
 
 		files = {
 			'jumlah_file_name_s'	: len(file_name_s),
 			'file_s'				: file_name_s,
 			'jumlah_file_name_o'	: len(file_name_o),
-			'file_o'				: file_name_o
+			'file_o'				: file_name_o,
+			'jumlah_data'			: jumlah_data,
+			'data_uji'				: data_uji
 		}
+
+		# print(f"File = {files['file_s']} dan tipe = {type(files['file_s'])}")
+		# print(f"File pertama = {files['file_s'][0]} dan tipe = {type(files['file_s'][0])}")
 
 		jarak = {
 			'jarak_all_s'			: jarak_s,
@@ -403,9 +435,45 @@ class Ekspresi_wajah:
 			'jumlah_jarak_all_o'	: len(jarak_o)  
 		}
 
-		hasil_akhir_s = Ekspresi_wajah.Db.select_join_hasil('S')
-		print(f"Hasil akhir s = {hasil_akhir_s} dan tipe = {type (hasil_akhir_s)}")
-		hasil_akhir_o = Ekspresi_wajah.Db.select_join_hasil('O')
+		# print(f"Hasil all = {hasil_final_s} dan tipe = {type(hasil_final_s)}")
+		# print(f"Hasil all = {hasil_final_s[0]} dan tipe = {type(hasil_final_s[0])}")
+		# print(f"Jumlah hasil all = {len(hasil_final_s)} ")
+		# print(f"Jumlah hasil all s = {len(hasil_final_s[0])} ")
+
+
+		for i in range(jumlah_data):
+			target.append({
+				'WT'	: data_uji[i][2],
+				'B'		: data_uji[i][3],
+				'S'		: data_uji[i][4],
+				'M'		: data_uji[i][5],
+				'J'		: data_uji[i][6],
+				'K'		: data_uji[i][7],
+				'T'		: data_uji[i][8],
+				'N'		: data_uji[i][9]
+			})
+
+		# for i in range(jumlah_data):
+		# 	for key, value in target[i].items():
+		# 		if value != 0:
+		# 			y = key + '=' + str(value)
+		# 			h.update(y)  
+
+		# print(f"H all = {h} dan tipe = {type(h)}")
+
+		# print(f"Target = {target} dan tipe = {type(target)}")
+		# print(f"Len Target = {len(target)}")
+		# print(f"Target 0= {target[0]} dan tipe = {type(target[0])}")	
+		# print(f"Target ke-0 = {target[0]['WT']} dan tipe = {type(target[0]['WT'])}")	
+
+		# for i in range(len(target)):
+		# 	for key, value in target[i].items():
+		# 		if value != 0:
+		# 			data_target_uji = key + ':' + str(value)
+	
+		# print(f"Target data = {data_target_uji} dan tipe = {type(data_target_uji)}")
+		# print(f"Target data 0= {data_target_uji[0]} dan tipe = {type(data_target_uji)[0]}")
+
 
 		# print(f"Jarak all s = {jarak} dan tipe = {type(jarak)}")
 		# print(f"Jarak bahagia jmlh = {jarak['jumlah_jarak_all_s']} dan tipe = {type(jarak['jumlah_jarak_all_s'])}")
@@ -419,7 +487,7 @@ class Ekspresi_wajah:
 		# print(f"File-file = {files['file']} dan tipe = {type(files['file'])}")
 		# print(f"File-file = {files['file'][0]} dan tipe = {type(files['file'][0])}")
 
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files)
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, hasil_all_s = hasil_final_s, hasil_all_o = hasil_final_o)
 
 	@page.route(f'{base}/hasil', methods=['GET', 'POST'])
 	def hasil():
