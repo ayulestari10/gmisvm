@@ -70,7 +70,7 @@ class Database:
 	def update_pengujian(self, data):
 
 		try:
-			self.cur.execute("UPDATE pengujian SET id_ciri_pengujian_o = '" + data['id_ciri_pengujian_o'] + "', hasil_opencv = '" + data['hasil_opencv'] + "' WHERE waktu = '" + data['waktu'] + "'")
+			self.cur.execute("UPDATE pengujian SET id_ciri_pengujian_o = '" + data['id_ciri_pengujian_o'] + "', hasil_opencv = '" + data['hasil_opencv'] + "' WHERE id_pengujian = '" + str(data['id_pengujian']) + "'")
 
 			self.db.commit()
 		except:
@@ -120,6 +120,7 @@ class Database:
 		try:
 			self.cur.execute("SELECT * FROM pengujian WHERE id_file = '" + str(id_file) + "' AND waktu = '" + waktu + "'")
 			data = self.cur.fetchall()
+			print(f"Data cantik = {data}")
 			return data
 		except:
 			print("Error select pengujian")
@@ -154,6 +155,16 @@ class Database:
 		except:
 			print("error select ciri pengujian")
 			return None
+
+	def select_pengujian_first_row(self):
+		try:
+			self.cur.execute("SELECT * FROM pengujian ORDER BY id_pengujian DESC LIMIT 1")
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error first row pengujian")
+			return None
+
 	# ####
 
 
@@ -208,6 +219,7 @@ class Database:
 		except:
 			print("Error first row")
 			return None
+
 
 	def select_id(self, ciri, jarak):
 		try:

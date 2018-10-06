@@ -245,6 +245,7 @@ class Deteksi_wajah:
 
 	def deteksi_multi_face_sendiri(self, id_file, image):
 		jarak_all_s = []
+		id_pengujian_update = []
 
 		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
 
@@ -307,7 +308,6 @@ class Deteksi_wajah:
 			id_ciri_pengujian_s	= str(data_pengujian_s[0][0])
 
 			# insert pengujian
-
 			data_pengujian 	= {
 				'id_file'				: str(id_file),
 				'id_ciri_pengujian_s'	: id_ciri_pengujian_s,
@@ -316,6 +316,9 @@ class Deteksi_wajah:
 				'direktori'				: directory
 			}
 			pengujian = Deteksi_wajah.Db.insert_pengujian(data_pengujian)
+			select_pengujian = Deteksi_wajah.Db.select_pengujian_first_row()
+			print(f"Select pengujian = {select_pengujian} dan tipe = {type(select_pengujian)}")
+			id_pengujian_update.append(select_pengujian[0][0])
 
 			# Jarak Setiap Ciri Koding Sendiri
 			jarak_bahagia_s = []
@@ -387,10 +390,11 @@ class Deteksi_wajah:
 		dir_file_name 	= 'static/data/latih_uji/' + directory + '_Hasil_Sendiri.png'
 		file_name_s		= directory + '_Hasil_Sendiri.png'
 		cv2.imwrite(dir_file_name, img)
+		print(f"Id pengujian update = {id_pengujian_update} dan tipe = {type(id_pengujian_update)}")
 
-		return file_name_s, jarak_all_s, directory, hasil_all_s
+		return file_name_s, jarak_all_s, directory, hasil_all_s, id_pengujian_update
 
-	def deteksi_multi_face_opencv(self, id_file, image, directory):
+	def deteksi_multi_face_opencv(self, id_file, image, directory, id_pengujian_update):
 		jarak_all_o = []
 
 		face_cascade= cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
@@ -444,11 +448,13 @@ class Deteksi_wajah:
 			id_ciri_pengujian_o = str(data_pengujian_o[0][0])
 
 			# insert pengujian
+			print(f"i = {i}")
 			data_pengujian 	= {
 				'id_file'				: str(id_file),
 				'id_ciri_pengujian_o'	: id_ciri_pengujian_o,
 				'hasil_opencv'			: ekspresi_o,
-				'waktu'					: self.waktu_s
+				'waktu'					: self.waktu_s,
+				'id_pengujian'			: id_pengujian_update[i]
 			}
 			pengujian = Deteksi_wajah.Db.update_pengujian(data_pengujian)
 

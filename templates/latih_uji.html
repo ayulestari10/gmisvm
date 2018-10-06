@@ -45,11 +45,27 @@
 				</div>
 			</div>
 
+			<div class="row">
+
+	            <div class="col-sm-6 col-md-4">
+	                <div class="thumbnail">
+	                    <a class="lightbox" href="{{ url_for('static', filename='assets/freebie/images/park.jpg') }}">
+	                        <img src="{{ url_for('static', filename='assets/freebie/images/park.jpg') }}" alt="Park">
+	                    </a>
+	                    <div class="caption">
+	                        <h3>Thumbnail label</h3>
+	                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+
 			<style type="text/css">
 				table{width: 100%}
 				.foto{width:100px; height:100px;}
 			</style>
 
+			{% if files %}
 			<hr><hr>
 				<div class="row">
 					<div class="col-md-12 ml-auto mr-auto">
@@ -78,51 +94,14 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr style="text-align: left;">
-									<td>1</td>
-									<td>Bahagia.png</td>
-									<td style="width: 100px;">
-										<img src="{{ url_for('static', filename='data/latih_uji/2018-10-03_13-42-22_Hasil_Sendiri.png') }}" class="foto" alt="Gambar">
-									</td>
-									<td>
-										WT = 6</br>
-										B = 4</br>
-										S = 2</br>
-									</td>
-									<td>
-										WS = 5</br>
-										B = 3</br>
-										S = 1</br>
-										T = 1</br>
-									</td>
-									<td>
-										WO = 5</br>
-										B = 3</br>
-										S = 1</br>
-										T = 1</br>
-									</td>
-									<td>
-										W1 = 0.01</br>
-										W2 = 0.0031</br>
-										W3 = 0.0131</br>
-										W4 = 0.0111</br>
-									</td>
-									<td>
-										W1 = 0.01</br>
-										W2 = 0.0031</br>
-										W3 = 0.0131</br>
-										W4 = 0.0111</br>
-									</td>
-									<td>
-										<a href="http://localhost:5000/ekspresi-wajah/hasil_detail/1/2018-10-05_16-09-39" class="btn btn-info"><i class="fa fa-info"></i> DETAIL</a>
-									</td>
-								</tr>
 								{% for i in range(files['jumlah_data']) %}
 									<tr style="text-align: left;">
 										<td>{{ i + 1 }}</td>
 										<td>{{ files['data_uji'][i][1] }}</td>
 										<td style="width: 100px;">
-											<img src="{{ url_for('static', filename='data/latih_uji/' + files['file_s'][i]) }}" class="foto" alt="Gambar {{ files['file_s'][i] }}">
+											<div class="thumbnail">
+												<img src="{{ url_for('static', filename='data/latih_uji/' + files['file_s'][i]) }}" class="foto lightbox" alt="Gambar {{ files['file_s'][i] }}">
+											</div>
 										</td>  
 										<td>
 											{% for key, value in target[i].items(): %}
@@ -165,9 +144,8 @@
 							</tbody>
 						</table>
 					</div>
-
-					
 				</div>
+			{% endif %}
 		</div>
 	</div>
 </div>
