@@ -312,7 +312,8 @@ class Deteksi_wajah:
 				'id_file'				: str(id_file),
 				'id_ciri_pengujian_s'	: id_ciri_pengujian_s,
 				'waktu'					: self.waktu_s,
-				'hasil_sendiri'			: ekspresi_s
+				'hasil_sendiri'			: ekspresi_s,
+				'direktori'				: directory
 			}
 			pengujian = Deteksi_wajah.Db.insert_pengujian(data_pengujian)
 
@@ -378,7 +379,8 @@ class Deteksi_wajah:
 			'jijik'		: hitung_s['jijik'],
 			'kaget'		: hitung_s['kaget'],
 			'takut'		: hitung_s['takut'],
-			'natural'	: hitung_s['natural']
+			'natural'	: hitung_s['natural'],
+			'waktu'		: self.waktu_s
 		}
 		Deteksi_wajah.Db.insert_hasil(hasil_all_s)
 

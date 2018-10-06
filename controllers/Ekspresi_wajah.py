@@ -376,7 +376,6 @@ class Ekspresi_wajah:
 		files 			= {}
 		file_name_s 	= []
 		file_name_o 	= []
-		directory 		= []
 		hasil_all_s 	= []
 		hasil_final_s 	= []
 		hasil_all_o 	= []
@@ -389,10 +388,12 @@ class Ekspresi_wajah:
 		# print(f"Data uji w = {data_uji[1][2]} dan tipe = {type(data_uji[1][2])}")
 
 		jumlah_data = len(data_uji)
+		waktu		= []
 
 		for i in range(jumlah_data):
 			file_name__s, jarak_s, directory, hasil_all_s = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
 			file_name_s.append(file_name__s)
+			waktu.append(hasil_all_s['waktu'])
 			hasil_final_s.append({
 				'WS'	: hasil_all_s['wajah'],
 				'B'		: hasil_all_s['bahagia'],
@@ -424,6 +425,9 @@ class Ekspresi_wajah:
 			'jumlah_data'			: jumlah_data,
 			'data_uji'				: data_uji
 		}
+
+		print(f"Waktu = {waktu} dan tipe = {type(waktu)}")
+		print(f"Jumlah Waktu = {len(waktu)}")
 
 		# print(f"File = {files['file_s']} dan tipe = {type(files['file_s'])}")
 		# print(f"File pertama = {files['file_s'][0]} dan tipe = {type(files['file_s'][0])}")
@@ -487,12 +491,29 @@ class Ekspresi_wajah:
 		# print(f"File-file = {files['file']} dan tipe = {type(files['file'])}")
 		# print(f"File-file = {files['file'][0]} dan tipe = {type(files['file'][0])}")
 
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, hasil_all_s = hasil_final_s, hasil_all_o = hasil_final_o)
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, hasil_all_s = hasil_final_s, hasil_all_o = hasil_final_o, waktu = waktu)
 
 	@page.route(f'{base}/hasil', methods=['GET', 'POST'])
 	def hasil():
 		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'})
 
-	@page.route(f'{base}/hasil_detail', methods=['GET', 'POST'])
-	def hasil_detail():
-		return render_template('layout.html', data = { 'view' : 'detail', 'title' : 'Pengujian dan Pelatihan'})
+	@page.route(f'{base}/hasil_detail/<int:id_file>/<string:waktu>', methods=['GET', 'POST'])
+	def hasil_detail(id_file, waktu):
+
+		data_pengujian = Ekspresi_wajah.Db.select_data_pengujian(id_file, waktu)
+
+		print(f"data_pengujian = {data_pengujian} dan tipe = {type(data_pengujian)}")
+		print(f"jumlah data_pengujian = {len(data_pengujian)}")
+		print(f"data_pengujian 0 = {data_pengujian[0]} dan tipe = {type(data_pengujian[0])}")
+		print(f"data_pengujian 0 = {data_pengujian[0][2]} dan tipe = {type(data_pengujian[0][2])}")
+
+
+		ciri_s = Ekspresi_wajah.Db.select_ciri_pengujian(data_pengujian[0][2], 'S')
+		ciri_o = Ekspresi_wajah.Db.select_ciri_pengujian(data_pengujian[0][3], 'O')
+
+		print(f"ciri_s = {ciri_s} dan tipe = {type(ciri_s)}")
+		print(f"ciri_s 0 = {ciri_s[0]} dan tipe = {type(ciri_s[0])}")
+		print(f"ciri_s 0 = {ciri_s[0][0]} dan tipe = {type(ciri_s[0][0])}")
+		print(f"jumlah ciri_s = {len(ciri_s)}")
+
+		return render_template('layout.html', data = { 'view' : 'detail', 'title' : 'Pengujian dan Pelatihan'}, ciri_s = ciri_s, ciri_o = ciri_o, data_pengujian = data_pengujian)

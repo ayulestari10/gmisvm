@@ -60,7 +60,7 @@ class Database:
 	def insert_pengujian(self, data):
 
 		try:
-			self.cur.execute("INSERT INTO pengujian(id_file, id_ciri_pengujian_s, waktu, hasil_sendiri) VALUES (%s, %s, %s, %s)" % ("'" + data['id_file'] + "'", "'" + data['id_ciri_pengujian_s'] + "'", "'" + data['waktu'] + "'", "'" + data['hasil_sendiri'] + "'"))
+			self.cur.execute("INSERT INTO pengujian(id_file, id_ciri_pengujian_s, waktu, hasil_sendiri, direktori) VALUES (%s, %s, %s, %s, %s)" % ("'" + data['id_file'] + "'", "'" + data['id_ciri_pengujian_s'] + "'", "'" + data['waktu'] + "'", "'" + data['hasil_sendiri'] + "'", "'" + data['direktori'] + "'"))
 
 			self.db.commit()
 		except:
@@ -116,6 +116,15 @@ class Database:
 			print("Error select file uji")
 			return None
 
+	def select_data_pengujian(self, id_file, waktu):
+		try:
+			self.cur.execute("SELECT * FROM pengujian WHERE id_file = '" + str(id_file) + "' AND waktu = '" + waktu + "'")
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select pengujian")
+			return None
+
 	def select_join_hasil(self, ket):
 		try:
 			self.cur.execute("SELECT * FROM hasil inner join file_uji on hasil.id_file = file_uji.id_file WHERE hasil.ket = '" + ket + "'")
@@ -134,7 +143,17 @@ class Database:
 			print("Error select target")
 			return None
 
+	def select_ciri_pengujian(self, id_ciri_pengujian, ket):
+		try:
+			self.cur.execute("SELECT * FROM ciri_pengujian WHERE id_ciri_pengujian = '" + str(id_ciri_pengujian) + "' AND ket = '" + ket + "'")
 
+			data = self.cur.fetchall()
+			data = np.array(data)
+
+			return data[:, 2:]
+		except:
+			print("error select ciri pengujian")
+			return None
 	# ####
 
 
