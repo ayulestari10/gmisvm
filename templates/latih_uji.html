@@ -1,11 +1,11 @@
-<div class="" style="margin-top: -8%; background: #FFFFFF; min-height: 550px;">
+<section>
     <div class="container">
       	<div class="section text-center" style="margin: auto 0 !important;">
 
-			<div class="row">
-				<div class="col-md-5 ml-auto mr-auto">
-					<h3 class="title">Pelatihan dan Pengujian</h3>
-					<div class="col-md-5 ml-auto mr-auto">
+			<div class="row" style="text-align: left;">
+				<div class="col-md-5 heading">
+					<h3>Pelatihan dan Pengujian</h3>
+					<div>
 						{% with messages = get_flashed_messages() %}
 							{% if messages %}
 							<div class="alert alert-success">
@@ -17,48 +17,20 @@
 						{% endwith %}
 					</div>
 
-					<form action="{{ url_for('.latih_uji') }}" method="POST" enctype="multipart/form-data" style="margin-top: 5%;">
-
-						<h5 class="text-left" style="font-weight: bold; margin-top: 10%;">Unggah Data</h5>
-						<div class="form-group form-file-upload form-file-multiple">
-						    <input type="file" name="zip_file" multiple="" class="inputFileHidden" required>
-						    <div class="input-group">
-						        <input type="text" class="form-control inputFileVisible" placeholder="Unggah Data">
-						        <span class="input-group-btn">
-						            <button type="button" class="btn btn-fab btn-round btn-primary">
-						                <i class="fa fa-file"></i>
-						            </button>
-						        </span>
-						    </div>
+					<form action="{{ url_for('.latih_uji') }}" method="POST" enctype="multipart/form-data">
+						<div class="form-group">
+					    	<label for="Unggah Data">Unggah Data</label>
+					    	<input type="file" name="zip_file" multiple="" class="form-control-file">
 						</div>
 						<input type="submit" name="latih_uji" class="btn btn-primary" value="Latih dan Uji">
 					</form>
 				</div>
 
-				<div class="col-md-5 ml-auto mr-auto">
-					<div class="row">
-						<div class="col-md-12 ml-auto mr-auto">
-							<h3 class="title">Lakukan Pengujian</h3>
-							<a href="{{ url_for('.lakukan_uji') }}" class="btn btn-lg btn-info"><i class="info"></i> UJI</a>
-						</div>
-					</div>
+				<div class="col-md-5 heading">
+					<h3>Lakukan Pengujian</h3> <br>
+					<a href="{{ url_for('.lakukan_uji') }}" class="btn btn-lg btn-primary"><i class="info"></i> UJI</a>
 				</div>
 			</div>
-
-			<div class="row">
-
-	            <div class="col-sm-6 col-md-4">
-	                <div class="thumbnail">
-	                    <a class="lightbox" href="{{ url_for('static', filename='assets/freebie/images/park.jpg') }}">
-	                        <img src="{{ url_for('static', filename='assets/freebie/images/park.jpg') }}" alt="Park">
-	                    </a>
-	                    <div class="caption">
-	                        <h3>Thumbnail label</h3>
-	                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-	                    </div>
-	                </div>
-	            </div>
-	        </div>
 
 			<style type="text/css">
 				table{width: 100%}
@@ -66,17 +38,19 @@
 			</style>
 
 			{% if files %}
-			<hr><hr>
+			<div style="margin-top: 5%;">
+				<hr><hr>
+			</div>
 				<div class="row">
-					<div class="col-md-12 ml-auto mr-auto">
-						<h2 class="title"><strong>Hasil Pengujian</strong></h2>
+					<div class="col-md-12 heading">
+						<h3><strong>Hasil Pengujian</strong></h3>
 					</div>
 				</div>
 				
 				<div class="row" style="margin-top: 2%;">
 					<div class="col-md-12">
 						<table class="table table-bordered" style="text-align: center;">
-							<thead style="background-color: lightgray; font-weight: bold;">
+							<thead class="thead-light">
 								<tr>
 									<th rowspan="2">No</th>
 									<th rowspan="2">File Name</th>
@@ -98,9 +72,13 @@
 									<tr style="text-align: left;">
 										<td>{{ i + 1 }}</td>
 										<td>{{ files['data_uji'][i][1] }}</td>
-										<td style="width: 100px;">
-											<div class="thumbnail">
-												<img src="{{ url_for('static', filename='data/latih_uji/' + files['file_s'][i]) }}" class="foto lightbox" alt="Gambar {{ files['file_s'][i] }}">
+										<td style="width: 100px;  max-height: 100px !important;">
+											<div class="gallery-block cards-gallery">
+												<div class="card border-0 transform-on-hover" style="max-height: 100px !important;">
+								                	<a class="lightbox" href="{{ url_for('static', filename='data/latih_uji/' + files['file_s'][i]) }}">
+								                		<img src="{{ url_for('static', filename='data/latih_uji/' + files['file_s'][i]) }}" alt="Gambar {{ files['file_s'][i] }}" class="card-img-top">
+								                	</a>
+								                </div>
 											</div>
 										</td>  
 										<td>
@@ -137,7 +115,7 @@
 											W4 = 0.0111</br>
 										</td>
 										<td>
-											<a href="http://localhost:5000/ekspresi-wajah/hasil_detail/{{ files['data_uji'][i][0] }}/{{ waktu[i] }}" class="btn btn-info"><i class="fa fa-info"></i> DETAIL</a>
+											<a href="http://localhost:5000/ekspresi-wajah/hasil_detail/{{ files['data_uji'][i][0] }}/{{ waktu[i] }}" class="btn btn-primary"><i class="fa fa-info"></i> DETAIL</a>
 										</td> 
 									</tr>
 								{% endfor %}
@@ -148,4 +126,4 @@
 			{% endif %}
 		</div>
 	</div>
-</div>
+</section>

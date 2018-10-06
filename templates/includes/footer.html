@@ -1,29 +1,26 @@
-	<footer class="footer footer-default">
-    <div class="container">
-      <div class="copyright text-center">
-        &copy;
-        <script>
-          document.write(new Date().getFullYear())
-        </script>, made with <i class="material-icons">favorite</i> by
-        <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a> for a better web.
+<!-- Footer -->
+    <footer class="py-5 bg-info">
+      <div class="container">
+        <p class="m-0 text-center text-white">Copyright &copy; Ayu Lestari 2018</p>
       </div>
-    </div>
-  </footer>
-  <!--   Core JS Files   -->
-  <script src="{{ url_for('static', filename='assets/js/core/jquery.min.js') }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename='assets/js/core/popper.min.js') }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename='assets/js/core/bootstrap-material-design.min.js') }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename='assets/js/plugins/moment.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/js/plugins/nouislider.min.js') }}" type="text/javascript"></script>
-  <!--	Plugin for Sharrre btn -->
-  <script src="{{ url_for('static', filename='assets/js/plugins/jquery.sharrre.js') }}" type="text/javascript"></script>
-  <!-- Control Center for Material Kit: parallax effects, scripts for the example pages etc -->
-  <script src="{{ url_for('static', filename='assets/material-kit.js') }}" type="text/javascript"></script>
+      <!-- /.container -->
+    </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.8.1/baguetteBox.min.js"></script>
-  <script>
-      baguetteBox.run('.tz-gallery');
-  </script>
-</body>
+    <!-- Bootstrap core JavaScript -->
+    <script src="{{ url_for('static', filename='assets/vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="{{ url_for('static', filename='assets/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
+
+    <!-- Custom JavaScript for this theme -->
+    <script src="{{ url_for('static', filename='assets/js/scrolling-nav.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='assets/vendor/freebie/baguetteBox.min.js') }}"></script>    
+    <script>
+        baguetteBox.run('.cards-gallery', { animation: 'slideIn'});
+    </script>
+
+  </body>
 
 </html>

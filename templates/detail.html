@@ -1,124 +1,122 @@
-<div class="" style="margin-top: -8%; background: #FFFFFF; min-height: 550px;">
+<section>
     <div class="container">
-      	<div class="section text-center" style="margin: auto 0 !important;">
 
-			<style type="text/css">
-				table{width: 100%}
-				.foto{width: 300px; height: 300px;}
-				.foto2{width: 60px; height: 60px;}
-			</style>
+		<style type="text/css">
+			table{width: 100%}
+			.foto{width: 300px; height: 300px;}
+			.foto2{width: 60px; height: 60px;}
+		</style>
 
-			<div class="row">
-				<div class="col-md-12 ml-auto mr-auto">
-					<h2 class="title"><strong>Detail Hasil Ekstraksi Ciri</strong></h2>
-				</div>
+		<div class="row" style="margin-top: -3%">
+			<div class="col-md-12">
+				<h2 class="heading text-center"><strong>Detail Hasil Ekstraksi Ciri</strong></h2>
 			</div>
+		</div>
 
-			<div class="row">
-				<div class="col-md-12">
-					<h3 class="title" style="text-align: left;"><strong>Hasil Ekstraksi Ciri Code Sendiri</strong></h3>
-				</div>
+		<div class="row" style="margin-top: 10%;">
+			<div class="col-md-12">
+				<h4 class="heading" style="text-align: left;"><strong>Hasil Ekstraksi Ciri Code Sendiri</strong></h4>
 			</div>
-			
-			{% set dir 			= data_pengujian[0][7] %}
-			{% set name_hasil_s = dir + '_Hasil_Sendiri.png' %}
-			{% set name_hasil_o = dir + '_Hasil_OpenCV.png' %}
-			{% set jumlah_wajah	= data_pengujian|length %}
-			
-			<div class="row" style="margin-top: 2%; margin-left: -15%;">
-				<div class="col-md-6">
-					<img src="{{ url_for('static', filename='data/latih_uji/') }}{{ name_hasil_s }}" class="foto">
-				</div> 
-			</div>
-			
-			<div class="row" style="margin-top: 1%;">
-				<div class="col-md-12">
-					<h4 class="title" style="text-align: center !important;">Tabel Hasil Ekstraksi Ciri</h4>
-					<table class="table table-bordered table-responsive" style="width: 100%;">
-						<thead style="background-color: lightgrey; text-align: center;">
+		</div>
+		
+		{% set dir 			= data_pengujian[0][7] %}
+		{% set name_hasil_s = dir + '_Hasil_Sendiri.png' %}
+		{% set name_hasil_o = dir + '_Hasil_OpenCV.png' %}
+		{% set jumlah_wajah	= data_pengujian|length %}
+		
+		<div class="row" style="margin-top: 2%;">
+			<div class="col-md-6">
+				<img src="{{ url_for('static', filename='data/latih_uji/') }}{{ name_hasil_s }}" class="foto">
+			</div> 
+		</div>
+		
+		<div class="row" style="margin-top: 2%;">
+			<div class="col-md-12" style="text-align: center !important;">
+				<h5 class="heading">Tabel Hasil Ekstraksi Ciri</h5>
+				<table class="table table-bordered table-responsive" style="width: 100%;">
+					<thead class="thead-light">
+						<tr>
+							<th rowspan="2">Wajah</th>
+							<th rowspan="2">Thumbnail</th>
+							<th colspan="7">Ciri</th>
+						</tr>
+						<tr>
+							<th>1</th>
+							<th>2</th>
+							<th>3</th>
+							<th>4</th>
+							<th>5</th>
+							<th>6</th>
+							<th>7</th>
+						</tr>
+					</thead>
+					<tbody style="text-align: left;">
+						{% for i in range(jumlah_wajah): %}
 							<tr>
-								<th rowspan="2">Wajah</th>
-								<th rowspan="2">Thumbnail</th>
-								<th colspan="7">Ciri</th>
-							</tr>
-							<tr>
-								<th>1</th>
-								<th>2</th>
-								<th>3</th>
-								<th>4</th>
-								<th>5</th>
-								<th>6</th>
-								<th>7</th>
-							</tr>
-						</thead>
-						<tbody style="text-align: left;">
-							{% for i in range(jumlah_wajah): %}
-								<tr>
-									<td>{{ i + 1 }}</td>
-									<td style="width: 100px;">
-										{% set name = i ~ '.png' %} 
-										<img src="{{ url_for('static', filename='data/latih_uji/') }}{{ dir }}/{{ name }}" class="foto2" alt="Gambar">
-									</td>
-									{% for j in ciri_s[i][0]: %}
-										<td>{{ j }}</td>
-									{% endfor %}
-								</tr>  
-							{% endfor %}
-						</tbody>
-					</table>
-				</div>
+								<td>{{ i + 1 }}</td>
+								<td style="width: 100px;">
+									{% set name = i ~ '.png' %} 
+									<img src="{{ url_for('static', filename='data/latih_uji/') }}{{ dir }}/{{ name }}" class="foto2" alt="Gambar">
+								</td>
+								{% for j in ciri_s[i][0]: %}
+									<td>{{ j }}</td>
+								{% endfor %}
+							</tr>  
+						{% endfor %}
+					</tbody>
+				</table>
 			</div>
+		</div>
 
-			<div class="row" style="margin-top: 4%;">
-				<div class="col-md-12">
-					<h3 class="title" style="text-align: left;"><strong>Hasil Ekstraksi Ciri OpenCV</strong></h3>
-				</div>
+		<div class="row" style="margin-top: 4%;">
+			<div class="col-md-12">
+				<h4 class="heading" style="text-align: left;"><strong>Hasil Ekstraksi Ciri OpenCV</strong></h4>
 			</div>
+		</div>
 
-			<div class="row" style="margin-top: 2%; margin-left: -15%;">
-				<div class="col-md-6">
-					<img src="{{ url_for('static', filename='data/latih_uji/') }}{{ name_hasil_o }}" class="foto">
-				</div> 
-			</div>
-			
-			<div class="row" style="margin-top: 1%;">
-				<div class="col-md-12">
-					<h4 class="title" style="text-align: center !important;">Tabel Hasil Ekstraksi Ciri</h4>
-					<table class="table table-bordered table-responsive" style="width: 100%;">
-						<thead style="background-color: lightgrey; text-align: center;">
+		<div class="row" style="margin-top: 2%;">
+			<div class="col-md-6">
+				<img src="{{ url_for('static', filename='data/latih_uji/') }}{{ name_hasil_o }}" class="foto">
+			</div> 
+		</div>
+		
+		<div class="row" style="margin-top: 2%;">
+			<div class="col-md-12" style="text-align: center !important;">
+				<h5 class="title">Tabel Hasil Ekstraksi Ciri</h5>
+				<table class="table table-bordered table-responsive" style="width: 100%;">
+					<thead class="thead-light">
+						<tr>
+							<th rowspan="2">Wajah</th>
+							<th rowspan="2">Thumbnail</th>
+							<th colspan="7">Ciri</th>
+						</tr>
+						<tr>
+							<th>1</th>
+							<th>2</th>
+							<th>3</th>
+							<th>4</th>
+							<th>5</th>
+							<th>6</th>
+							<th>7</th>
+						</tr> 
+					</thead>
+					<tbody style="text-align: left;">
+						{% for i in range(jumlah_wajah): %}
 							<tr>
-								<th rowspan="2">Wajah</th>
-								<th rowspan="2">Thumbnail</th>
-								<th colspan="7">Ciri</th>
-							</tr>
-							<tr>
-								<th>1</th>
-								<th>2</th>
-								<th>3</th>
-								<th>4</th>
-								<th>5</th>
-								<th>6</th>
-								<th>7</th>
-							</tr> 
-						</thead>
-						<tbody style="text-align: left;">
-							{% for i in range(jumlah_wajah): %}
-								<tr>
-									<td>{{ i + 1 }}</td>
-									<td style="width: 100px;">
-										{% set dir = data_pengujian[0][7] %}
-										{% set name = i ~ '_.png' %} 
-										<img src="{{ url_for('static', filename='data/latih_uji/') }}{{ dir }}/{{ name }}" class="foto2" alt="Gambar">
-									</td>
-									{% for j in ciri_o[i][0]: %}
-										<td>{{ j }}</td>
-									{% endfor %}
-								</tr>  
-							{% endfor %} 
-						</tbody>
-					</table>
-				</div>
+								<td>{{ i + 1 }}</td>
+								<td style="width: 100px;">
+									{% set dir = data_pengujian[0][7] %}
+									{% set name = i ~ '_.png' %} 
+									<img src="{{ url_for('static', filename='data/latih_uji/') }}{{ dir }}/{{ name }}" class="foto2" alt="Gambar">
+								</td>
+								{% for j in ciri_o[i][0]: %}
+									<td>{{ j }}</td>
+								{% endfor %}
+							</tr>  
+						{% endfor %} 
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
-</div>
+</section>

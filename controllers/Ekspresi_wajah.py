@@ -250,6 +250,18 @@ class Ekspresi_wajah:
 	@page.route(f'{base}/latih-uji', methods=['GET', 'POST'])
 	def latih_uji(): 
 		file_hasil = []
+		jarak_s 		= {}
+		jarak_o 		= {}
+		jarak 			= {}
+		files 			= {}
+		file_name_s 	= []
+		file_name_o 	= []
+		hasil_all_s 	= []
+		hasil_final_s 	= []
+		hasil_all_o 	= []
+		hasil_final_o 	= []
+		target 			= []
+		waktu 			= []
 
 		if request.method == 'POST':
 		
@@ -266,10 +278,9 @@ class Ekspresi_wajah:
 			os.remove(filename)
 
 			Ekspresi_wajah.latih(files, directory)
-			file_hasil = Ekspresi_wajah.uji()
-			flash('Data berhasil dilatih dan diuji!')
+			jarak, files, target, hasil_final_s, hasil_final_o, waktu = Ekspresi_wajah.uji()
 
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pelatihan dan Pengujian'}, hasil = file_hasil)
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, hasil_all_s = hasil_final_s, hasil_all_o = hasil_final_o, waktu = waktu)
 
 
 	def latih(files, directory):
@@ -313,31 +324,60 @@ class Ekspresi_wajah:
 		return True
 
 	def uji():
-		jarak_s = {}
-		jarak_o = {}
-		jarak = {}
-		files = {}
-		file_name_s = []
-		file_name_o = []
+		jarak_s 		= {}
+		jarak_o 		= {}
+		jarak 			= {}
+		files 			= {}
+		file_name_s 	= []
+		file_name_o 	= []
+		hasil_all_s 	= []
+		hasil_final_s 	= []
+		hasil_all_o 	= []
+		hasil_final_o 	= []
+		target 			= []
 
-		data_uji 	= Ekspresi_wajah.Db.select_data_uji()
-		jumlah_data = len(data_uji)
-		file_name 	= []
+		data_uji 		= Ekspresi_wajah.Db.select_data_uji()
+		jumlah_data 	= len(data_uji)
+		waktu			= []
+
 		for i in range(jumlah_data):
-			file_name_s, jarak_s = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
-			file_name_o, jarak_o = Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1])
-
-		
-		print(f"file name = {file_name_s} dan tipe = {type(file_name_s)}")
-		print(f"file name len = {len(file_name_s)} dan tipe = {type(file_name_s)}")
-
+			file_name__s, jarak_s, directory, hasil_all_s, id_pengujian_update = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
+			file_name_s.append(file_name__s)
+			waktu.append(hasil_all_s['waktu'])
+			hasil_final_s.append({
+				'WS'	: hasil_all_s['wajah'],
+				'B'		: hasil_all_s['bahagia'],
+				'S'		: hasil_all_s['sedih'],
+				'M'		: hasil_all_s['marah'],
+				'J'		: hasil_all_s['jijik'],
+				'K'		: hasil_all_s['kaget'],
+				'T'		: hasil_all_s['takut'],
+				'N'		: hasil_all_s['natural']
+			})
+ 
+			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1], directory, id_pengujian_update)
+			hasil_final_o.append({
+				'WO'	: hasil_all_o['wajah'],
+				'B'		: hasil_all_o['bahagia'],
+				'S'		: hasil_all_o['sedih'],
+				'M'		: hasil_all_o['marah'],
+				'J'		: hasil_all_o['jijik'],
+				'K'		: hasil_all_o['kaget'],
+				'T'		: hasil_all_o['takut'],
+				'N'		: hasil_all_o['natural']
+			})
 
 		files = {
 			'jumlah_file_name_s'	: len(file_name_s),
 			'file_s'				: file_name_s,
 			'jumlah_file_name_o'	: len(file_name_o),
-			'file_o'				: file_name_o
+			'file_o'				: file_name_o,
+			'jumlah_data'			: jumlah_data,
+			'data_uji'				: data_uji
 		}
+
+		print(f"Waktu = {waktu} dan tipe = {type(waktu)}")
+		print(f"Jumlah Waktu = {len(waktu)}")
 
 		jarak = {
 			'jarak_all_s'			: jarak_s,
@@ -346,26 +386,29 @@ class Ekspresi_wajah:
 			'jumlah_jarak_all_o'	: len(jarak_o)  
 		}
 
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files)
-
-	def uji2():
-		jarak_s = {}
-		jarak_o = {}
-		jarak = {}
-		files = {}
-		file_name_s = []
-		file_name_o = []
-
-		data_uji = Ekspresi_wajah.Db.select_data_uji()
-		jumlah_data = len(data_uji)
-		file_name = []
 		for i in range(jumlah_data):
-			file_name.append(Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1]))
-			file_name.append(Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1]))
+			target.append({
+				'WT'	: data_uji[i][2],
+				'B'		: data_uji[i][3],
+				'S'		: data_uji[i][4],
+				'M'		: data_uji[i][5],
+				'J'		: data_uji[i][6],
+				'K'		: data_uji[i][7],
+				'T'		: data_uji[i][8],
+				'N'		: data_uji[i][9]
+			})
 
-		print(f"File name = {file_name} dan tipe = {type(file_name)}")
+		flash('Data berhasil dilatih dan diuji!')
 
-		return file_name
+		return jarak, files, target, hasil_final_s, hasil_final_o, waktu
+
+
+	# ####################################
+
+
+	@page.route(f'{base}/hasil', methods=['GET', 'POST'])
+	def hasil():
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'})
 	
 
 	@page.route(f'{base}/lakukan-uji', methods=['GET', 'POST'])
@@ -446,10 +489,6 @@ class Ekspresi_wajah:
 
 		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, hasil_all_s = hasil_final_s, hasil_all_o = hasil_final_o, waktu = waktu)
 
-	@page.route(f'{base}/hasil', methods=['GET', 'POST'])
-	def hasil():
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'})
-
 
 
 	@page.route(f'{base}/hasil_detail/<int:id_file>/<string:waktu>', methods=['GET', 'POST'])
@@ -457,6 +496,10 @@ class Ekspresi_wajah:
 
 		data_pengujian 	= Ekspresi_wajah.Db.select_data_pengujian(id_file, waktu)
 		jumlah_wajah 	= len(data_pengujian)
+
+		print(f"Jumlah data = {len(data_pengujian)}")
+		print(f"data pengujian = {data_pengujian} dan tipe = {type(data_pengujian)}")
+		print(f"data pengujian = {data_pengujian[0]} dan tipe = {type(data_pengujian[0])}")
 
 		ciri_all_s 		= []
 		ciri_all_o 		= []
@@ -470,3 +513,7 @@ class Ekspresi_wajah:
 			ciri_all_o.append(ciri_o) 
 
 		return render_template('layout.html', data = { 'view' : 'detail', 'title' : 'Pengujian dan Pelatihan'}, ciri_s = ciri_all_s, ciri_o = ciri_all_o, data_pengujian = data_pengujian)
+
+
+
+		
