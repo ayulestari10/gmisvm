@@ -1,4 +1,4 @@
-<section>
+<section style="min-height: 600px !important;">
     <div class="container">
       	<div class="section text-center" style="margin: auto 0 !important;">
 
@@ -23,12 +23,28 @@
 					    	<input type="file" name="zip_file" multiple="" class="form-control-file">
 						</div>
 						<input type="submit" name="latih_uji" class="btn btn-primary" value="Latih dan Uji">
-					</form>
+					</form> 
 				</div>
 
-				<div class="col-md-5 heading">
+				<div class="col-md-3 heading">
 					<h3>Lakukan Pengujian</h3> <br>
 					<a href="{{ url_for('.lakukan_uji') }}" class="btn btn-lg btn-primary"><i class="info"></i> UJI</a>
+				</div>
+
+				<div class="col-md-4 heading">
+					<form action="{{ url_for('.latih_data') }}" method="POST">
+						<div class="form-group">
+					    	<label for="Pilih Jumlah Data" class="heading">Pilih Jumlah Data Latih</label>
+					    	<select class="form-control" name="jumlah">
+					    		<option value="2">2</option>
+					    		<option value="10">10</option>
+					    		<option value="20">20</option>
+					    		<option value="30">30</option>
+					    		<option value="all">All</option>
+					    	</select>
+						</div>
+						<input type="submit" name="latih_data" class="btn btn-primary" value="Latih dan Uji">
+					</form> 
 				</div>
 			</div>
 
@@ -133,7 +149,7 @@
 									</tr>
 								{% endfor %}
 									<tr>
-										<td colspan="6" style="font-weight: bolder;">Rata Rata</td>
+										<td colspan="6" style="font-weight: bolder;">Rata-Rata</td>
 										<td>
 											{% for x in akurasi['rata_s']: %}
 											{{ x|string + '%' }} <br>

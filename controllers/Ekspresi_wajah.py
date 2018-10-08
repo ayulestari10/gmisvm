@@ -737,8 +737,84 @@ class Ekspresi_wajah:
 		return render_template('layout.html', data = { 'view' : 'detail', 'title' : 'Pengujian dan Pelatihan'}, ciri_s = ciri_all_s, ciri_o = ciri_all_o, data_pengujian = data_pengujian)
 
 
+	@page.route(f'{base}/latih_data', methods=['GET', 'POST'])
+	def latih_data():
+		if request.method == 'POST':
+			jumlah = request.form['jumlah']
 
+			# jumlah * setiap kelas
+			data_b = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Bahagia', jumlah)
+			data_s = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Sedih', jumlah)
+			data_m = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Marah', jumlah)
+			data_j = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Jijik', jumlah)
+			data_k = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Kaget', jumlah)
+			data_t = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Takut', jumlah)
+			data_n = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Natural', jumlah)
 		
+
+			print(f"data_b = {data_b} dan tipe = {type(data_b)}")
+			print(f"jumlah data_b = {len(data_b)}")
+
+			data_latih = []
+			data_latih.extend(data_b)
+			data_latih.extend(data_s)
+			data_latih.extend(data_m)
+			data_latih.extend(data_j)
+			data_latih.extend(data_k)
+			data_latih.extend(data_t)
+			data_latih.extend(data_n) 	
+
+			# Cari rata-rata setiap ciri
+			jumlah_data = len(data_latih)
+
+			ciri1 = [float(el[0]) for el in data_latih]
+			ciri2 = [float(el[1]) for el in data_latih]
+			ciri3 = [float(el[2]) for el in data_latih]
+			ciri4 = [float(el[3]) for el in data_latih]
+			ciri5 = [float(el[4]) for el in data_latih]
+			ciri6 = [float(el[5]) for el in data_latih]
+			ciri7 = [float(el[6]) for el in data_latih]
+
+			jum_c = ciri1 + ciri2 + ciri3 + ciri4 + ciri5 + ciri6 + ciri7
+			jumlah_c = 0
+			for i in range(len(jum_c)):
+				jumlah_c += jum_c[i]
+
+			print(f"Jumlah semua ciri = {jumlah_c}")
+
+			mean_ciri1 = np.mean(ciri1)
+			mean_ciri2 = np.mean(ciri2)
+			mean_ciri3 = np.mean(ciri3)
+			mean_ciri4 = np.mean(ciri4)
+			mean_ciri5 = np.mean(ciri5)
+			mean_ciri6 = np.mean(ciri6)
+			mean_ciri7 = np.mean(ciri7)
+
+			# cari ciri - ciri rata2 dan dikuadratkan
+
+			ciri_1 = (ciri1 - mean_ciri1) * (ciri1 - mean_ciri1)
+			ciri_2 = (ciri2 - mean_ciri2) * (ciri2 - mean_ciri2)
+			ciri_3 = (ciri3 - mean_ciri3) * (ciri3 - mean_ciri3)
+			ciri_4 = (ciri4 - mean_ciri4) * (ciri4 - mean_ciri4)
+			ciri_5 = (ciri5 - mean_ciri5) * (ciri5 - mean_ciri5)
+			ciri_6 = (ciri6 - mean_ciri6) * (ciri6 - mean_ciri6)
+			ciri_7 = (ciri7 - mean_ciri7) * (ciri7 - mean_ciri7)
+
+			jumlah_kuadrat_ciri = ciri_1 + ciri_2 + ciri_3 + ciri_4 + ciri_5 + ciri_6 + ciri_7
+			jumlah_k = 0
+			for i in range(len(jumlah_kuadrat_ciri)):
+				jumlah_k += jumlah_kuadrat_ciri[i]
+
+			# Simpangan Baku
+			Sbaku = np.sqrt(jumlah_k/jumlah_data)
+
+			print(f"Data rata2 = {ciri_1} dan tipe = {type(ciri_1)}")
+			print(f"Data rata2 = {len(ciri_1)}")
+			print(f"Jumlah kuadrat ciri = {jumlah_k}")
+			print(f"Simpangan Baku = {Sbaku}")
+
+
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'})
 
 
 

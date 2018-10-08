@@ -165,6 +165,19 @@ class Database:
 			print("Error first row pengujian")
 			return None
 
+	def select_sejumlah_data_latih(self, ket, kelas, jumlah):
+		try:
+			self.cur.execute("SELECT * FROM ciri_pelatihan WHERE ket='" + ket + "' AND kelas='" + kelas +  "' ORDER BY id_ciri_pelatihan ASC LIMIT " + str(jumlah))
+			data = self.cur.fetchall()
+			data = np.array(data)
+			return data[:, 3:]
+		except:
+			print("Error select sejumlah data uji")
+			return None
+
+
+
+
 	# ####
 
 
