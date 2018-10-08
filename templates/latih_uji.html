@@ -54,13 +54,16 @@
 								<tr>
 									<th rowspan="2">No</th>
 									<th rowspan="2">File Name</th>
-									<th rowspan="2">Thumbnail</th>
+									<th rowspan="2">Thumbnail <br> Kode Sendiri </th>
 									<th rowspan="2">Target</th>
 									<th colspan="2">Hasil</th>
+									<th colspan="2">Akurasi</th>
 									<th colspan="2">Jarak</th>
 									<th rowspan="2">Aksi</th>
 								</tr>
 								<tr>
+									<th>Kode Sendiri</th>
+									<th>OpenCV</th>
 									<th>Kode Sendiri</th>
 									<th>OpenCV</th>
 									<th>Kode Sendiri</th>
@@ -103,6 +106,16 @@
 											{% endfor %}
 										</td>
 										<td>
+											{% for key, value in akurasi['s'][i].items(): %}
+												{{ key + '=' + value|int|string + '%'}}</br>
+											{% endfor %}
+										</td>
+										<td>
+											{% for key, value in akurasi['o'][i].items(): %}
+												{{ key + '=' + value|int|string + '%'}}</br>
+											{% endfor %}
+										</td>
+										<td>
 											W1 = 0.01</br>
 											W2 = 0.0031</br>
 											W3 = 0.0131</br>
@@ -119,6 +132,20 @@
 										</td> 
 									</tr>
 								{% endfor %}
+									<tr>
+										<td colspan="6" style="font-weight: bolder;">Rata Rata</td>
+										<td>
+											{% for x in akurasi['rata_s']: %}
+											{{ x|string + '%' }} <br>
+											{% endfor %}
+										</td>
+										<td>
+											{% for x in akurasi['rata_o']: %}
+											{{ x|string + '%' }} <br>
+											{% endfor %}
+										</td>
+										<td colspan="3"></td>
+									</tr>
 							</tbody>
 						</table>
 					</div>
