@@ -209,17 +209,24 @@ class Deteksi_wajah:
 				if x > 0 and y > 0: im[x][y] -= im[x - 1][y - 1]
 		return im
 
-	def resize_image(self, im):
+	def resize_image(self, im, directory):
 		size = 288, 384
 
-		img = Image.open(im)
-		img = np.array(img)
-		img.resize((384, 288), Image.ANTIALIAS)
+		img1 = Image.open(im)
+		print(img1)
+		width = 384
+		height = 288
+		img2 = img1.resize((width, height), Image.ANTIALIAS)
 
-		path = "data/training/resize/hasil_resize.png"
-		cv2.imwrite(path, img)
+		path = 'data/resize/'+ directory
+		if os.path.exists(path) is False:
+			os.mkdir(path)
 
-		return img
+		path = 'data/resize/'+ directory +'/hasil_resize.png'
+		img2 = np.array(img2)
+		cv2.imwrite(path, img2)
+
+		return path
 
 
 

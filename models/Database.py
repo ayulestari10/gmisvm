@@ -116,6 +116,15 @@ class Database:
 			print("Error select file uji")
 			return None
 
+	def select_data_uji_jumlah(self, jumlah):
+		try:
+			self.cur.execute("SELECT * FROM file_uji ORDER BY id_file ASC LIMIT " + str(jumlah))
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select file uji jumlah")
+			return None
+
 	def select_data_pengujian(self, id_file, waktu):
 		try:
 			self.cur.execute("SELECT * FROM pengujian WHERE id_file = '" + str(id_file) + "' AND waktu = '" + waktu + "'")

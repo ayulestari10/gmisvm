@@ -487,9 +487,6 @@ class Ekspresi_wajah:
 			'data_uji'				: data_uji
 		}
 
-		# print(f"Waktu = {waktu} dan tipe = {type(waktu)}")
-		# print(f"Jumlah Waktu = {len(waktu)}")
-
 		jarak = {
 			'jarak_all_s'			: jarak_s,
 			'jumlah_jarak_all_s'	: len(jarak_s),
@@ -517,9 +514,6 @@ class Ekspresi_wajah:
 					t_a[key] = value
 			target_akhir.append(t_a) 
 
-		print(f"target_akhir = {target_akhir} dan tipe = {type(target_akhir)}")
-		print(f"target_akhir [0] = {target_akhir[0]} dan tipe = {type(target_akhir[0])}")
-
 		hasil_s = []
 		for i in range(jumlah_data):
 			h_s = {}
@@ -535,16 +529,6 @@ class Ekspresi_wajah:
 				if value != 0:
 					h_o[key] = value
 			hasil_o.append(h_o)
-
-		# print(f"hasil_final_s = {hasil_final_s} dan tipe = {type(hasil_final_s)}")
-		# print(f"hasil_final_s [0] = {hasil_final_s[0]} dan tipe = {type(hasil_final_s[0])}")
-		# print(f"hasil_final_s [0][2] = {hasil_final_s[0]['WS']} dan tipe = {type(hasil_final_s[0]['WS'])}")
-		# print(f"Jumlah hasil_final_s = {len(hasil_final_s)}")
-
-
-		print(f"Jumlah hasil_s = {len(hasil_s)}")
-		print(f"hasil_s = {hasil_s} dan tipe = {type(hasil_s)}")
-		print(f"hasil_s [0] = {hasil_s[0]} dan tipe = {type(hasil_s[0])}")
 
 		akurasi_s = []
 		for i in range(jumlah_data):
@@ -700,13 +684,6 @@ class Ekspresi_wajah:
 			'rata_o'	: set(r_all_o)
 		}
 
-		print(f"Jumlah rata2_akurasi_s s = {len(rata2_akurasi_s)}")
-		print(f"Hasil rata2_akurasi_s s = {rata2_akurasi_s} dan tipe = {type(rata2_akurasi_s)}")
-
-
-		print(f"Jumlah r_all_s  = {len(r_all_s)}")
-		print(f"Hasil r_all_s  = {r_all_s} dan tipe = {type(r_all_s)}")
-
 		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, hasil_all_s = hasil_final_s, hasil_all_o = hasil_final_o, waktu = waktu, akurasi = akurasi)
 
 
@@ -790,6 +767,10 @@ class Ekspresi_wajah:
 			mean_ciri6 = np.mean(ciri6)
 			mean_ciri7 = np.mean(ciri7)
 
+			mean = np.mean(jumlah_c)
+
+			print(f"Mean = {mean} dan tipe = {type(mean)}")
+
 			# cari ciri - ciri rata2 dan dikuadratkan
 
 			ciri_1 = (ciri1 - mean_ciri1) * (ciri1 - mean_ciri1)
@@ -807,14 +788,52 @@ class Ekspresi_wajah:
 
 			# Simpangan Baku
 			Sbaku = np.sqrt(jumlah_k/jumlah_data)
-
+			# Sbaku = Sbaku*100
 			print(f"Data rata2 = {ciri_1} dan tipe = {type(ciri_1)}")
 			print(f"Data rata2 = {len(ciri_1)}")
 			print(f"Jumlah kuadrat ciri = {jumlah_k}")
 			print(f"Simpangan Baku = {Sbaku}")
 
+			# SUD 
+			sud = 6/6 # 6 SD / 6 unit dari 7 kelas
+			skala_unit_deviasi = sud * Sbaku
+			print(f"skala_unit_deviasi = {skala_unit_deviasi} dan tipe={type(skala_unit_deviasi)}")
+
+			# Nilai tengah Kelas Ke-4 = rata2 = mean
+			k4 = round(mean, 3)
+			k3 = round(mean - (0.5 * skala_unit_deviasi), 3)
+			k2 = round(mean - (0.8 * skala_unit_deviasi), 3)
+			k1 = round(mean - (1 * skala_unit_deviasi), 3)
+			k5 = round(mean + (0.5 * skala_unit_deviasi), 3)
+			k6 = round(mean + (0.8 * skala_unit_deviasi), 3)
+			k7 = round(mean + (1 * skala_unit_deviasi), 3)
+
+			print(f"K1 = {k1}")
+			print(f"K3 = {k3}")
+			print(f"K2 = {k2}")
+			print(f"K4 = {k4}")
+			print(f"K5 = {k5}")
+			print(f"K6 = {k6}")
+			print(f"K7 = {k7}")
+
+			data_uji = Ekspresi_wajah.Db.select_data_uji_jumlah(1)
+
+			print(f"Data uji = {data_uji} dan tipe = {type(data_uji)}")
+
+			
 
 		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'})
 
 
 
+
+	@page.route(f'{base}/coba', methods=['GET', 'POST'])
+	def coba():
+
+		cwd 		= os.getcwd()
+		berkas 		= cwd + '\\data\\training\\S010_006_00000015.png'
+
+		directory 	= strftime("%Y-%m-%d %H-%M-%S")
+		file_name 	= Ekspresi_wajah.Dw.resize_image(berkas, directory)
+
+		return "ayu cantik"
