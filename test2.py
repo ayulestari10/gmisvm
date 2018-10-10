@@ -7,21 +7,21 @@ from sklearn.multiclass import OneVsRestClassifier
 
 db = MySQLdb.connect("localhost", "root", "", "gmisvm")
 cursor = db.cursor()
-cursor.execute("SELECT * FROM data_60")
+cursor.execute("SELECT * FROM ciri_pelatihan WHERE ket= 'S'")
 data = list(cursor.fetchall())
 data = np.array(list(data))
-features = data[:, 2:].astype(np.float64)
-labels = data[:, 1]
+features = data[:, 3:].astype(np.float64)
+labels = data[:, 2]
 
 def encode_class(labels):
 	dct = {
 		"bahagia": 0,
-		"jijik": 1,
-		"kaget": 2,
-		"marah": 3,
-		"natural": 4,
-		"sedih": 5,
-		"takut": 6
+		"sedih": 1,
+		"marah": 2,
+		"jijik": 3,
+		"kaget": 4,
+		"takut": 5,
+		"natural": 6
 	}
 	return [dct[str(label)] for label in labels]
 
@@ -42,8 +42,7 @@ kf = KFold(n_splits=10, random_state=1, shuffle=True)
 
 for i, (train_index, test_index) in enumerate(kf.split(features)):
 
-	# clf = OneVsRestClassifier(svm.LinearSVC())
-	clf = BernoulliNB()
+	clf = GaussianNB()
 	clf.fit(features[train_index], labels[train_index])
 	scores = round(clf.score(features[test_index], labels[test_index]) * 100, 2)
 	k_scores.append(scores)

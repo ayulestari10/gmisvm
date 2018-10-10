@@ -24,8 +24,8 @@ class Deteksi_wajah:
 			'sedih': (255, 0, 0),		# biru
 			'jijik': (0, 255, 0),		# hijau
 			'takut': (238,130,238),		# ungu
-			'natural': (255, 255, 255),	# putih
-			'marah': (0, 0, 255),  	# pink
+			'natural': (169,169,169),	# abu-abu gelap
+			'marah': (0, 0, 255),  		# pink
 			'kaget' : (0, 0, 0)			# hitam
 		}
 		self.waktu_s = ""
@@ -209,31 +209,26 @@ class Deteksi_wajah:
 				if x > 0 and y > 0: im[x][y] -= im[x - 1][y - 1]
 		return im
 
-	def resize_image(self, im, directory):
-		size = 288, 384
+	def resize_image(self, image, file_name, directory, dir2):
+		
+		img1 		= Image.open(image)
+		width 		= 384
+		height 		= 288
+		img2 		= img1.resize((width, height))
 
-		img1 = Image.open(im)
-		print(img1)
-		width = 384
-		height = 288
-		img2 = img1.resize((width, height), Image.ANTIALIAS)
-
-		path = 'data/resize/'+ directory
+		path = 'data/resize/'+ directory + '/' + dir2
 		if os.path.exists(path) is False:
-			os.mkdir(path)
+			os.makedirs(path, exist_ok=True)
 
-		path = 'data/resize/'+ directory +'/hasil_resize.png'
-		img2 = np.array(img2)
-		cv2.imwrite(path, img2)
-
+		path = 'data/resize/' + directory + '/' + dir2 + '/' + file_name	
+		img2.save(path)
 		return path
 
 
-
-	def deteksi(self, image, dir1, dir2):
+	def deteksi(self, ket, image, dir1, dir2):
 		
 		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
-
+		print(f"File name = {image}")
 		img = cv2.imread(image)
 		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -245,18 +240,87 @@ class Deteksi_wajah:
 			x, y, w, h = [v for v in f]
 			sub_face = img[y:y+h, x:x+w]
 
-			face_file_name = "data/latih_uji/" + dir1 + "/" + dir2 + "/" + "01.png"
+			face_file_name = "data/"+ ket +"/" + dir1 + "/" + dir2 + "/" + "01.png"
 			cv2.imwrite(face_file_name, sub_face)
 
 		return face_file_name
+
+	def deteksi_single_uji(self, id_file, image):
+
+		face_cascade= cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+
+		# Resize
+		cwd  		= os.getcwd()
+		image 		= cwd + '\\data\\uji\\' + image
+		img1 		= Image.open(image)
+		width 		= 384
+		height 		= 288
+		img2 		= img1.resize((width, height))
+		path 		= 'data/uji/hasil_resize.png'
+		img2.save(path)
+
+		# deteksi wajah
+
+		dir_image 	= 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\hasil_resize.png'
+		img 		= cv2.imread(dir_image)
+		gray 		= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+		faces 		= face_cascade.detectMultiScale(gray, 1.3, 5)
+		ekspr 		= list(self.rectColor.values())
+
+		global face_file_name
+		directory = strftime("%Y-%m-%d_%H-%M-%S")
+
+		path = 'static/data/latih_uji/' + directory
+		if os.path.exists(path) is False:
+			os.mkdir(path)
+
+		# hitung ciri
+		ciri = []
+		ciricv = []
+
+		for i, f in enumerate(faces):
+			x, y, w, h 		= np.array([v for v in f], dtype=np.int64)
+
+			sub_face 		= img[y:y+h, x:x+w]
+			face_file_name 	= path + '/' + str(i) + '.png'
+			cv2.imwrite(face_file_name, sub_face)
+
+			## start - klasifikasi
+			
+			pra 		= Praproses()
+			sub_face 	= pra.biner(face_file_name)
+			gmi 		= GMI(sub_face) 
+			gmi.hitungMomenNormalisasi()
+			ciri.append(gmi.hitungCiri())
+
+			momen 		= cv2.moments(sub_face)
+			ciricv.append(cv2.HuMoments(momen).flatten())
+
+		print(f"Ciri = {ciri} dan tipe = {type(ciri)}")
+		print(f"Ciri OpenCV = {ciricv} dan tipe = {type(ciricv)}")
+
+		return ciri, ciricv
 
 	def deteksi_multi_face_sendiri(self, id_file, image):
 		jarak_all_s = []
 		id_pengujian_update = []
 
-		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+		face_cascade= cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
 
-		dir_image 	= 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\' + image
+		# Resize
+		cwd  		= os.getcwd()
+		image 		= cwd + '\\data\\uji\\' + image
+		img1 		= Image.open(image)
+		width 		= 384
+		height 		= 288
+		img2 		= img1.resize((width, height))
+		path 		= 'data/uji/hasil_resize.png'
+		img2.save(path)
+
+		# deteksi wajah
+
+		dir_image 	= 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\hasil_resize.png'
 		img 		= cv2.imread(dir_image)
 		gray 		= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -402,11 +466,22 @@ class Deteksi_wajah:
 		return file_name_s, jarak_all_s, directory, hasil_all_s, id_pengujian_update
 
 	def deteksi_multi_face_opencv(self, id_file, image, directory, id_pengujian_update):
+		print(f"Id pengujian = {id_pengujian_update}")
 		jarak_all_o = []
 
 		face_cascade= cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
 
-		dir_image 	= 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\' + image
+		# Resize
+		cwd  		= os.getcwd()
+		image 		= cwd + '\\data\\uji\\' + image
+		img1 		= Image.open(image)
+		width 		= 384
+		height 		= 288
+		img2 		= img1.resize((width, height))
+		path 		= 'data/uji/hasil_resize.png'
+		img2.save(path)
+
+		dir_image 	= 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\hasil_resize.png'
 		img 		= cv2.imread(dir_image)
 		gray 		= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -608,12 +683,12 @@ class Deteksi_wajah:
 
 		global face_file_name
 
-		kumpulan_ciri = Deteksi_wajah.Db.select_ciri('ciri_ck_setara')
-		kumpulan_kelas = Deteksi_wajah.Db.select_kelas('ciri_ck_setara')
+		kumpulan_ciri = Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
+		kumpulan_kelas = Deteksi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
 
 		rata_rata_ciri = {}
 		for kelas in kumpulan_kelas:
-			rata_rata_ciri[kelas] = Deteksi_wajah.Db.select_avg('ciri_ck_setara', kelas)
+			rata_rata_ciri[kelas] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas)
 		
 		for i, f in enumerate(faces):
 			x, y, w, h = np.array([v for v in f], dtype=np.int64)
@@ -647,55 +722,55 @@ class Deteksi_wajah:
 			
 			#simpan gambar yang telah dilabel, dicrop
 
-			distance = Deteksi_wajah.distance(rata_rata_ciri[ekspresi], ciri)
+			# distance = Deteksi_wajah.distance(rata_rata_ciri[ekspresi], ciri)
 
-			Deteksi_wajah.Db.insert_ciri_pengujian("ciri_pengujian", ekspresi, ciri)
-			data_satu = Deteksi_wajah.Db.select_first_row()
-			id_tes = data_satu[0][0]
+			# Deteksi_wajah.Db.insert_ciri_pengujian("ciri_pengujian", ekspresi, ciri)
+			# data_satu = Deteksi_wajah.Db.select_first_row()
+			# id_tes = data_satu[0][0]
 
-			jarak_natural	= Deteksi_wajah.distance(rata_rata_ciri['natural'], ciri)
-			jarak_bahagia 	= Deteksi_wajah.distance(rata_rata_ciri['bahagia'], ciri)
-			jarak_sedih		= Deteksi_wajah.distance(rata_rata_ciri['sedih'], ciri)
-			jarak_jijik		= Deteksi_wajah.distance(rata_rata_ciri['jijik'], ciri)
-			jarak_marah		= Deteksi_wajah.distance(rata_rata_ciri['marah'], ciri)
-			jarak_takut		= Deteksi_wajah.distance(rata_rata_ciri['takut'], ciri)
-			jarak_kaget		= Deteksi_wajah.distance(rata_rata_ciri['kaget'], ciri)
+			# jarak_natural	= Deteksi_wajah.distance(rata_rata_ciri['natural'], ciri)
+			# jarak_bahagia 	= Deteksi_wajah.distance(rata_rata_ciri['bahagia'], ciri)
+			# jarak_sedih		= Deteksi_wajah.distance(rata_rata_ciri['sedih'], ciri)
+			# jarak_jijik		= Deteksi_wajah.distance(rata_rata_ciri['jijik'], ciri)
+			# jarak_marah		= Deteksi_wajah.distance(rata_rata_ciri['marah'], ciri)
+			# jarak_takut		= Deteksi_wajah.distance(rata_rata_ciri['takut'], ciri)
+			# jarak_kaget		= Deteksi_wajah.distance(rata_rata_ciri['kaget'], ciri)
 			
-			data_jarak = np.array([jarak_marah, jarak_jijik, jarak_takut, jarak_bahagia, jarak_sedih, jarak_kaget, jarak_natural])
+			# data_jarak = np.array([jarak_marah, jarak_jijik, jarak_takut, jarak_bahagia, jarak_sedih, jarak_kaget, jarak_natural])
 
-			Deteksi_wajah.Db.insert_jarak(data_jarak, id_tes)
+			# Deteksi_wajah.Db.insert_jarak(data_jarak, id_tes)
 
-			id_tes 		= str(id_tes)
-			jarak_min 	= Deteksi_wajah.Db.insert_jarak_min(id_tes, data_jarak)
-			print(f"Jarak min = {jarak_min}")
+			# id_tes 		= str(id_tes)
+			# jarak_min 	= Deteksi_wajah.Db.insert_jarak_min(id_tes, data_jarak)
+			# print(f"Jarak min = {jarak_min}")
 
-			jarak = {
-				'marah'		: jarak_marah,
-				'sedih'		: jarak_sedih,
-				'takut'		: jarak_takut,
-				'jijik'		: jarak_jijik,
-				'kaget'		: jarak_kaget,
-				'bahagia'	: jarak_bahagia,
-				'jarak_min'	: jarak_min
-			}
+			# jarak = {
+			# 	'marah'		: jarak_marah,
+			# 	'sedih'		: jarak_sedih,
+			# 	'takut'		: jarak_takut,
+			# 	'jijik'		: jarak_jijik,
+			# 	'kaget'		: jarak_kaget,
+			# 	'bahagia'	: jarak_bahagia,
+			# 	'jarak_min'	: jarak_min
+			# }
 
-			ciri = np.array(ciri)
+			# ciri = np.array(ciri)
 			# print(f"Ciri Data Uji = {ciri}")
 			# print(f"Rata-rata ciri {ekspresi} = {rata_rata_ciri[ekspresi]}")
 			# print(f"Jarak ciri = {distance}")
 			# print("______")
-			print(f"Ciri GMI: {ciri}")
-			print(f"Ciri CV: {ciricv}")
+			# print(f"Ciri GMI: {ciri}")
+			# print(f"Ciri CV: {ciricv}")
 
-			error = self.hitung_error(ciricv, ciri)
+			# error = self.hitung_error(ciricv, ciri)
 
-			print('________________________________________')
-			print(f"Momen CV: {momen}")
-			print(f"Tipe Momen CV: {type(momen['m00'])}")
-			x = momen['m10']/momen['m00']
-			y = momen['m01']/momen['m00']
-			print(f"Xbar = {x}")
-			print(f"Ybar = {y}")
+			# print('________________________________________')
+			# print(f"Momen CV: {momen}")
+			# print(f"Tipe Momen CV: {type(momen['m00'])}")
+			# x = momen['m10']/momen['m00']
+			# y = momen['m01']/momen['m00']
+			# print(f"Xbar = {x}")
+			# print(f"Ybar = {y}")
 
 			# print(f"Jarak GMI - CV: {Deteksi_wajah.distance(ciri, ciricv)}")
 
@@ -706,7 +781,7 @@ class Deteksi_wajah:
 		file_name = directory + ' Hasil.png'
 		cv2.imwrite(dir_file_name, img)
 
-		return file_name, jarak, ciri, ciricv, rata_rata_ciri
+		return file_name, ciri, ciricv
 
 	def distance(data1, data2):
 		data1 = np.array(data1)

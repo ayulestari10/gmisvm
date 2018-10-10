@@ -1,47 +1,31 @@
-<div class="" style="margin-top: 50%; background: #FFFFFF; min-height: 550px;">
+<section style="min-height: 600px !important;">
     <div class="container">
       	<div class="section text-center" style="margin: auto 0 !important;">
 
-	        <div class="row">
-	          	<div class="col-md-8 ml-auto mr-auto">
-		            <h2 class="title">Pengujian</h2>
-		            <!-- <h5 class="description"></h5> -->
-	          	</div>
-	        </div>
+			<div class="row" style="text-align: center;">
+				<div class="col-md-4 offset-md-4 heading">
+					<h3>Pengujian</h3>
+					<div>
+						{% with messages = get_flashed_messages() %}
+							{% if messages %}
+							<div class="alert alert-success">
+								{% for message in messages %}
+									{{ message }}
+								{% endfor %}
+							</div>
+							{% endif %}
+						{% endwith %}
+					</div>
 
-			<div class="row">
-				<div class="col-md-5 ml-auto mr-auto">
-					{% with messages = get_flashed_messages() %}
-						{% if messages %}
-						<div class="alert alert-success">
-							{% for message in messages %}
-								{{ message }}
-							{% endfor %}
-						</div>
-						{% endif %}
-					{% endwith %}
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="col-md-5 ml-auto mr-auto">
 					<form action="{{ url_for('.pengujian') }}" method="POST" enctype="multipart/form-data">
-						<div class="form-group form-file-upload form-file-multiple">
-						    <input type="file" name="foto" multiple="" class="inputFileHidden" required>
-						    <div class="input-group">
-						        <input type="text" class="form-control inputFileVisible" placeholder="Unggah Foto">
-						        <span class="input-group-btn">
-						            <button type="button" class="btn btn-fab btn-round btn-primary">
-						                <i class="fa fa-file"></i>
-						            </button>
-						        </span>
-						    </div>
+						<div class="form-group">
+					    	<label for="Unggah Data" style="text-align: left !important;">Unggah Data</label> <br>
+					    	<input type="file" name="foto" multiple="">
 						</div>
 						<input type="submit" name="uji" class="btn btn-primary" value="Uji">
-					</form>
+					</form> 
 				</div>
 			</div>
-
 
 			{% if hasil %}
 			<hr><hr>
@@ -58,24 +42,6 @@
 						<div class="foto">
 							<img src="{{ url_for('static', filename='data/testing/' + directory + '_0.png') }}" style="width: 80%;" width = "40"  alt="Foto">
 						</div>
-					</div>
-					<div class="col-md-4 ml-auto mr-auto" style="border: 1px solid gray;">
-						<table class="table" style="text-align: left;">
-							<thead>
-								<tr>
-									<th>Label</th>
-									<th>Jarak</th>
-								</tr>
-							</thead>
-							<tbody>
-								{% for y, d in jarak.items() %}
-									<tr>
-										<td>{{ y }}</td>
-										<td>{{ d }}</td>
-									</tr>
-								{% endfor %}
-							</tbody>
-						</table>
 					</div>
 				</div>
 				
@@ -113,4 +79,4 @@
 
 		</div>
 	</div>
-</div>
+</section>
