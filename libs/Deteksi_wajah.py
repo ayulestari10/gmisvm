@@ -16,6 +16,8 @@ class Deteksi_wajah:
 	page = Blueprint('Deteksi_wajah_page', __name__, template_folder = 'templates')
 	base = '/deteksi-wajah'
 	Db 	 = Database('localhost', 'root', '', 'gmisvm')
+	VJ   = Viola_Jones()
+	pra 		= Praproses()
 
 	def __init__(self):
 		self.rectColor = {
@@ -195,12 +197,6 @@ class Deteksi_wajah:
 
 		# Cascade Classifier
 
-	# jika nilai mendekati 255 maka terdapat haar feature / threshold
-	# def haar_feature(self, im):
-	# 	for x in 25:
-	# 		for y, col in enumerate(row):
-
-
 	def integral_image(self, im):
 		for x, row in enumerate(im):
 			for y, col in enumerate(row):
@@ -209,7 +205,7 @@ class Deteksi_wajah:
 				if x > 0 and y > 0: im[x][y] -= im[x - 1][y - 1]
 		return im
 
-	def resize_image(self, image, file_name, directory, dir2):
+	def resize_image(self, image, file_name, directory, dir2 = ""):
 		
 		img1 		= Image.open(image)
 		width 		= 384
@@ -226,13 +222,8 @@ class Deteksi_wajah:
 
 
 	def deteksi(self, ket, image, dir1, dir2):
-		
-		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
-		print(f"File name = {image}")
-		img = cv2.imread(image)
-		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+		faces = Deteksi_wajah.VJ.deteksi(image)
 
 		global face_file_name
 		
@@ -288,7 +279,6 @@ class Deteksi_wajah:
 
 			## start - klasifikasi
 			
-			pra 		= Praproses()
 			sub_face 	= pra.biner(face_file_name)
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
@@ -306,26 +296,14 @@ class Deteksi_wajah:
 		jarak_all_s = []
 		id_pengujian_update = []
 
-		face_cascade= cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
-
 		# Resize
+		file_name 	= image
 		cwd  		= os.getcwd()
 		image 		= cwd + '\\data\\uji\\' + image
-		img1 		= Image.open(image)
-		width 		= 384
-		height 		= 288
-		img2 		= img1.resize((width, height))
-		path 		= 'data/uji/hasil_resize.png'
-		img2.save(path)
+		berkas_resize= resize_image(image, file_name, 'uji')
 
 		# deteksi wajah
-
-		dir_image 	= 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\hasil_resize.png'
-		img 		= cv2.imread(dir_image)
-		gray 		= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-		faces 		= face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30), flags=cv2.CASCADE_SCALE_IMAGE)
-		ekspr 		= list(self.rectColor.values())
+		faces = Deteksi_wajah.VJ.deteksi(berkas_resize)
 
 		global face_file_name
 		directory = strftime("%Y-%m-%d_%H-%M-%S")
@@ -355,7 +333,6 @@ class Deteksi_wajah:
 
 			## start - klasifikasi
 			
-			pra 		= Praproses()
 			sub_face 	= pra.biner(face_file_name)
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
@@ -368,7 +345,6 @@ class Deteksi_wajah:
 			kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)			
 			ekspresi_s 	= kl_s.classify([ciri])
 			print(f"Ekspresi Sendiri = {ekspresi_s}")
-
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi_s])
 			cv2.rectangle(img, (x, y - 30), (x + 100, y), self.rectColor[ekspresi_s], -1)
@@ -440,7 +416,7 @@ class Deteksi_wajah:
 			jarak_all_s.append(jarak_all)
 
 		# select data hasil pengujian sendiri dan insert hasil sendiri
-		hasil_s 	= Deteksi_wajah.Db.select_hasil('hasil_sendiri', str(id_file), self.waktu_s)
+		hasil_s 	= Deteksi_wajah.Db.select_hasil('hasil_sendiri',id_file, self.waktu_s)
 		hitung_s 	= Counter(elem[0] for elem in hasil_s)
 
 		hasil_all_s = {

@@ -88,7 +88,7 @@ class Database:
 
 	def select_hasil(self, col, id_file, waktu):
 		try:
-			self.cur.execute("SELECT "+ col +" FROM pengujian WHERE id_file = '" + id_file + "' AND waktu = '" + waktu + "'")
+			self.cur.execute("SELECT "+ col +" FROM pengujian WHERE id_file = '" + str(id_file) + "' AND waktu = '" + waktu + "'")
 			data = self.cur.fetchall()
 			return data
 		except:

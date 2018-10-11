@@ -4,27 +4,47 @@ hide footbox
 title Ekstraksi Ciri dengan Geometric Moment Invariants\n
 
 actor Peneliti
-boundary AppWindow
-control MainControl
-Entity Storage
+boundary latih_uji
+control Ekspresi_wajah
+control Deteksi_wajah
+Entity Database
 
 activate Peneliti
-Peneliti -> AppWindow : view_data(kth, dstype)
-activate AppWindow
-AppWindow -> MainControl : get_data(kth, dstype)
-activate MainControl
-MainControl -> Storage : load(path)
-activate Storage
-alt dstype == "Training Data"
-   Storage --> MainControl : k_training_data
-   MainControl --> AppWindow : k_training_data
-   AppWindow --> Peneliti : k_training_data
-else
-   Storage --> MainControl : k_test_data
-   deactivate Storage
-   MainControl --> AppWindow : k_test_data
-   deactivate MainControl
-   AppWindow --> Peneliti : k_test_data
-   deactivate AppWindow
-end
+Peneliti -> latih_uji : latih_dan_uji()
+activate latih_uji
+latih_uji -> Ekspresi_wajah : latih_uji()
+activate Ekspresi_wajah
+Ekspresi_wajah -> Ekspresi_wajah : latih(files, 'latih_uji', directory)
+activate Ekspresi_wajah
+
+	loop i in range(len(dir1))
+		loop file in files
+			Ekspresi_wajah -> Deteksi_wajah : nama_file = resize_image(berkas, file, directory, dir2)
+			activate Deteksi_wajah
+			Ekspresi_wajah -> Deteksi_wajah : berkas_wajah = deteksi(ket, nama_file, directory, dir2) 
+			deactivate Deteksi_wajah
+
+			create control Praproses
+			Ekspresi_wajah -> Praproses : pra = Praproses()
+			activate Praproses
+			Ekspresi_wajah -> Praproses : pixel_binary = pra.biner(berkas_citra)
+			deactivate Praproses
+
+			create control GMI
+			Ekspresi_wajah -> GMI : gmi = GMI(pixel_binary)
+			activate GMI
+			Ekspresi_wajah -> GMI : gmi.hitungMomenNormalisasi()
+			Ekspresi_wajah -> GMI : ciri = gmi.hitungCiri()
+			deactivate GMI
+
+			Ekspresi_wajah -> Database : insert_ciri_pelatihan('ciri_pelatihan', kelas, ciri, 'S')
+			activate Database
+			Ekspresi_wajah -> Database :  insert_ciri_pelatihan('ciri_pelatihan', kelas, ciricv, 'O')
+			deactivate Database
+			Ekspresi_wajah --> Ekspresi_wajah : True
+
+			deactivate Ekspresi_wajah
+		end
+	end
+
 @enduml

@@ -20,6 +20,7 @@ class Ekspresi_wajah:
 	base = '/ekspresi-wajah'
 	Db = Database('localhost', 'root', '', 'gmisvm')
 	Dw = Deteksi_wajah()
+	pra = Praproses()
 
 	@page.route(f'{base}/')
 	def home():
@@ -298,7 +299,6 @@ class Ekspresi_wajah:
 				print(f"nama_file = {nama_file}")
 				berkas_citra = Ekspresi_wajah.Dw.deteksi(ket, nama_file, directory, dir2)
 
-				pra = Praproses()
 				pixel_binary = pra.biner(berkas_citra)
 
 				gmi 		= GMI(pixel_binary) 

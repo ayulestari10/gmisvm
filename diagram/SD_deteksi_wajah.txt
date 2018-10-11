@@ -1,0 +1,96 @@
+
+@startuml
+hide footbox
+title Deteksi Wajah\n
+
+actor Peneliti
+boundary latih_uji
+control Ekspresi_wajah
+control Deteksi_wajah
+control Viola_Jones
+control Praproses
+control GMI
+entity Database
+
+activate Peneliti
+Peneliti -> latih_uji : latih_dan_uji()
+activate latih_uji
+latih_uji -> Ekspresi_wajah : latih_uji()
+activate Ekspresi_wajah
+Ekspresi_wajah -> Ekspresi_wajah : latih(files, 'latih_uji', directory)
+activate Ekspresi_wajah
+	opt request.method == 'POST'
+		loop i in range(len(dir1))
+			loop file in files
+				Ekspresi_wajah -> Deteksi_wajah : nama_file = resize_image(berkas, file, directory, dir2)
+				activate Deteksi_wajah
+				Ekspresi_wajah -> Deteksi_wajah : berkas_wajah = deteksi(ket, nama_file, directory, dir2)
+
+				Deteksi_wajah -> Viola_Jones : face = deteksi(image)
+				activate Viola_Jones
+				Viola_Jones --> Deteksi_wajah : faces
+				deactivate Viola_Jones
+				deactivate Deteksi_wajah
+
+				ref over Ekspresi_wajah, Praproses : Praproses Wajah
+				ref over Ekspresi_wajah, GMI : Ekstraksi Ciri dengan Geometric Moment Invariants
+
+				Ekspresi_wajah --> Ekspresi_wajah : True
+				deactivate Ekspresi_wajah
+
+				Ekspresi_wajah -> Ekspresi_wajah : jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi = uji()
+				activate Ekspresi_wajah
+
+				Ekspresi_wajah -> Database : data_uji = select_data_uji()
+				activate Database
+				deactivate Database
+
+				loop i in range(jumlah_data)
+					Ekspresi_wajah -> Deteksi_wajah : file_name__s, jarak_s, directory, hasil_all_s, id_pengujian_update = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
+					activate Deteksi_wajah
+
+					Deteksi_wajah -> Deteksi_wajah : berkas_resize= resize_image(image, file_name, 'uji')
+
+					Deteksi_wajah -> Viola_Jones : faces = deteksi(berkas_resize)
+					activate Viola_Jones
+					deactivate Viola_Jones
+
+					Deteksi_wajah -> Database : kumpulan_ciri_s = select_ciri('ciri_pelatihan', 'S')
+					activate Database
+
+					Deteksi_wajah -> Database : kumpulan_kelas_s = select_kelas('ciri_pelatihan', 'S')
+					deactivate Database
+
+					loop kelas_s in kumpulan_kelas_s
+						Deteksi_wajah -> Database : rata_rata_ciri_s[kelas_s] = select_avg('ciri_pelatihan', kelas_s)
+						activate Database
+						deactivate Database
+					end
+
+					loop i, f in enumerate(faces)
+						ref over Ekspresi_wajah, Praproses : Praproses Wajah
+						ref over Ekspresi_wajah, GMI : Ekstraksi Ciri dengan Geometric Moment Invariants
+
+						create control Klasifikasi
+						Deteksi_wajah -> Klasifikasi : kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)
+						activate Klasifikasi
+						Deteksi_wajah -> Klasifikasi : ekspresi_s 	= kl_s.classify([ciri])
+
+						Deteksi_wajah -> Database : insert_ciri('ciri_pengujian', ciri, 'S')
+						activate Database
+						Deteksi_wajah -> Database : data_pengujian_s	= select_first_row()
+						Deteksi_wajah -> Database : pengujian = insert_pengujian(data_pengujian)
+						Deteksi_wajah -> Database : select_pengujian = select_pengujian_first_row()
+					end
+
+					Deteksi_wajah -> Database : hasil_s = select_hasil('hasil_sendiri',id_file, self.waktu_s)
+					Deteksi_wajah -> Database : insert_hasil(hasil_all_s)
+
+					Deteksi_wajah --> Ekspresi_wajah : file_name_s, jarak_all_s, directory, hasil_all_s, id_pengujian_update
+				end
+
+				deactivate Ekspresi_wajah
+			end
+		end
+	end
+@enduml
