@@ -616,10 +616,10 @@ class Ekspresi_wajah:
 				'B'		: hasil_all_s['bahagia'],
 				'S'		: hasil_all_s['sedih'],
 				'M'		: hasil_all_s['marah'],
-				'J'		: hasil_all_s['jijik'],
+				# 'J'		: hasil_all_s['jijik'],
 				'K'		: hasil_all_s['kaget'],
-				'T'		: hasil_all_s['takut'],
-				'N'		: hasil_all_s['natural']
+				# 'T'		: hasil_all_s['takut'],
+				# 'N'		: hasil_all_s['natural']
 			})
  
 			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1], directory, id_pengujian_update)
@@ -628,10 +628,10 @@ class Ekspresi_wajah:
 				'B'		: hasil_all_o['bahagia'],
 				'S'		: hasil_all_o['sedih'],
 				'M'		: hasil_all_o['marah'],
-				'J'		: hasil_all_o['jijik'],
+				# 'J'		: hasil_all_o['jijik'],
 				'K'		: hasil_all_o['kaget'],
-				'T'		: hasil_all_o['takut'],
-				'N'		: hasil_all_o['natural']
+				# 'T'		: hasil_all_o['takut'],
+				# 'N'		: hasil_all_o['natural']
 			})
 
 		files = {
@@ -656,10 +656,10 @@ class Ekspresi_wajah:
 				'B'		: data_uji[i][3],
 				'S'		: data_uji[i][4],
 				'M'		: data_uji[i][5],
-				'J'		: data_uji[i][6],
+				# 'J'		: data_uji[i][6],
 				'K'		: data_uji[i][7],
-				'T'		: data_uji[i][8],
-				'N'		: data_uji[i][9]
+				# 'T'		: data_uji[i][8],
+				# 'N'		: data_uji[i][9]
 			})
 
 		target_akhir = []
@@ -775,10 +775,10 @@ class Ekspresi_wajah:
 			'B'			: aB/jB if jB != 0 else 0,
 			'S'			: aS/jS if jS != 0 else 0,
 			'M'			: aM/jM if jM != 0 else 0,
-			'J'			: aJ/jJ if jJ != 0 else 0,
+			# 'J'			: aJ/jJ if jJ != 0 else 0,
 			'K'			: aK/jK if jK != 0 else 0,
-			'T'			: aT/jT if jT != 0 else 0,
-			'N'			: aN/jN if jN != 0 else 0
+			# 'T'			: aT/jT if jT != 0 else 0,
+			# 'N'			: aN/jN if jN != 0 else 0
 		}
 
 		for i in range(jumlah_data):
@@ -813,10 +813,10 @@ class Ekspresi_wajah:
 			'B'			: aB/jB if jB != 0 else 0,
 			'S'			: aS/jS if jS != 0 else 0,
 			'M'			: aM/jM if jM != 0 else 0,
-			'J'			: aJ/jJ if jJ != 0 else 0,
+			# 'J'			: aJ/jJ if jJ != 0 else 0,
 			'K'			: aK/jK if jK != 0 else 0,
-			'T'			: aT/jT if jT != 0 else 0,
-			'N'			: aN/jN if jN != 0 else 0
+			# 'T'			: aT/jT if jT != 0 else 0,
+			# 'N'			: aN/jN if jN != 0 else 0
 		}
 
 		r_all_s = []

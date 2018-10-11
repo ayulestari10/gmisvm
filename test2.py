@@ -42,7 +42,7 @@ kf = KFold(n_splits=10, random_state=1, shuffle=True)
 
 for i, (train_index, test_index) in enumerate(kf.split(features)):
 
-	clf = GaussianNB()
+	clf = tree.DecisionTreeClassifier()
 	clf.fit(features[train_index], labels[train_index])
 	scores = round(clf.score(features[test_index], labels[test_index]) * 100, 2)
 	k_scores.append(scores)

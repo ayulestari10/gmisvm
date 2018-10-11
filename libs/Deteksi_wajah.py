@@ -324,7 +324,7 @@ class Deteksi_wajah:
 		img 		= cv2.imread(dir_image)
 		gray 		= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-		faces 		= face_cascade.detectMultiScale(gray, 1.3, 5)
+		faces 		= face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30), flags=cv2.CASCADE_SCALE_IMAGE)
 		ekspr 		= list(self.rectColor.values())
 
 		global face_file_name
@@ -407,34 +407,34 @@ class Deteksi_wajah:
 				jarak_marah_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['marah'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'marah', jarak_marah_s)
 
-			jarak_jijik_s = []
-			for i in range(7):
-				jarak_jijik_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['jijik'][i]))
-			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'jijik', jarak_jijik_s)
+			# jarak_jijik_s = []
+			# for i in range(7):
+			# 	jarak_jijik_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['jijik'][i]))
+			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'jijik', jarak_jijik_s)
 
 			jarak_kaget_s = []
 			for i in range(7):
 				jarak_kaget_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['kaget'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'kaget', jarak_kaget_s)
 
-			jarak_takut_s = []
-			for i in range(7):
-				jarak_takut_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['takut'][i]))
-			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'takut', jarak_takut_s)
+			# jarak_takut_s = []
+			# for i in range(7):
+			# 	jarak_takut_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['takut'][i]))
+			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'takut', jarak_takut_s)
 
-			jarak_natural_s = []
-			for i in range(7):
-				jarak_natural_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['natural'][i]))
-			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'natural', jarak_natural_s)
+			# jarak_natural_s = []
+			# for i in range(7):
+			# 	jarak_natural_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['natural'][i]))
+			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'natural', jarak_natural_s)
 				
 			jarak_all = {
 				'bahagia'	: jarak_bahagia_s,
 				'sedih'		: jarak_sedih_s,
 				'marah'		: jarak_marah_s, 
-				'jijik'		: jarak_jijik_s,
+				# 'jijik'		: jarak_jijik_s,
 				'kaget'		: jarak_kaget_s,
-				'takut'		: jarak_takut_s,
-				'natural'	: jarak_natural_s
+				# 'takut'		: jarak_takut_s,
+				# 'natural'	: jarak_natural_s
 			}
 
 			jarak_all_s.append(jarak_all)
@@ -450,10 +450,10 @@ class Deteksi_wajah:
 			'bahagia'	: hitung_s['bahagia'],
 			'sedih'		: hitung_s['sedih'],
 			'marah'		: hitung_s['marah'],
-			'jijik'		: hitung_s['jijik'],
+			# 'jijik'		: hitung_s['jijik'],
 			'kaget'		: hitung_s['kaget'],
-			'takut'		: hitung_s['takut'],
-			'natural'	: hitung_s['natural'],
+			# 'takut'		: hitung_s['takut'],
+			# 'natural'	: hitung_s['natural'],
 			'waktu'		: self.waktu_s
 		}
 		Deteksi_wajah.Db.insert_hasil(hasil_all_s)
@@ -485,7 +485,8 @@ class Deteksi_wajah:
 		img 		= cv2.imread(dir_image)
 		gray 		= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-		faces 		= face_cascade.detectMultiScale(gray, 1.3, 5)
+		faces 		= face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30), flags=cv2.CASCADE_SCALE_IMAGE)
+		# faces 		= face_cascade.detectMultiScale(gray, 1.3, 5)
 		ekspr 		= list(self.rectColor.values())
 
 		global face_file_name
@@ -557,34 +558,34 @@ class Deteksi_wajah:
 				jarak_marah_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['marah'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'marah', jarak_marah_o)
 
-			jarak_jijik_o = []
-			for i in range(7):
-				jarak_jijik_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['jijik'][i]))
-			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'jijik', jarak_jijik_o)
+			# jarak_jijik_o = []
+			# for i in range(7):
+			# 	jarak_jijik_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['jijik'][i]))
+			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'jijik', jarak_jijik_o)
 
 			jarak_kaget_o = []
 			for i in range(7):
 				jarak_kaget_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['kaget'][i]))
 			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'kaget', jarak_kaget_o)
 
-			jarak_takut_o = []
-			for i in range(7):
-				jarak_takut_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['takut'][i]))
-			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'takut', jarak_takut_o)
+			# jarak_takut_o = []
+			# for i in range(7):
+			# 	jarak_takut_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['takut'][i]))
+			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'takut', jarak_takut_o)
 
-			jarak_natural_o = []
-			for i in range(7):
-				jarak_natural_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['natural'][i]))
-			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'natural', jarak_natural_o)
+			# jarak_natural_o = []
+			# for i in range(7):
+			# 	jarak_natural_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['natural'][i]))
+			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'natural', jarak_natural_o)
 
 			jarak_all__o = {
 				'bahagia'	: jarak_bahagia_o,
 				'sedih'		: jarak_sedih_o,
 				'marah'		: jarak_marah_o, 
-				'jijik'		: jarak_jijik_o,
+				# 'jijik'		: jarak_jijik_o,
 				'kaget'		: jarak_kaget_o,
-				'takut'		: jarak_takut_o,
-				'natural'	: jarak_natural_o
+				# 'takut'		: jarak_takut_o,
+				# 'natural'	: jarak_natural_o
 			}
 
 			jarak_all_o.append(jarak_all__o)
@@ -600,10 +601,10 @@ class Deteksi_wajah:
 			'bahagia'	: hitung_o['bahagia'],
 			'sedih'		: hitung_o['sedih'],
 			'marah'		: hitung_o['marah'],
-			'jijik'		: hitung_o['jijik'],
+			# 'jijik'		: hitung_o['jijik'],
 			'kaget'		: hitung_o['kaget'],
-			'takut'		: hitung_o['takut'],
-			'natural'	: hitung_o['natural']
+			# 'takut'		: hitung_o['takut'],
+			# 'natural'	: hitung_o['natural']
 		}
 		Deteksi_wajah.Db.insert_hasil(hasil_all_o)
 
