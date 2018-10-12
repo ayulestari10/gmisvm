@@ -294,7 +294,7 @@ class Ekspresi_wajah:
 				print(f"file = {file}")
 				berkas 		= cwd + '\\data\\'+ ket +'\\' + directory + '\\' + dir2 + '\\' + file
 
-				
+				print(f"Resize = {berkas}")
 				nama_file 	 = Ekspresi_wajah.Dw.resize_image(berkas, file, directory, dir2)
 				print(f"nama_file = {nama_file}")
 				berkas_citra = Ekspresi_wajah.Dw.deteksi(ket, nama_file, directory, dir2)
@@ -606,9 +606,12 @@ class Ekspresi_wajah:
 
 		jumlah_data 	= len(data_uji)
 		waktu			= []
+		cwd				= os.getcwd()
+		dirr 			= cwd + '\\data\\uji\\'
 
 		for i in range(jumlah_data):
-			file_name__s, jarak_s, directory, hasil_all_s, id_pengujian_update = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
+			path  		= dirr + data_uji[i][1]
+			file_name__s, jarak_s, directory, hasil_all_s, id_pengujian_update = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], path)
 			file_name_s.append(file_name__s)
 			waktu.append(hasil_all_s['waktu'])
 			hasil_final_s.append({
@@ -622,7 +625,7 @@ class Ekspresi_wajah:
 				# 'N'		: hasil_all_s['natural']
 			})
  
-			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1], directory, id_pengujian_update)
+			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], path, directory, id_pengujian_update)
 			hasil_final_o.append({
 				'WO'	: hasil_all_o['wajah'],
 				'B'		: hasil_all_o['bahagia'],

@@ -13,6 +13,7 @@ class Database:
 
 			query = "SELECT * FROM " + table + ' WHERE ket = "' + ket + '"'
 			self.cur.execute(query)
+			self.db.commit()
 
 			data = self.cur.fetchall()
 
@@ -28,7 +29,7 @@ class Database:
 		try:
 			query = 'SELECT * FROM ' + table + ' WHERE ket = "' + ket + '"'
 			self.cur.execute(query)
-
+			self.db.commit()
 			data = self.cur.fetchall()
 			x = np.array(data)
 			ciri = x[:, 3:]
@@ -43,7 +44,7 @@ class Database:
 
 		try:
 			self.cur.execute("INSERT INTO "+ table +"(ket, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + ket + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
-
+			self.db.commit()
 			self.db.commit()
 		except:
 			self.db.rollback()
@@ -52,7 +53,7 @@ class Database:
 
 		try:
 			self.cur.execute("INSERT INTO "+ table +"(ket, kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + ket + "'", "'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
-
+			self.db.commit()
 			self.db.commit()
 		except:
 			self.db.rollback()
@@ -61,7 +62,7 @@ class Database:
 
 		try:
 			self.cur.execute("INSERT INTO pengujian(id_file, id_ciri_pengujian_s, waktu, hasil_sendiri, direktori) VALUES (%s, %s, %s, %s, %s)" % ("'" + data['id_file'] + "'", "'" + data['id_ciri_pengujian_s'] + "'", "'" + data['waktu'] + "'", "'" + data['hasil_sendiri'] + "'", "'" + data['direktori'] + "'"))
-
+			self.db.commit()
 			self.db.commit()
 		except:
 			print("error pengujian")
@@ -110,6 +111,7 @@ class Database:
 	def select_data_uji(self):
 		try:
 			self.cur.execute("SELECT * FROM file_uji")
+			self.db.commit()
 			data = self.cur.fetchall()
 			return data
 		except:
@@ -119,6 +121,7 @@ class Database:
 	def select_data_uji_jumlah(self, jumlah):
 		try:
 			self.cur.execute("SELECT * FROM file_uji ORDER BY id_file ASC LIMIT " + str(jumlah))
+			self.db.commit()
 			data = self.cur.fetchall()
 			return data
 		except:
@@ -128,6 +131,7 @@ class Database:
 	def select_data_pengujian(self, id_file, waktu):
 		try:
 			self.cur.execute("SELECT * FROM pengujian WHERE id_file = '" + str(id_file) + "' AND waktu = '" + waktu + "'")
+			self.db.commit()
 			data = self.cur.fetchall()
 			print(f"Data cantik = {data}")
 			return data
@@ -138,6 +142,7 @@ class Database:
 	def select_join_hasil(self, ket):
 		try:
 			self.cur.execute("SELECT * FROM hasil inner join file_uji on hasil.id_file = file_uji.id_file WHERE hasil.ket = '" + ket + "'")
+			self.db.commit()
 			data = self.cur.fetchall()
 			return data
 		except:
@@ -147,6 +152,7 @@ class Database:
 	def select_target(self, id_file):
 		try:
 			self.cur.execute("SELECT * FROM file_uji WHERE id_file = '" + str(id_file) + "'")
+			self.db.commit()
 			data = self.cur.fetchall()
 			return data
 		except:
@@ -156,7 +162,7 @@ class Database:
 	def select_ciri_pengujian(self, id_ciri_pengujian, ket):
 		try:
 			self.cur.execute("SELECT * FROM ciri_pengujian WHERE id_ciri_pengujian = '" + str(id_ciri_pengujian) + "' AND ket = '" + ket + "'")
-
+			self.db.commit()
 			data = self.cur.fetchall()
 			data = np.array(data)
 
@@ -168,6 +174,7 @@ class Database:
 	def select_pengujian_first_row(self):
 		try:
 			self.cur.execute("SELECT * FROM pengujian ORDER BY id_pengujian DESC LIMIT 1")
+			self.db.commit()
 			data = self.cur.fetchall()
 			return data
 		except:
@@ -177,6 +184,7 @@ class Database:
 	def select_sejumlah_data_latih(self, ket, kelas, jumlah):
 		try:
 			self.cur.execute("SELECT * FROM ciri_pelatihan WHERE ket='" + ket + "' AND kelas='" + kelas +  "' ORDER BY id_ciri_pelatihan ASC LIMIT " + str(jumlah))
+			self.db.commit()
 			data = self.cur.fetchall()
 			data = np.array(data)
 			return data[:, 3:]
@@ -211,6 +219,7 @@ class Database:
 	def insert_jarak_min(self, id_tes, data):
 		try:
 			self.cur.execute("SELECT LEAST(jarak_marah, jarak_jijik, jarak_takut, jarak_bahagia, jarak_sedih, jarak_kaget, jarak_natural) as jarak_min From jarak where id_tes = " + id_tes)
+			self.db.commit()
 			jarak_min = self.cur.fetchall()
 			
 			jarak_min2, = jarak_min
@@ -227,6 +236,7 @@ class Database:
 	def select_jarak(self, id_tes):
 		try:
 			self.cur.execute("SELECT * FROM jarak WHERE id_tes = " + id_tes)
+			self.db.commit()
 			data = self.cur.fetchall()
 			return data
 		except:
@@ -236,6 +246,7 @@ class Database:
 	def select_first_row(self):
 		try:
 			self.cur.execute("SELECT * FROM ciri_pengujian ORDER BY id_ciri_pengujian DESC LIMIT 1")
+			self.db.commit()
 			data = self.cur.fetchall()
 			return data
 		except:
@@ -246,6 +257,7 @@ class Database:
 	def select_id(self, ciri, jarak):
 		try:
 			self.cur.execute("SELECT id_ciri FROM ciri_test WHERE ciri1 = " + ciri[0] + " AND ciri2 = " + ciri[1] + " AND ciri3 = " + ciri[2] + " AND ciri4 = " + ciri[3] + " AND ciri5 = " + ciri[4] + " AND ciri6 = " + ciri[5] + " AND ciri7 = " + ciri[6] + " AND jarak = " + jarak)
+			self.db.commit()
 		except:
 			print("Error ID")
 			return None
@@ -254,6 +266,7 @@ class Database:
 		try:
 			query = "SELECT AVG(ciri1) AS avg_ciri1, AVG(ciri2) AS avg_ciri2, AVG(ciri3) AS avg_ciri3, AVG(ciri4) AS avg_ciri4, AVG(ciri5) AS avg_ciri5, AVG(ciri6) AS avg_ciri6, AVG(ciri7) AS avg_ciri7 FROM " + table + " WHERE kelas='" + kelas + "'"
 			self.cur.execute(query)
+			self.db.commit()
 			data = self.cur.fetchall()
 			return data[0] if len(data) > 0 else None
 		except:

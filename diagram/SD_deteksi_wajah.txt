@@ -75,7 +75,7 @@ activate Ekspresi_wajah
 						Deteksi_wajah -> Klasifikasi : kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)
 						activate Klasifikasi
 						Deteksi_wajah -> Klasifikasi : ekspresi_s 	= kl_s.classify([ciri])
-
+						deactivate Klasifikasi
 						Deteksi_wajah -> Database : insert_ciri('ciri_pengujian', ciri, 'S')
 						activate Database
 						Deteksi_wajah -> Database : data_pengujian_s	= select_first_row()
@@ -85,12 +85,58 @@ activate Ekspresi_wajah
 
 					Deteksi_wajah -> Database : hasil_s = select_hasil('hasil_sendiri',id_file, self.waktu_s)
 					Deteksi_wajah -> Database : insert_hasil(hasil_all_s)
+					deactivate Database
 
-					Deteksi_wajah --> Ekspresi_wajah : file_name_s, jarak_all_s, directory, hasil_all_s, id_pengujian_update
+					
+
+
+
+					Ekspresi_wajah -> Deteksi_wajah : file_name_o, jarak_o, hasil_all_o = deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1], directory, id_pengujian_update)
+
+					Deteksi_wajah -> Deteksi_wajah : berkas_resize= resize_image(image, file_name, 'uji')
+
+					Deteksi_wajah -> Viola_Jones : faces = deteksi(berkas_resize)
+					activate Viola_Jones
+					deactivate Viola_Jones
+
+					Deteksi_wajah -> Database : kumpulan_ciri_o = select_ciri('ciri_pelatihan', 'O')
+					activate Database
+
+					Deteksi_wajah -> Database : kumpulan_kelas_o = select_kelas('ciri_pelatihan', 'O')
+					deactivate Database
+
+					loop kelas_o in kumpulan_kelas_o
+						Deteksi_wajah -> Database : rata_rata_ciri_o[kelas_o] = select_avg('ciri_pelatihan', kelas_o)
+						activate Database
+						deactivate Database
+					end
+
+					loop i, f in enumerate(faces)
+						ref over Ekspresi_wajah, Praproses : Praproses Wajah
+						ref over Ekspresi_wajah, GMI : Ekstraksi Ciri dengan Geometric Moment Invariants
+
+						create control Klasifikasi
+						Deteksi_wajah -> Klasifikasi : kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)
+						activate Klasifikasi
+						Deteksi_wajah -> Klasifikasi : ekspresi_o 	= kl_o.classify([ciri])
+
+						Deteksi_wajah -> Database : insert_ciri('ciri_pengujian', ciri, 'O')
+						activate Database
+						Deteksi_wajah -> Database : data_pengujian_o	= select_first_row()
+						Deteksi_wajah -> Database : pengujian = insert_pengujian(data_pengujian)
+						Deteksi_wajah -> Database : select_pengujian = select_pengujian_first_row()
+					end
+
+					Deteksi_wajah -> Database : hasil_o = select_hasil('hasil_sendiri',id_file, self.waktu_o)
+					Deteksi_wajah -> Database : insert_hasil(hasil_all_o)
+				
+				deactivate Ekspresi_wajah
 				end
-
+				deactivate Klasifikasi
+				deactivate Database
+				deactivate Deteksi_wajah
 				deactivate Ekspresi_wajah
 			end
-		end
+		end 
 	end
 @enduml

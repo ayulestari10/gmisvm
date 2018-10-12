@@ -3,6 +3,7 @@ from PIL import Image
 import cv2, numpy as np, random
 from libs.GMI import GMI
 from libs.Praproses import Praproses
+from libs.Viola_Jones import Viola_Jones
 from models.Database import Database
 from libs.Klasifikasi import Klasifikasi
 import MySQLdb
@@ -205,18 +206,23 @@ class Deteksi_wajah:
 				if x > 0 and y > 0: im[x][y] -= im[x - 1][y - 1]
 		return im
 
-	def resize_image(self, image, file_name, directory, dir2 = ""):
-		
+	def resize_image(self, image, file_name, directory, dir2 = ''):
+		print(f"IMG = {image}")
 		img1 		= Image.open(image)
 		width 		= 384
 		height 		= 288
 		img2 		= img1.resize((width, height))
 
-		path = 'data/resize/'+ directory + '/' + dir2
+		if dir2 == '':
+			path = 'data/resize/'+ directory
+		else:
+			path = 'data/resize/'+ directory + '/' + dir2
+
 		if os.path.exists(path) is False:
 			os.makedirs(path, exist_ok=True)
 
-		path = 'data/resize/' + directory + '/' + dir2 + '/' + file_name	
+		path = path + '/' + file_name
+		print(f"Belum galo = {path}")	
 		img2.save(path)
 		return path
 
@@ -299,8 +305,8 @@ class Deteksi_wajah:
 		# Resize
 		file_name 	= image
 		cwd  		= os.getcwd()
-		image 		= cwd + '\\data\\uji\\' + image
-		berkas_resize= resize_image(image, file_name, 'uji')
+		dirr 		= cwd + '\\data\\uji\\' + image
+		berkas_resize= Deteksi_wajah.resize_image(dirr, file_name, 'uji', '')
 
 		# deteksi wajah
 		faces = Deteksi_wajah.VJ.deteksi(berkas_resize)
@@ -445,25 +451,14 @@ class Deteksi_wajah:
 		print(f"Id pengujian = {id_pengujian_update}")
 		jarak_all_o = []
 
-		face_cascade= cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
-
 		# Resize
+		file_name 	= image
 		cwd  		= os.getcwd()
-		image 		= cwd + '\\data\\uji\\' + image
-		img1 		= Image.open(image)
-		width 		= 384
-		height 		= 288
-		img2 		= img1.resize((width, height))
-		path 		= 'data/uji/hasil_resize.png'
-		img2.save(path)
+		dirr 		= cwd + '\\data\\uji\\' + image
+		berkas_resize= resize_image(dirr, file_name, 'uji', '')
 
-		dir_image 	= 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\hasil_resize.png'
-		img 		= cv2.imread(dir_image)
-		gray 		= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-		faces 		= face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30), flags=cv2.CASCADE_SCALE_IMAGE)
-		# faces 		= face_cascade.detectMultiScale(gray, 1.3, 5)
-		ekspr 		= list(self.rectColor.values())
+		# deteksi wajah
+		faces = Deteksi_wajah.VJ.deteksi(berkas_resize)
 
 		global face_file_name
 
