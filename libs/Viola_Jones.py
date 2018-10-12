@@ -10,6 +10,6 @@ class Viola_Jones:
 
 		img 	= cv2.imread(image)
 		gray 	= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-		faces 	= face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30), flags=cv2.CASCADE_SCALE_IMAGE)
+		faces 	= self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30), flags=cv2.CASCADE_SCALE_IMAGE)
 
-		return faces
+		return faces, img

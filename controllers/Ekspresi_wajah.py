@@ -299,7 +299,7 @@ class Ekspresi_wajah:
 				print(f"nama_file = {nama_file}")
 				berkas_citra = Ekspresi_wajah.Dw.deteksi(ket, nama_file, directory, dir2)
 
-				pixel_binary = pra.biner(berkas_citra)
+				pixel_binary = Ekspresi_wajah.pra.biner(berkas_citra)
 
 				gmi 		= GMI(pixel_binary) 
 				gmi.hitungMomenNormalisasi()
@@ -336,9 +336,13 @@ class Ekspresi_wajah:
 
 		jumlah_data 	= len(data_uji)
 		waktu			= []
+		cwd				= os.getcwd()
+		dirr 			= cwd + '\\data\\uji\\'
 
 		for i in range(jumlah_data):
-			file_name__s, jarak_s, directory, hasil_all_s, id_pengujian_update = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], data_uji[i][1])
+			path  		= dirr + str(data_uji[i][1])
+			file_name__s, jarak_s, directory, hasil_all_s, id_pengujian_update = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], path, data_uji[i][1])
+			print(f"id file = {data_uji[i][0]}")
 			file_name_s.append(file_name__s)
 			waktu.append(hasil_all_s['waktu'])
 			hasil_final_s.append({
@@ -346,22 +350,22 @@ class Ekspresi_wajah:
 				'B'		: hasil_all_s['bahagia'],
 				'S'		: hasil_all_s['sedih'],
 				'M'		: hasil_all_s['marah'],
-				'J'		: hasil_all_s['jijik'],
+				# 'J'		: hasil_all_s['jijik'],
 				'K'		: hasil_all_s['kaget'],
-				'T'		: hasil_all_s['takut'],
-				'N'		: hasil_all_s['natural']
+				# 'T'		: hasil_all_s['takut'],
+				# 'N'		: hasil_all_s['natural']
 			})
  
-			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], data_uji[i][1], directory, id_pengujian_update)
+			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], path, data_uji[i][1], directory, id_pengujian_update)
 			hasil_final_o.append({
 				'WO'	: hasil_all_o['wajah'],
 				'B'		: hasil_all_o['bahagia'],
 				'S'		: hasil_all_o['sedih'],
 				'M'		: hasil_all_o['marah'],
-				'J'		: hasil_all_o['jijik'],
+				# 'J'		: hasil_all_o['jijik'],
 				'K'		: hasil_all_o['kaget'],
-				'T'		: hasil_all_o['takut'],
-				'N'		: hasil_all_o['natural']
+				# 'T'		: hasil_all_o['takut'],
+				# 'N'		: hasil_all_o['natural']
 			})
 
 		files = {
@@ -386,10 +390,10 @@ class Ekspresi_wajah:
 				'B'		: data_uji[i][3],
 				'S'		: data_uji[i][4],
 				'M'		: data_uji[i][5],
-				'J'		: data_uji[i][6],
+				# 'J'		: data_uji[i][6],
 				'K'		: data_uji[i][7],
-				'T'		: data_uji[i][8],
-				'N'		: data_uji[i][9]
+				# 'T'		: data_uji[i][8],
+				# 'N'		: data_uji[i][9]
 			})
 
 		target_akhir = []
@@ -505,10 +509,10 @@ class Ekspresi_wajah:
 			'B'			: aB/jB if jB != 0 else 0,
 			'S'			: aS/jS if jS != 0 else 0,
 			'M'			: aM/jM if jM != 0 else 0,
-			'J'			: aJ/jJ if jJ != 0 else 0,
+			# 'J'			: aJ/jJ if jJ != 0 else 0,
 			'K'			: aK/jK if jK != 0 else 0,
-			'T'			: aT/jT if jT != 0 else 0,
-			'N'			: aN/jN if jN != 0 else 0
+			# 'T'			: aT/jT if jT != 0 else 0,
+			# 'N'			: aN/jN if jN != 0 else 0
 		}
 
 		for i in range(jumlah_data):
@@ -543,10 +547,10 @@ class Ekspresi_wajah:
 			'B'			: aB/jB if jB != 0 else 0,
 			'S'			: aS/jS if jS != 0 else 0,
 			'M'			: aM/jM if jM != 0 else 0,
-			'J'			: aJ/jJ if jJ != 0 else 0,
+			# 'J'			: aJ/jJ if jJ != 0 else 0,
 			'K'			: aK/jK if jK != 0 else 0,
-			'T'			: aT/jT if jT != 0 else 0,
-			'N'			: aN/jN if jN != 0 else 0
+			# 'T'			: aT/jT if jT != 0 else 0,
+			# 'N'			: aN/jN if jN != 0 else 0
 		}
 
 		r_all_s = []
@@ -569,6 +573,11 @@ class Ekspresi_wajah:
 			'rata_s'	: set(r_all_s),
 			'rata_o'	: set(r_all_o)
 		}
+
+		print(f"Hasil akurasi s = {akurasi['s']} dan tipe = {type(akurasi['s'])}")
+		print(f"Hasil akurasi s[0] = {akurasi['s'][0]} dan tipe = {type(akurasi['s'][0])}")
+		print(f"Hasil akurasi o = {akurasi['o']} dan tipe = {type(akurasi['o'])}")
+		print(f"Hasil akurasi o[0] = {akurasi['o'][0]} dan tipe = {type(akurasi['o'][0])}")
 
 
 		return jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi
@@ -610,8 +619,9 @@ class Ekspresi_wajah:
 		dirr 			= cwd + '\\data\\uji\\'
 
 		for i in range(jumlah_data):
-			path  		= dirr + data_uji[i][1]
-			file_name__s, jarak_s, directory, hasil_all_s, id_pengujian_update = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], path)
+			path  		= dirr + str(data_uji[i][1])
+			file_name__s, jarak_s, directory, hasil_all_s, id_pengujian_update = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], path, data_uji[i][1])
+			print(f"id file = {data_uji[i][0]}")
 			file_name_s.append(file_name__s)
 			waktu.append(hasil_all_s['waktu'])
 			hasil_final_s.append({
@@ -625,7 +635,7 @@ class Ekspresi_wajah:
 				# 'N'		: hasil_all_s['natural']
 			})
  
-			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], path, directory, id_pengujian_update)
+			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], path, data_uji[i][1], directory, id_pengujian_update)
 			hasil_final_o.append({
 				'WO'	: hasil_all_o['wajah'],
 				'B'		: hasil_all_o['bahagia'],

@@ -14,11 +14,11 @@ from collections import Counter
 
 class Deteksi_wajah:
 
-	page = Blueprint('Deteksi_wajah_page', __name__, template_folder = 'templates')
-	base = '/deteksi-wajah'
-	Db 	 = Database('localhost', 'root', '', 'gmisvm')
-	VJ   = Viola_Jones()
-	pra 		= Praproses()
+	page 	= Blueprint('Deteksi_wajah_page', __name__, template_folder = 'templates')
+	base 	= '/deteksi-wajah'
+	Db 	 	= Database('localhost', 'root', '', 'gmisvm')
+	VJ   	= Viola_Jones()
+	pra 	= Praproses()
 
 	def __init__(self):
 		self.rectColor = {
@@ -206,14 +206,14 @@ class Deteksi_wajah:
 				if x > 0 and y > 0: im[x][y] -= im[x - 1][y - 1]
 		return im
 
-	def resize_image(self, image, file_name, directory, dir2 = ''):
+	def resize_image(self, image, file_name, directory, dir2):
 		print(f"IMG = {image}")
 		img1 		= Image.open(image)
 		width 		= 384
 		height 		= 288
 		img2 		= img1.resize((width, height))
 
-		if dir2 == '':
+		if dir2 == 'uji':
 			path = 'data/resize/'+ directory
 		else:
 			path = 'data/resize/'+ directory + '/' + dir2
@@ -221,16 +221,16 @@ class Deteksi_wajah:
 		if os.path.exists(path) is False:
 			os.makedirs(path, exist_ok=True)
 
-		path = path + '/' + file_name
-		print(f"Belum galo = {path}")	
-		img2.save(path)
-		return path
+		path2 = str(path) + '/' + str(file_name)
+		img2.save(path2)
+		
+		return path2
 
 
 	def deteksi(self, ket, image, dir1, dir2):
 
-		faces = Deteksi_wajah.VJ.deteksi(image)
-
+		faces, img = Deteksi_wajah.VJ.deteksi(image)
+		print(f"faces = {faces} dan tipe = {type(faces)}")
 		global face_file_name
 		
 		for f in faces:
@@ -298,18 +298,15 @@ class Deteksi_wajah:
 
 		return ciri, ciricv
 
-	def deteksi_multi_face_sendiri(self, id_file, image):
+	def deteksi_multi_face_sendiri(self, id_file, image, nama_file):
 		jarak_all_s = []
 		id_pengujian_update = []
 
 		# Resize
-		file_name 	= image
-		cwd  		= os.getcwd()
-		dirr 		= cwd + '\\data\\uji\\' + image
-		berkas_resize= Deteksi_wajah.resize_image(dirr, file_name, 'uji', '')
+		berkas_resize= self.resize_image(image, nama_file, 'uji', 'uji')
 
 		# deteksi wajah
-		faces = Deteksi_wajah.VJ.deteksi(berkas_resize)
+		faces, img = Deteksi_wajah.VJ.deteksi(berkas_resize)
 
 		global face_file_name
 		directory = strftime("%Y-%m-%d_%H-%M-%S")
@@ -328,8 +325,9 @@ class Deteksi_wajah:
 		for kelas_s in kumpulan_kelas_s:
 			rata_rata_ciri_s[kelas_s] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas_s)
 
-		self.waktu_s = strftime("%Y-%m-%d_%H-%M-%S")
-		
+		self.waktu_s 		= strftime("%Y-%m-%d_%H-%M-%S")
+		# img 				= cv2.imread(image)
+
 		for i, f in enumerate(faces):
 			x, y, w, h 		= np.array([v for v in f], dtype=np.int64)
 
@@ -339,7 +337,7 @@ class Deteksi_wajah:
 
 			## start - klasifikasi
 			
-			sub_face 	= pra.biner(face_file_name)
+			sub_face 	= Deteksi_wajah.pra.biner(face_file_name)
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
 			ciri 		= gmi.hitungCiri()
@@ -447,18 +445,18 @@ class Deteksi_wajah:
 
 		return file_name_s, jarak_all_s, directory, hasil_all_s, id_pengujian_update
 
-	def deteksi_multi_face_opencv(self, id_file, image, directory, id_pengujian_update):
+	def deteksi_multi_face_opencv(self, id_file, image, nama_file, directory, id_pengujian_update):
 		print(f"Id pengujian = {id_pengujian_update}")
 		jarak_all_o = []
 
 		# Resize
-		file_name 	= image
 		cwd  		= os.getcwd()
 		dirr 		= cwd + '\\data\\uji\\' + image
-		berkas_resize= resize_image(dirr, file_name, 'uji', '')
+		print(f"IMG O = {image}")
+		berkas_resize= self.resize_image(image, nama_file, 'uji', 'uji')
 
 		# deteksi wajah
-		faces = Deteksi_wajah.VJ.deteksi(berkas_resize)
+		faces,img = Deteksi_wajah.VJ.deteksi(berkas_resize)
 
 		global face_file_name
 
@@ -472,8 +470,9 @@ class Deteksi_wajah:
 		for kelas_o in kumpulan_kelas_o:
 			rata_rata_ciri_o[kelas_o] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas_o)
 
-		ekspresi_openCV = []
+		ekspresi_openCV 	= []
 
+		# img 				= cv2.imread(image)
 		for i, f in enumerate(faces):
 			x, y, w, h = np.array([v for v in f], dtype=np.int64)
 
@@ -609,13 +608,8 @@ class Deteksi_wajah:
 
 	def deteksi_single(self, image, directory, ekspresi):
 		
-		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
-
-		img = cv2.imread(image)
-		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-		ekspr = list(self.rectColor.values())
+		# deteksi wajah
+		faces, img = Deteksi_wajah.VJ.deteksi(berkas_resize)
 
 		global face_file_name
 		for i, f in enumerate(faces):
