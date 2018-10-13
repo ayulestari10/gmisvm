@@ -305,12 +305,12 @@ class Deteksi_wajah:
 		path 				= self.resize_image(image, nama_file, 'uji', 'uji')
 
 		# deteksi wajah
-		faces, img = Deteksi_wajah.OC.deteksi(path)
+		faces, img 			= Deteksi_wajah.OC.deteksi(path)
 
 		global path_wajah
-		directory = strftime("%Y-%m-%d_%H-%M-%S")
+		directory 			= strftime("%Y-%m-%d_%H-%M-%S")
 
-		path = 'static/data/latih_uji/' + directory
+		path 				= 'static/data/latih_uji/' + directory
 		if os.path.exists(path) is False:
 			os.mkdir(path)
 
@@ -345,8 +345,8 @@ class Deteksi_wajah:
 			ekspresi_s 	= kl_s.classify([ciri])
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi_s])
-			cv2.rectangle(img, (x, y - 30), (x + 100, y), self.rectColor[ekspresi_s], -1)
-			cv2.putText(img, ekspresi_s, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 2)
+			cv2.rectangle(img, (x, y - 20), (x + w, y), self.rectColor[ekspresi_s], -1)
+			cv2.putText(img, ekspresi_s, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 0.8 , (0, 0, 0), 1)
 
 			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ciri, 'S')
 			data_pengujian_s	= Deteksi_wajah.Db.select_first_row()
@@ -479,9 +479,10 @@ class Deteksi_wajah:
 			kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)
 			ekspresi_o 	= kl_o.classify([ciricv])
 
-			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi_o])
-			cv2.rectangle(img, (x, y - 30), (x + 100, y), self.rectColor[ekspresi_o], -1)
-			cv2.putText(img, ekspresi_o, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 2)
+			scaleee = 1
+			cv2.rectangle(img, (int(x * (1 + (1 - scaleee))), int(y * (1 + (1 - scaleee)))), (int(x+w * scaleee), int(y+h * scaleee)), self.rectColor[ekspresi_o])
+			cv2.rectangle(img, (x, y - 20), (x + w, y), self.rectColor[ekspresi_o], -1)
+			cv2.putText(img, ekspresi_o, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 0.8 , (0, 0, 0), 1)
 
 			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ciricv, 'O')
 			data_pengujian_o	= Deteksi_wajah.Db.select_first_row()

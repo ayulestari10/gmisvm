@@ -17,12 +17,13 @@
 						{% endwith %}
 					</div>
 
-					<form action="{{ url_for('.latih_uji') }}" method="POST" enctype="multipart/form-data">
+					<form id="form-latih-uji" action="{{ url_for('.latih_uji') }}" method="POST" enctype="multipart/form-data">
 						<div class="form-group">
-					    	<label for="Unggah Data">Unggah Data</label>
-					    	<input type="file" name="zip_file" multiple="" class="form-control-file">
+					    	<label for="Unggah Data">Unggah Data </label>
+					    	<p class="text-danger" style="font-size: 12px;">* Data dalam format zip</p>
+					    	<input type="file" name="zip_file" multiple="" class="form-control-file" id="zip_file">
 						</div>
-						<input type="submit" name="latih_uji" class="btn btn-primary" value="Latih dan Uji">
+						<input type="submit" name="latih_uji" class="btn btn-primary" value="Latih dan Uji" onclick="UI.latih_uji(); return false;">
 					</form> 
 				</div>
 
@@ -32,9 +33,9 @@
 				</div>
 
 				<div class="col-md-4 heading">
-					<form action="{{ url_for('.latih_data') }}" method="POST">
-						<div class="form-group">
-					    	<label for="Pilih Jumlah Data" class="heading">Pilih Jumlah Data Latih</label>
+					<form action="{{ url_for('.uji_data') }}" method="POST">
+						<!-- <div class="form-group">
+					    	<label for="Pilih Jumlah Data" class="heading">Pilih Jumlah Data Latih Untuk Setiap Kelas</label>
 					    	<select class="form-control" name="jumlah">
 					    		<option value="2">2</option>
 					    		<option value="10">10</option>
@@ -42,8 +43,9 @@
 					    		<option value="30">30</option>
 					    		<option value="all">All</option>
 					    	</select>
-						</div>
-						<input type="submit" name="latih_data" class="btn btn-primary" value="Latih dan Uji">
+						</div> -->
+						<h3>Pengujian dan Pelatihan</h3> <br>
+						<input type="submit" name="uji_data" class="btn btn-primary" value="Latih dan Uji">
 					</form> 
 				</div>
 			</div>
@@ -170,3 +172,20 @@
 		</div>
 	</div>
 </section>
+
+<script type="text/javascript">
+	var UI;
+	window.onload = function() {
+		$(document).ready(function() {
+
+			UI = {
+				latih_uji: function() {
+					$('#form-latih-uji').submit();
+					return false;
+				}
+			};
+
+		});
+	};
+	
+</script>
