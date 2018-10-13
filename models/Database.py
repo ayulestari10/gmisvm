@@ -18,9 +18,9 @@ class Database:
 			data = self.cur.fetchall()
 
 			x = np.array(data)
-			kelas = x[:, 2]
+			kumpulan_kelas = x[:, 2]
 
-			return kelas
+			return kumpulan_kelas
 		except:
 			print("error")
 			return None
@@ -33,9 +33,9 @@ class Database:
 			data = self.cur.fetchall()
 			x = np.array(data)
 			ciri = x[:, 3:]
-			kum_ciri = ciri.astype(np.float64)
+			kumpulan_ciri = ciri.astype(np.float64)
 
-			return kum_ciri
+			return kumpulan_ciri
 		except:
 			print("error")
 			return None
@@ -45,7 +45,6 @@ class Database:
 		try:
 			self.cur.execute("INSERT INTO "+ table +"(ket, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + ket + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
 			self.db.commit()
-			self.db.commit()
 		except:
 			self.db.rollback()
 
@@ -54,7 +53,6 @@ class Database:
 		try:
 			self.cur.execute("INSERT INTO "+ table +"(ket, kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + ket + "'", "'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
 			self.db.commit()
-			self.db.commit()
 		except:
 			self.db.rollback()
 
@@ -62,7 +60,6 @@ class Database:
 
 		try:
 			self.cur.execute("INSERT INTO pengujian(id_file, id_ciri_pengujian_s, waktu, hasil_sendiri, direktori) VALUES (%s, %s, %s, %s, %s)" % ("'" + data['id_file'] + "'", "'" + data['id_ciri_pengujian_s'] + "'", "'" + data['waktu'] + "'", "'" + data['hasil_sendiri'] + "'", "'" + data['direktori'] + "'"))
-			self.db.commit()
 			self.db.commit()
 		except:
 			print("error pengujian")
@@ -90,8 +87,8 @@ class Database:
 	def select_hasil(self, col, id_file, waktu):
 		try:
 			self.cur.execute("SELECT "+ col +" FROM pengujian WHERE id_file = '" + str(id_file) + "' AND waktu = '" + waktu + "'")
-			data = self.cur.fetchall()
-			return data
+			data_hasil = self.cur.fetchall()
+			return data_hasil
 		except:
 			print("Error select hasil")
 			return None
@@ -175,8 +172,8 @@ class Database:
 		try:
 			self.cur.execute("SELECT * FROM pengujian ORDER BY id_pengujian DESC LIMIT 1")
 			self.db.commit()
-			data = self.cur.fetchall()
-			return data
+			data_pengujian = self.cur.fetchall()
+			return data_pengujian
 		except:
 			print("Error first row pengujian")
 			return None
@@ -267,8 +264,8 @@ class Database:
 			query = "SELECT AVG(ciri1) AS avg_ciri1, AVG(ciri2) AS avg_ciri2, AVG(ciri3) AS avg_ciri3, AVG(ciri4) AS avg_ciri4, AVG(ciri5) AS avg_ciri5, AVG(ciri6) AS avg_ciri6, AVG(ciri7) AS avg_ciri7 FROM " + table + " WHERE kelas='" + kelas + "'"
 			self.cur.execute(query)
 			self.db.commit()
-			data = self.cur.fetchall()
-			return data[0] if len(data) > 0 else None
+			data_rata_rata = self.cur.fetchall()
+			return data_rata_rata[0] if len(data_rata_rata) > 0 else None
 		except:
 			print("Error AVG")
 			return None

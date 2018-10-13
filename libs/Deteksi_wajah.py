@@ -3,7 +3,7 @@ from PIL import Image
 import cv2, numpy as np, random
 from libs.GMI import GMI
 from libs.Praproses import Praproses
-from libs.Viola_Jones import Viola_Jones
+from libs.OpenCV import OpenCV
 from models.Database import Database
 from libs.Klasifikasi import Klasifikasi
 import MySQLdb
@@ -17,7 +17,7 @@ class Deteksi_wajah:
 	page 	= Blueprint('Deteksi_wajah_page', __name__, template_folder = 'templates')
 	base 	= '/deteksi-wajah'
 	Db 	 	= Database('localhost', 'root', '', 'gmisvm')
-	VJ   	= Viola_Jones()
+	OC   	= OpenCV()
 	pra 	= Praproses()
 
 	def __init__(self):
@@ -227,20 +227,19 @@ class Deteksi_wajah:
 		return path2
 
 
-	def deteksi(self, ket, image, dir1, dir2):
+	def deteksi(self, ket, path, dir1, dir2):
 
-		faces, img = Deteksi_wajah.VJ.deteksi(image)
-		print(f"faces = {faces} dan tipe = {type(faces)}")
-		global face_file_name
+		faces, img = Deteksi_wajah.OC.deteksi(path)
+		global path_wajah
 		
 		for f in faces:
-			x, y, w, h = [v for v in f]
-			sub_face = img[y:y+h, x:x+w]
+			x, y, w, h 		= [v for v in f]
+			sub_face 		= img[y:y+h, x:x+w]
 
-			face_file_name = "data/"+ ket +"/" + dir1 + "/" + dir2 + "/" + "01.png"
-			cv2.imwrite(face_file_name, sub_face)
+			path_wajah 	= "data/"+ ket +"/" + dir1 + "/" + dir2 + "/" + "01.png"
+			cv2.imwrite(path_wajah, sub_face)
 
-		return face_file_name
+		return path_wajah
 
 	def deteksi_single_uji(self, id_file, image):
 
@@ -265,7 +264,7 @@ class Deteksi_wajah:
 		faces 		= face_cascade.detectMultiScale(gray, 1.3, 5)
 		ekspr 		= list(self.rectColor.values())
 
-		global face_file_name
+		global path_wajah
 		directory = strftime("%Y-%m-%d_%H-%M-%S")
 
 		path = 'static/data/latih_uji/' + directory
@@ -280,12 +279,12 @@ class Deteksi_wajah:
 			x, y, w, h 		= np.array([v for v in f], dtype=np.int64)
 
 			sub_face 		= img[y:y+h, x:x+w]
-			face_file_name 	= path + '/' + str(i) + '.png'
-			cv2.imwrite(face_file_name, sub_face)
+			path_wajah 	= path + '/' + str(i) + '.png'
+			cv2.imwrite(path_wajah, sub_face)
 
 			## start - klasifikasi
 			
-			sub_face 	= pra.biner(face_file_name)
+			sub_face 	= pra.biner(path_wajah)
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
 			ciri.append(gmi.hitungCiri())
@@ -299,23 +298,21 @@ class Deteksi_wajah:
 		return ciri, ciricv
 
 	def deteksi_multi_face_sendiri(self, id_file, image, nama_file):
-		jarak_all_s = []
+		jarak_all_s 		= []
 		id_pengujian_update = []
 
 		# Resize
-		berkas_resize= self.resize_image(image, nama_file, 'uji', 'uji')
+		path 				= self.resize_image(image, nama_file, 'uji', 'uji')
 
 		# deteksi wajah
-		faces, img = Deteksi_wajah.VJ.deteksi(berkas_resize)
+		faces, img = Deteksi_wajah.OC.deteksi(path)
 
-		global face_file_name
+		global path_wajah
 		directory = strftime("%Y-%m-%d_%H-%M-%S")
 
 		path = 'static/data/latih_uji/' + directory
 		if os.path.exists(path) is False:
 			os.mkdir(path)
-
-		print(f"Ini jumlah face = {len(faces)}")
 
 		# ciri dan kelas sendiri
 		kumpulan_ciri_s 	= Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
@@ -326,29 +323,26 @@ class Deteksi_wajah:
 			rata_rata_ciri_s[kelas_s] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas_s)
 
 		self.waktu_s 		= strftime("%Y-%m-%d_%H-%M-%S")
-		# img 				= cv2.imread(image)
 
 		for i, f in enumerate(faces):
 			x, y, w, h 		= np.array([v for v in f], dtype=np.int64)
 
 			sub_face 		= img[y:y+h, x:x+w]
-			face_file_name 	= path + '/' + str(i) + '.png'
-			cv2.imwrite(face_file_name, sub_face)
+			path_wajah 	= path + '/' + str(i) + '.png'
+			cv2.imwrite(path_wajah, sub_face)
 
 			## start - klasifikasi
 			
-			sub_face 	= Deteksi_wajah.pra.biner(face_file_name)
+			sub_face 	= Deteksi_wajah.pra.biner(path_wajah)
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
 			ciri 		= gmi.hitungCiri()
 
-			momen 		= cv2.moments(sub_face)
-			ciricv 		= cv2.HuMoments(momen).flatten()
+			ciricv = Deteksi_wajah.OC.gmi_OpenCV(sub_face)
 			
 			# klasifikasi sendiri
 			kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)			
 			ekspresi_s 	= kl_s.classify([ciri])
-			print(f"Ekspresi Sendiri = {ekspresi_s}")
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi_s])
 			cv2.rectangle(img, (x, y - 30), (x + 100, y), self.rectColor[ekspresi_s], -1)
@@ -446,21 +440,17 @@ class Deteksi_wajah:
 		return file_name_s, jarak_all_s, directory, hasil_all_s, id_pengujian_update
 
 	def deteksi_multi_face_opencv(self, id_file, image, nama_file, directory, id_pengujian_update):
-		print(f"Id pengujian = {id_pengujian_update}")
 		jarak_all_o = []
 
 		# Resize
 		cwd  		= os.getcwd()
 		dirr 		= cwd + '\\data\\uji\\' + image
-		print(f"IMG O = {image}")
-		berkas_resize= self.resize_image(image, nama_file, 'uji', 'uji')
+		path 		= self.resize_image(image, nama_file, 'uji', 'uji')
 
 		# deteksi wajah
-		faces,img = Deteksi_wajah.VJ.deteksi(berkas_resize)
+		faces,img = Deteksi_wajah.OC.deteksi(path)
 
-		global face_file_name
-
-		print(f"Ini jumlah face = {len(faces)}")
+		global path_wajah
 
 		# ciri dan kelas openCV
 		kumpulan_ciri_o 	= Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'O')
@@ -472,25 +462,22 @@ class Deteksi_wajah:
 
 		ekspresi_openCV 	= []
 
-		# img 				= cv2.imread(image)
 		for i, f in enumerate(faces):
 			x, y, w, h = np.array([v for v in f], dtype=np.int64)
 
 			sub_face = img[y:y+h, x:x+w]
 
-			face_file_name = 'static/data/latih_uji/' + directory + '/' + str(i) + '_.png'
-			cv2.imwrite(face_file_name, sub_face)
+			path_wajah = 'static/data/latih_uji/' + directory + '/' + str(i) + '_.png'
+			cv2.imwrite(path_wajah, sub_face)
 
 			## start - klasifikasi
 			pra 		= Praproses()
-			sub_face 	= pra.biner(face_file_name)
-			momen 		= cv2.moments(sub_face)
-			ciricv 		= cv2.HuMoments(momen).flatten()
+			sub_face 	= pra.biner(path_wajah)
+			ciricv		= Deteksi_wajah.OC.gmi_OpenCV(sub_face)
 			
 			# klasifikasi hasil ciri openCV
 			kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)
 			ekspresi_o 	= kl_o.classify([ciricv])
-			print(f"Ekspresi OpenCV = {ekspresi_o}")
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi_o])
 			cv2.rectangle(img, (x, y - 30), (x + 100, y), self.rectColor[ekspresi_o], -1)
@@ -501,7 +488,6 @@ class Deteksi_wajah:
 			id_ciri_pengujian_o = str(data_pengujian_o[0][0])
 
 			# insert pengujian
-			print(f"i = {i}")
 			data_pengujian 	= {
 				'id_file'				: str(id_file),
 				'id_ciri_pengujian_o'	: id_ciri_pengujian_o,
@@ -561,7 +547,7 @@ class Deteksi_wajah:
 			jarak_all_o.append(jarak_all__o)
 
 		# select data hasil pengujian openCV dan insert hasil openCV
-		hasil_o = Deteksi_wajah.Db.select_hasil('hasil_opencv', str(id_file), self.waktu_s)
+		hasil_o = Deteksi_wajah.Db.select_hasil('hasil_opencv', id_file, self.waktu_s)
 		hitung_o = Counter(elem[0] for elem in hasil_o)
 
 		hasil_all_o = {
@@ -594,33 +580,33 @@ class Deteksi_wajah:
 
 		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
-		global face_file_name
+		global path_wajah
 		
 		for f in faces:
 			x, y, w, h = [v for v in f]
 			sub_face = img[y:y+h, x:x+w]
 
-			face_file_name = "data/training/" + dir1 + "/" + dir2 + "/" + "01.png"
-			cv2.imwrite(face_file_name, sub_face)
+			path_wajah = "data/training/" + dir1 + "/" + dir2 + "/" + "01.png"
+			cv2.imwrite(path_wajah, sub_face)
 
-		return face_file_name
+		return path_wajah
 
 
 	def deteksi_single(self, image, directory, ekspresi):
 		
 		# deteksi wajah
-		faces, img = Deteksi_wajah.VJ.deteksi(berkas_resize)
+		faces, img = Deteksi_wajah.OC.deteksi(berkas_resize)
 
-		global face_file_name
+		global path_wajah
 		for i, f in enumerate(faces):
 			x, y, w, h = np.array([v for v in f], dtype=np.int64)
 			sub_face = img[y:y+h, x:x+w]
 
-			face_file_name = 'data/training/' + directory + '/' + str(i) + ".png"
-			cv2.imwrite(face_file_name, sub_face)
+			path_wajah = 'data/training/' + directory + '/' + str(i) + ".png"
+			cv2.imwrite(path_wajah, sub_face)
 			
 			pra = Praproses()
-			sub_face = pra.biner(face_file_name)
+			sub_face = pra.biner(path_wajah)
 
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
@@ -647,7 +633,7 @@ class Deteksi_wajah:
 		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 		ekspr = list(self.rectColor.values())
 
-		global face_file_name
+		global path_wajah
 
 		kumpulan_ciri = Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
 		kumpulan_kelas = Deteksi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
@@ -661,8 +647,8 @@ class Deteksi_wajah:
 
 			sub_face = img[y:y+h, x:x+w]
 
-			face_file_name = 'data/testing/' + directory + '/' + str(i) + '.png'
-			cv2.imwrite(face_file_name, sub_face)
+			path_wajah = 'data/testing/' + directory + '/' + str(i) + '.png'
+			cv2.imwrite(path_wajah, sub_face)
 
 			dir_file_name = 'static\\data\\testing\\'+ directory + '_' + str(i) + '.png'
 			cv2.imwrite(dir_file_name, sub_face)
@@ -670,7 +656,7 @@ class Deteksi_wajah:
 			## start - klasifikasi
 			
 			pra = Praproses()
-			sub_face = pra.biner(face_file_name)
+			sub_face = pra.biner(path_wajah)
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
 			ciri 		= gmi.hitungCiri()
