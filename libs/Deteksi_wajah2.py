@@ -185,6 +185,19 @@ class Deteksi_wajah:
 		# 	[111, 	20, 	218],
 		# ])
 
+		# # Fitur Haar
+		# im_haar = self.haar_feature(im2)
+
+		# # Integral Image
+		# im_integral = self.integral_image(im)
+		# print(im_integral)		
+
+
+		# Algoritma Adaboost
+
+
+		# Cascade Classifier
+
 	def integral_image(self, im):
 		for x, row in enumerate(im):
 			for y, col in enumerate(row):
@@ -228,22 +241,203 @@ class Deteksi_wajah:
 
 		return path_wajah
 
-	def deteksi_multi_face(self, path, nama_file):
+	def deteksi_single_uji(self, id_file, image):
+
+		face_cascade= cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+
 		# Resize
-		path_resize			= self.resize_image(path, nama_file, 'uji', 'uji')
+		cwd  		= os.getcwd()
+		image 		= cwd + '\\data\\uji\\' + image
+		img1 		= Image.open(image)
+		width 		= 384
+		height 		= 288
+		img2 		= img1.resize((width, height))
+		path 		= 'data/uji/hasil_resize.png'
+		img2.save(path)
 
 		# deteksi wajah
-		faces, img 			= Deteksi_wajah.OC.deteksi(path_resize)
+
+		dir_image 	= 'C:\\xampp\\htdocs\\gmisvm\\data\\uji\\hasil_resize.png'
+		img 		= cv2.imread(dir_image)
+		gray 		= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+		faces 		= face_cascade.detectMultiScale(gray, 1.3, 5)
+		ekspr 		= list(self.rectColor.values())
 
 		global path_wajah
-		direktori 			= strftime("%Y-%m-%d_%H-%M-%S")
+		directory = strftime("%Y-%m-%d_%H-%M-%S")
 
-		path2 				= 'static/data/latih_uji/' + direktori
-		if os.path.exists(path2) is False:
-			os.mkdir(path2)
+		path = 'static/data/latih_uji/' + directory
+		if os.path.exists(path) is False:
+			os.mkdir(path)
 
-		return faces, img, direktori, path2
+		# hitung ciri
+		ciri = []
+		ciricv = []
 
+		for i, f in enumerate(faces):
+			x, y, w, h 		= np.array([v for v in f], dtype=np.int64)
+
+			sub_face 		= img[y:y+h, x:x+w]
+			path_wajah 	= path + '/' + str(i) + '.png'
+			cv2.imwrite(path_wajah, sub_face)
+
+			## start - klasifikasi
+			
+			sub_face 	= pra.biner(path_wajah)
+			gmi 		= GMI(sub_face) 
+			gmi.hitungMomenNormalisasi()
+			ciri.append(gmi.hitungCiri())
+
+			momen 		= cv2.moments(sub_face)
+			ciricv.append(cv2.HuMoments(momen).flatten())
+
+		print(f"Ciri = {ciri} dan tipe = {type(ciri)}")
+		print(f"Ciri OpenCV = {ciricv} dan tipe = {type(ciricv)}")
+
+		return ciri, ciricv
+
+	def deteksi_multi_face_sendiri(self, id_file, image, nama_file):
+		jarak_all_s 		= []
+		id_pengujian_update = []
+
+		# Resize
+		path 				= self.resize_image(image, nama_file, 'uji', 'uji')
+
+		# deteksi wajah
+		faces, img 			= Deteksi_wajah.OC.deteksi(path)
+
+		global path_wajah
+		directory 			= strftime("%Y-%m-%d_%H-%M-%S")
+
+		path 				= 'static/data/latih_uji/' + directory
+		if os.path.exists(path) is False:
+			os.mkdir(path)
+
+		# ciri dan kelas sendiri
+		kumpulan_ciri_s 	= Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
+		kumpulan_kelas_s 	= Deteksi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
+
+		rata_rata_ciri_s 	= {}
+		for kelas_s in kumpulan_kelas_s:
+			rata_rata_ciri_s[kelas_s] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas_s)
+
+		self.waktu_s 		= strftime("%Y-%m-%d_%H-%M-%S")
+
+		for i, f in enumerate(faces):
+			x, y, w, h 		= np.array([v for v in f], dtype=np.int64)
+
+			sub_face 		= img[y:y+h, x:x+w]
+			path_wajah 	= path + '/' + str(i) + '.png'
+			cv2.imwrite(path_wajah, sub_face)
+
+			## start - klasifikasi
+			
+			sub_face 	= Deteksi_wajah.pra.biner(path_wajah)
+			gmi 		= GMI(sub_face) 
+			gmi.hitungMomenNormalisasi()
+			ciri 		= gmi.hitungCiri()
+
+			ciricv = Deteksi_wajah.OC.gmi_OpenCV(sub_face)
+			
+			# klasifikasi sendiri
+			kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)			
+			ekspresi_s 	= kl_s.classify([ciri])
+
+			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi_s])
+			cv2.rectangle(img, (x, y - 20), (x + w, y), self.rectColor[ekspresi_s], -1)
+			cv2.putText(img, ekspresi_s, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 0.8 , (0, 0, 0), 1)
+
+			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ciri, 'S')
+			data_pengujian_s	= Deteksi_wajah.Db.select_first_row()
+			id_ciri_pengujian_s	= str(data_pengujian_s[0][0])
+
+			# insert pengujian
+			data_pengujian 	= {
+				'id_file'				: str(id_file),
+				'id_ciri_pengujian_s'	: id_ciri_pengujian_s,
+				'waktu'					: self.waktu_s,
+				'hasil_sendiri'			: ekspresi_s,
+				'direktori'				: directory
+			}
+			pengujian = Deteksi_wajah.Db.insert_pengujian(data_pengujian)
+			select_pengujian = Deteksi_wajah.Db.select_pengujian_first_row()
+			print(f"Select pengujian = {select_pengujian} dan tipe = {type(select_pengujian)}")
+			id_pengujian_update.append(select_pengujian[0][0])
+
+			# Jarak Setiap Ciri Koding Sendiri
+			jarak_bahagia_s = []
+			for i in range(7):
+				jarak_bahagia_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['bahagia'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'bahagia', jarak_bahagia_s)
+
+			jarak_sedih_s = []
+			for i in range(7):
+				jarak_sedih_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['sedih'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'sedih', jarak_sedih_s)
+
+			jarak_marah_s = []
+			for i in range(7):
+				jarak_marah_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['marah'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'marah', jarak_marah_s)
+
+			# jarak_jijik_s = []
+			# for i in range(7):
+			# 	jarak_jijik_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['jijik'][i]))
+			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'jijik', jarak_jijik_s)
+
+			jarak_kaget_s = []
+			for i in range(7):
+				jarak_kaget_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['kaget'][i]))
+			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'kaget', jarak_kaget_s)
+
+			# jarak_takut_s = []
+			# for i in range(7):
+			# 	jarak_takut_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['takut'][i]))
+			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'takut', jarak_takut_s)
+
+			# jarak_natural_s = []
+			# for i in range(7):
+			# 	jarak_natural_s.append(Deteksi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['natural'][i]))
+			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'natural', jarak_natural_s)
+				
+			jarak_all = {
+				'bahagia'	: jarak_bahagia_s,
+				'sedih'		: jarak_sedih_s,
+				'marah'		: jarak_marah_s, 
+				# 'jijik'		: jarak_jijik_s,
+				'kaget'		: jarak_kaget_s,
+				# 'takut'		: jarak_takut_s,
+				# 'natural'	: jarak_natural_s
+			}
+
+			jarak_all_s.append(jarak_all)
+
+		# select data hasil pengujian sendiri dan insert hasil sendiri
+		hasil_s 	= Deteksi_wajah.Db.select_hasil('hasil_sendiri',id_file, self.waktu_s)
+		hitung_s 	= Counter(elem[0] for elem in hasil_s)
+
+		hasil_all_s = {
+			'id_file'	: id_file,
+			'ket'		: 'S', 
+			'wajah' 	: len(faces),
+			'bahagia'	: hitung_s['bahagia'],
+			'sedih'		: hitung_s['sedih'],
+			'marah'		: hitung_s['marah'],
+			# 'jijik'		: hitung_s['jijik'],
+			'kaget'		: hitung_s['kaget'],
+			# 'takut'		: hitung_s['takut'],
+			# 'natural'	: hitung_s['natural'],
+			'waktu'		: self.waktu_s
+		}
+		Deteksi_wajah.Db.insert_hasil(hasil_all_s)
+
+		dir_file_name 	= 'static/data/latih_uji/' + directory + '_Hasil_Sendiri.png'
+		file_name_s		= directory + '_Hasil_Sendiri.png'
+		cv2.imwrite(dir_file_name, img)
+		print(f"Id pengujian update = {id_pengujian_update} dan tipe = {type(id_pengujian_update)}")
+
+		return file_name_s, jarak_all_s, directory, hasil_all_s, id_pengujian_update
 
 	def deteksi_multi_face_opencv(self, id_file, image, nama_file, directory, id_pengujian_update):
 		jarak_all_o = []
@@ -547,6 +741,8 @@ class Deteksi_wajah:
 		data2 = np.array(data2)
 		return np.linalg.norm(data1 - data2)
 
+	def hitung_jarak(data1, data2):
+		return abs(data1-data2)
 
 	def hitung_error(self, data1, data2):
 		# MAE (Mean Absolute Error)
