@@ -181,26 +181,17 @@ class Ekspresi_wajah:
 		if request.method == "POST":
 			f = request.files['foto']
 			
-			direktori = strftime("%Y-%m-%d-%H-%M-%S")
+			direktori 	= strftime("%Y-%m-%d_%H-%M-%S")
 
-			filename = 'data\\testing\\' + secure_filename(direktori + '_' + f.filename)
+			filename 	= 'data\\testing\\' + secure_filename(direktori + '_' + f.filename)
 			f.save(filename)
 
-			os.makedirs(f'data/testing/{direktori}')
-
-			cwd = os.getcwd()
-
+			cwd 		= os.getcwd()
+			nama_file 	= f.filename
 			berkas 		= cwd + '\\data\\testing\\' + secure_filename(direktori + '_' + f.filename)
-			print(berkas)
-
-			ekspresi, ciri, ciricv = Ekspresi_wajah.Dw.deteksi_multi_face2(berkas, direktori)
+			ekspresi, ciri, ciricv = Ekspresi_wajah.Dw.deteksi_multi_face2(berkas, nama_file, direktori)
 		
 		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi, ciri = ciri, ciricv = ciricv)
-
-	@page.route(f'{base}/coba', methods=['POST'])
-	def coba():
-		wkwk = request.form['wkwk']
-		return 'data yang anda kirim: ' + wkwk
 
 
 	@page.route(f'{base}/latih-uji', methods=['GET', 'POST'])
@@ -235,7 +226,7 @@ class Ekspresi_wajah:
 			os.remove(filename)
 
 			Ekspresi_wajah.latih(files, 'latih_uji', direktori)
-			jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi = Ekspresi_wajah.uji(0)
+			jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi = Ekspresi_wajah.uji()
 
 		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, semua_hasil_s = hasil_final_s, semua_hasil_o = hasil_final_o, waktu = waktu, akurasi = akurasi)
 
@@ -286,7 +277,6 @@ class Ekspresi_wajah:
 		semua_hasil_o 	= []
 		hasil_final_o 	= []
 		target 			= []
-
 		data_uji 		= Ekspresi_wajah.Db.select_data_uji()
 		jumlah_data 	= len(data_uji)
 		print(f"Jumlah data uji = {jumlah_data}")
@@ -294,7 +284,7 @@ class Ekspresi_wajah:
 		
 		file_name_s, jarak_all_s, direktori, semua_hasil_s, hasil_final_s, id_pengujian_update, waktu = Ekspresi_wajah.uji_ciri_sendiri(data_uji, 0)
 
-		print(f"dir dari s = {direktori}")
+		print(f"id_pengujian_update = {id_pengujian_update} dan jumlah = {len(id_pengujian_update)}")
 		
 		file_name_o, jarak_o, semua_hasil_o, hasil_final_o = Ekspresi_wajah.uji_ciri_opencv(data_uji, 0, direktori, id_pengujian_update, waktu)
 
@@ -507,7 +497,6 @@ class Ekspresi_wajah:
 		return jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi
 
 
-
 	# ####################################
 	
 
@@ -530,7 +519,7 @@ class Ekspresi_wajah:
 		
 		file_name_s, jarak_all_s, direktori, semua_hasil_s, hasil_final_s, id_pengujian_update, waktu = Ekspresi_wajah.uji_ciri_sendiri(data_uji, 0)
 
-		print(f"dir dari s = {direktori}")
+		print(f"id_pengujian_update = {id_pengujian_update} dan jumlah = {len(id_pengujian_update)}")
 		
 		file_name_o, jarak_o, semua_hasil_o, hasil_final_o = Ekspresi_wajah.uji_ciri_opencv(data_uji, 0, direktori, id_pengujian_update, waktu)
 
@@ -977,10 +966,13 @@ class Ekspresi_wajah:
 					'id_ciri_pengujian_o'	: id_ciri_pengujian_o,
 					'hasil_opencv'			: ekspresi_o,
 					'waktu'					: waktu[j],
-					'id_pengujian'			: id_pengujian_update[j]
+					'id_pengujian'			: id_pengujian_update[0]
 				}
 				pengujian = Ekspresi_wajah.Db.update_pengujian(data_pengujian)
 				print(f"hasil data_pengujian o = {data_pengujian} dan tipe = {type(data_pengujian)}")
+
+				# hapus id_pengujian_update yang telah terupdate
+				del id_pengujian_update[0]
 
 				# Jarak Setiap Ciri
 				if data_latih == 0:

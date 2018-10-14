@@ -21,14 +21,13 @@ class Deteksi_wajah:
 
 	def __init__(self):
 		self.rectColor = {
-			
-			'bahagia': (0, 255, 255),	# kuning
-			'sedih': (255, 0, 0),		# biru
-			'jijik': (0, 255, 0),		# hijau
-			'takut': (238,130,238),		# ungu
-			'natural': (169,169,169),	# abu-abu gelap
-			'marah': (0, 0, 255),  		# pink
-			'kaget' : (0, 0, 0)			# hitam
+			'bahagia'	: (102, 255, 255),	# kuning
+			'sedih'		: (255, 191, 0),	# biru
+			'jijik'		: (50, 205, 50),	# hijau
+			'takut'		: (128, 0, 128),	# ungu
+			'natural'	: (255, 248, 248),	# putih  
+			'marah'		: (60, 20, 220),  	# merah
+			'kaget' 	: (30, 105, 210)	# coklat
 		}
 		self.waktu_s = ""
 		self.jarak = 0
@@ -192,7 +191,7 @@ class Deteksi_wajah:
 				if x > 0 and y > 0: im[x][y] -= im[x - 1][y - 1]
 		return im
 
-	def resize_image(self, image, file_name, directory, dir2):
+	def resize_image(self, image, file_name, direktori, dir2):
 		print(f"IMG = {image}")
 		img1 		= Image.open(image)
 		width 		= 384
@@ -200,9 +199,11 @@ class Deteksi_wajah:
 		img2 		= img1.resize((width, height))
 
 		if dir2 == 'uji':
-			path = 'data/resize/'+ directory
+			path = 'data/resize/'+ direktori
+		elif dir2 == 'testing':
+			path = 'data/testing'
 		else:
-			path = 'data/resize/'+ directory + '/' + dir2
+			path = 'data/resize/'+ direktori + '/' + dir2
 
 		if os.path.exists(path) is False:
 			os.makedirs(path, exist_ok=True)
@@ -239,25 +240,21 @@ class Deteksi_wajah:
 			path2 				= 'static/data/latih_uji/' + direktori
 			if os.path.exists(path2) is False:
 				os.mkdir(path2)
-
 			return faces, img, direktori, path2
+
 		else: 
 			return faces, img
 
 
-	def deteksi_multi_face2(self, image, directory):
-		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
+	def deteksi_multi_face2(self, image, nama_file, direktori):
+		# Resize
+		path_resize			= self.resize_image(image, nama_file, 'testing', 'testing')
 
-		img = cv2.imread(image)
-		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+		# deteksi wajah
+		faces, img 			= Deteksi_wajah.OC.deteksi(path_resize)
 
-		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-		ekspr = list(self.rectColor.values())
-
-		global path_wajah
-
-		kumpulan_ciri = Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
-		kumpulan_kelas = Deteksi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
+		kumpulan_ciri 		= Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
+		kumpulan_kelas 		= Deteksi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
 
 		rata_rata_ciri = {}
 		for kelas in kumpulan_kelas:
@@ -268,30 +265,27 @@ class Deteksi_wajah:
 
 			sub_face = img[y:y+h, x:x+w]
 
-			path_wajah = 'data/testing/' + directory + '/' + str(i) + '.png'
+			path_wajah = 'data/testing/' + str(i) + '.png'
 			cv2.imwrite(path_wajah, sub_face)
-
-			dir_file_name = 'static\\data\\testing\\'+ directory + '_' + str(i) + '.png'
-			cv2.imwrite(dir_file_name, sub_face)
 
 			## start - klasifikasi
 			
-			pra = Praproses()
-			sub_face = pra.biner(path_wajah)
+			pra 		= Praproses()
+			sub_face 	= pra.biner(path_wajah)
 			gmi 		= GMI(sub_face) 
 			gmi.hitungMomenNormalisasi()
 			ciri 		= gmi.hitungCiri()
 
-			momen = cv2.moments(sub_face)
-			ciricv = cv2.HuMoments(momen).flatten()
+			# Ekstraksi Ciri GMI
+			ciricv		= Deteksi_wajah.OC.gmi_OpenCV(sub_face)
 			
 			kl 			= Klasifikasi(kumpulan_ciri, kumpulan_kelas)			
 			ekspresi 	= kl.classify([ciri])
 			print(f"Ekspresi = {ekspresi}")
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), self.rectColor[ekspresi])
-			cv2.rectangle(img, (x, y - 30), (x + 100, y), self.rectColor[ekspresi], -1)
-			cv2.putText(img, ekspresi, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 1.5, (255, 255, 255), 2)
+			cv2.rectangle(img, (x, y - 20), (x + w, y), self.rectColor[ekspresi], -1)
+			cv2.putText(img, ekspresi, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 0.8 , (0, 0, 0), 1)
 			
 			#simpan gambar yang telah dilabel, dicrop
 
@@ -350,8 +344,8 @@ class Deteksi_wajah:
 			# end - klasifikasi
 
 		cwd = os.getcwd()
-		dir_file_name = 'static\\data\\testing\\'+ directory + ' Hasil.png'
-		file_name = directory + ' Hasil.png'
+		dir_file_name = 'static\\data\\testing\\'+ direktori + ' Hasil.png'
+		file_name = direktori + ' Hasil.png'
 		cv2.imwrite(dir_file_name, img)
 
 		return file_name, ciri, ciricv
