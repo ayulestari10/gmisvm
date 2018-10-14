@@ -183,8 +183,7 @@ class Database:
 			self.cur.execute("SELECT * FROM ciri_pelatihan WHERE ket='" + ket + "' AND kelas='" + kelas +  "' ORDER BY id_ciri_pelatihan ASC LIMIT " + str(jumlah))
 			self.db.commit()
 			data = self.cur.fetchall()
-			data = np.array(data)
-			return data[:, 3:]
+			return data
 		except:
 			print("Error select sejumlah data uji")
 			return None

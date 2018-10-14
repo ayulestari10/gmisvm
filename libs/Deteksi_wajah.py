@@ -9,7 +9,6 @@ from libs.Klasifikasi import Klasifikasi
 import MySQLdb
 import os
 from time import gmtime, strftime
-from collections import Counter
 
 
 class Deteksi_wajah:
@@ -228,207 +227,22 @@ class Deteksi_wajah:
 
 		return path_wajah
 
-	def deteksi_multi_face(self, path, nama_file):
+	def deteksi_multi_face(self, path, nama_file, ket):
 		# Resize
 		path_resize			= self.resize_image(path, nama_file, 'uji', 'uji')
 
 		# deteksi wajah
 		faces, img 			= Deteksi_wajah.OC.deteksi(path_resize)
 
-		global path_wajah
-		direktori 			= strftime("%Y-%m-%d_%H-%M-%S")
+		if ket == 'sendiri':
+			direktori 			= strftime("%Y-%m-%d_%H-%M-%S")
+			path2 				= 'static/data/latih_uji/' + direktori
+			if os.path.exists(path2) is False:
+				os.mkdir(path2)
 
-		path2 				= 'static/data/latih_uji/' + direktori
-		if os.path.exists(path2) is False:
-			os.mkdir(path2)
-
-		return faces, img, direktori, path2
-
-
-	def deteksi_multi_face_opencv(self, id_file, image, nama_file, directory, id_pengujian_update):
-		jarak_all_o = []
-
-		# Resize
-		cwd  		= os.getcwd()
-		dirr 		= cwd + '\\data\\uji\\' + image
-		path 		= self.resize_image(image, nama_file, 'uji', 'uji')
-
-		# deteksi wajah
-		faces,img = Deteksi_wajah.OC.deteksi(path)
-
-		global path_wajah
-
-		# ciri dan kelas openCV
-		kumpulan_ciri_o 	= Deteksi_wajah.Db.select_ciri('ciri_pelatihan', 'O')
-		kumpulan_kelas_o 	= Deteksi_wajah.Db.select_kelas('ciri_pelatihan', 'O')
-
-		rata_rata_ciri_o 	= {}
-		for kelas_o in kumpulan_kelas_o:
-			rata_rata_ciri_o[kelas_o] = Deteksi_wajah.Db.select_avg('ciri_pelatihan', kelas_o)
-
-		ekspresi_openCV 	= []
-
-		for i, f in enumerate(faces):
-			x, y, w, h = np.array([v for v in f], dtype=np.int64)
-
-			sub_face = img[y:y+h, x:x+w]
-
-			path_wajah = 'static/data/latih_uji/' + directory + '/' + str(i) + '_.png'
-			cv2.imwrite(path_wajah, sub_face)
-
-			## start - klasifikasi
-			pra 		= Praproses()
-			sub_face 	= pra.biner(path_wajah)
-			ciricv		= Deteksi_wajah.OC.gmi_OpenCV(sub_face)
-			
-			# klasifikasi hasil ciri openCV
-			kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)
-			ekspresi_o 	= kl_o.classify([ciricv])
-
-			scaleee = 1
-			cv2.rectangle(img, (int(x * (1 + (1 - scaleee))), int(y * (1 + (1 - scaleee)))), (int(x+w * scaleee), int(y+h * scaleee)), self.rectColor[ekspresi_o])
-			cv2.rectangle(img, (x, y - 20), (x + w, y), self.rectColor[ekspresi_o], -1)
-			cv2.putText(img, ekspresi_o, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 0.8 , (0, 0, 0), 1)
-
-			Deteksi_wajah.Db.insert_ciri('ciri_pengujian', ciricv, 'O')
-			data_pengujian_o	= Deteksi_wajah.Db.select_first_row()
-			id_ciri_pengujian_o = str(data_pengujian_o[0][0])
-
-			# insert pengujian
-			data_pengujian 	= {
-				'id_file'				: str(id_file),
-				'id_ciri_pengujian_o'	: id_ciri_pengujian_o,
-				'hasil_opencv'			: ekspresi_o,
-				'waktu'					: self.waktu_s,
-				'id_pengujian'			: id_pengujian_update[i]
-			}
-			pengujian = Deteksi_wajah.Db.update_pengujian(data_pengujian)
-
-			# Jarak Setiap Ciri OpenCV
-
-			jarak_bahagia_o = []
-			for i in range(7):
-				jarak_bahagia_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['bahagia'][i]))
-			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'bahagia', jarak_bahagia_o)
-
-			jarak_sedih_o = []
-			for i in range(7):
-				jarak_sedih_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['sedih'][i]))
-			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'sedih', jarak_sedih_o)
-
-			jarak_marah_o = []
-			for i in range(7):
-				jarak_marah_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['marah'][i]))
-			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'marah', jarak_marah_o)
-
-			# jarak_jijik_o = []
-			# for i in range(7):
-			# 	jarak_jijik_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['jijik'][i]))
-			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'jijik', jarak_jijik_o)
-
-			jarak_kaget_o = []
-			for i in range(7):
-				jarak_kaget_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['kaget'][i]))
-			Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'kaget', jarak_kaget_o)
-
-			# jarak_takut_o = []
-			# for i in range(7):
-			# 	jarak_takut_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['takut'][i]))
-			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'takut', jarak_takut_o)
-
-			# jarak_natural_o = []
-			# for i in range(7):
-			# 	jarak_natural_o.append(Deteksi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['natural'][i]))
-			# Deteksi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'natural', jarak_natural_o)
-
-			jarak_all__o = {
-				'bahagia'	: jarak_bahagia_o,
-				'sedih'		: jarak_sedih_o,
-				'marah'		: jarak_marah_o, 
-				# 'jijik'		: jarak_jijik_o,
-				'kaget'		: jarak_kaget_o,
-				# 'takut'		: jarak_takut_o,
-				# 'natural'	: jarak_natural_o
-			}
-
-			jarak_all_o.append(jarak_all__o)
-
-		# select data hasil pengujian openCV dan insert hasil openCV
-		hasil_o = Deteksi_wajah.Db.select_hasil('hasil_opencv', id_file, self.waktu_s)
-		hitung_o = Counter(elem[0] for elem in hasil_o)
-
-		hasil_all_o = {
-			'id_file'	: id_file,
-			'ket'		: 'O',
-			'wajah' 	: len(faces),
-			'bahagia'	: hitung_o['bahagia'],
-			'sedih'		: hitung_o['sedih'],
-			'marah'		: hitung_o['marah'],
-			# 'jijik'		: hitung_o['jijik'],
-			'kaget'		: hitung_o['kaget'],
-			# 'takut'		: hitung_o['takut'],
-			# 'natural'	: hitung_o['natural']
-		}
-		Deteksi_wajah.Db.insert_hasil(hasil_all_o)
-
-		dir_file_name 	= 'static/data/latih_uji/' + directory + '_Hasil_OpenCV.png'
-		file_name_o		= directory + '_Hasil_OpenCV.png'
-		cv2.imwrite(dir_file_name, img)
-
-		return file_name_o, jarak_all_o, hasil_all_o
-
-
-	def deteksi2(self, image, dir1, dir2):
-		
-		face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
-
-		img = cv2.imread(image)
-		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-		faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-
-		global path_wajah
-		
-		for f in faces:
-			x, y, w, h = [v for v in f]
-			sub_face = img[y:y+h, x:x+w]
-
-			path_wajah = "data/training/" + dir1 + "/" + dir2 + "/" + "01.png"
-			cv2.imwrite(path_wajah, sub_face)
-
-		return path_wajah
-
-
-	def deteksi_single(self, image, directory, ekspresi):
-		
-		# deteksi wajah
-		faces, img = Deteksi_wajah.OC.deteksi(berkas_resize)
-
-		global path_wajah
-		for i, f in enumerate(faces):
-			x, y, w, h = np.array([v for v in f], dtype=np.int64)
-			sub_face = img[y:y+h, x:x+w]
-
-			path_wajah = 'data/training/' + directory + '/' + str(i) + ".png"
-			cv2.imwrite(path_wajah, sub_face)
-			
-			pra = Praproses()
-			sub_face = pra.biner(path_wajah)
-
-			gmi 		= GMI(sub_face) 
-			gmi.hitungMomenNormalisasi()
-			ciri 		= gmi.hitungCiri()
-			# print(f"ciri data ke-{i} = {ciri}")
-			
-			Deteksi_wajah.Db.insert_ciri2("ciri_ck_setara", ekspresi, ciri)
-
-
-		cwd = os.getcwd()
-		dir_file_name = 'static\\data\\training\\'+ directory + ' Hasil.png'
-		file_name = directory + ' Hasil.png'
-		cv2.imwrite(dir_file_name, img)
-
-		return file_name
+			return faces, img, direktori, path2
+		else: 
+			return faces, img
 
 
 	def deteksi_multi_face2(self, image, directory):
