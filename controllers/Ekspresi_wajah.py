@@ -239,7 +239,9 @@ class Ekspresi_wajah:
 		waktu_mulai 			= time.time()
 		session['waktu_mulai'] 	= waktu_mulai
 		session['waktu_latih'] 	= waktu_mulai
-		session['durasi'] = 0
+		session['durasi'] 		= 0
+		j_data_latih 			= []
+		jumlah_file_latih 		= []
 
 
 		for i in range(len(dir1)):
@@ -251,6 +253,8 @@ class Ekspresi_wajah:
 			files			= os.listdir('data/'+ ket +'/' + direktori + '/' + dir2)
 			
 			for file in files:
+				j_data_latih.append(file)
+				print(f"j_data_latih = {j_data_latih} dan {len(j_data_latih)}")
 
 				berkas 		= cwd + '\\data\\'+ ket +'\\' + direktori + '\\' + dir2 + '\\' + file
 				path 		= Ekspresi_wajah.Dw.resize_image(berkas, file, direktori, dir2)
@@ -272,17 +276,36 @@ class Ekspresi_wajah:
 				Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciricv, 'O')
 
 				session['durasi'] = time.time() - waktu_mulai
+				print(f"Durasi = {session['durasi']}")
 
-				## cek apakah durasi lebih dari 25 menit
+				## cek apakah durasi mencapai stngah menit maka simpan jumlah data latih
 
-				## berak
+				if int(session['durasi']) % 5 == 0:
+					print("Hay huhu")
+					durasi_menit = session['durasi']/60 if session['durasi'] >= 60 else 1
+					jumlah_file_latih.append({
+						str(int(durasi_menit)) : len(j_data_latih)
+					})
 
-			## cek apakah durasi lebih dari 25 menit
+				## cek apakah durasi lebih dari 30 menit
 
-			## berak
+				if session['durasi'] >= 1800:
+					flash('Waktu pelatihan telah mencapai 30 menit, proses dihentikan!')
+					break;
+
+			## cek apakah durasi lebih dari 30 menit
+			if session['durasi'] >= 1800:
+				flash('Waktu pelatihan telah mencapai 30 menit, proses dihentikan!')
+				break;
 
 		waktu_selesai 			= time.time()
 		session['waktu_latih'] = waktu_selesai - waktu_mulai 
+
+		print(f"Data = {jumlah_file_latih} dan tipe = {type(jumlah_file_latih)} dan jumlah = {len(jumlah_file_latih)}")
+
+		for i in range(len(jumlah_file_latih)):
+			for key,value in jumlah_file_latih[i].items():
+				print(f"Jumlah file latih pada menit ke-{key} = {value}")
 
 		return True
 
@@ -942,7 +965,9 @@ class Ekspresi_wajah:
 
 			## cek waktu_sekarang + waktu pelatihan apakah lebih dari 30 menit
 
-			##
+			if session['waktu_sekarang'] + waktu_pelatihan >= 1800:
+				flash('Waktu pelatihan telah mencapai 30 menit, proses dihentikan!')
+				break;
 
 		waktu_selesai = time.time()
 		durasi = waktu_selesai - waktu_mulai
@@ -972,13 +997,18 @@ class Ekspresi_wajah:
 			rata_rata_ciri_o[kelas_o] = Ekspresi_wajah.Db.select_avg('ciri_pelatihan', kelas_o)
 
 		Ekspresi_wajah.waktu_o 		= strftime("%Y-%m-%d_%H-%M-%S")
-		cwd				= os.getcwd()
-		dirr 			= cwd + '\\data\\uji\\'
+		cwd							= os.getcwd()
+		dirr 						= cwd + '\\data\\uji\\'
 
-		waktu_mulai = time.time()
+		waktu_mulai 		= time.time()
+		jumlah_file_teruji	= []
+		j_data_uji 			= []
+		jumlah_data_teruji	= []
 
 		# lakukan sebanyak data uji
 		for j in range(len(data_uji)):
+			j_data_uji.append(j)
+
 			id_file 	= data_uji[j][0]
 			nama_file	= data_uji[j][1]
 
@@ -1109,12 +1139,12 @@ class Ekspresi_wajah:
 				'N'		: semua_hasil_o['natural']
 			})
 
-			file_teruji = session['file_teruji']
-			file_teruji.append(data_uji[j])
-			session['file_teruji'] = file_teruji
+			# file_teruji = session['file_teruji']
+			# file_teruji.append(data_uji[j])
+			# session['file_teruji'] = file_teruji
 
 			waktu_loop = time.time()
-			print(f"Jumlah file teruji: {len(file_teruji)}")
+			print(f"Jumlah file teruji uu: {len(session['file_teruji'])}")
 			waktu_sekarang = session['waktu_sekarang'] + (waktu_loop - waktu_mulai)
 			print(f"Waktu sekarang: {round(waktu_sekarang, 2)}s")
 			
@@ -1124,16 +1154,27 @@ class Ekspresi_wajah:
 			session['waktu_sekarang'] = waktu_sekarang
 
 			## cek int(waktu_sekarang) % 60 * 5
-
-			## print(len(file_teruji))
+			if int(session['waktu_sekarang']) % 2 == 0:
+				print("Hay huhu 2")
+				durasi_menit = session['waktu_sekarang']/60 if session['waktu_sekarang'] >= 60 else 1
+				jumlah_data_teruji.append({
+					str(int(durasi_menit)) : len(j_data_uji)
+				})
 
 			## cek waktu_sekarang + waktu pelatihan apakah lebih dari 30 menit
-			
-			##
+			if session['waktu_sekarang'] + waktu_pelatihan >= 1800:
+				flash('Waktu pelatihan telah mencapai 30 menit, proses dihentikan!')
+				break;
 
 		waktu_selesai = time.time()
 		durasi = waktu_selesai - waktu_mulai
 		session['waktu_uji'] = durasi if session['waktu_uji'] is None else (session['waktu_uji'] + durasi)
+
+		print(f"Data = {jumlah_data_teruji} dan tipe = {type(jumlah_data_teruji)} dan jumlah = {len(jumlah_data_teruji)}")
+
+		for i in range(len(jumlah_data_teruji)):
+			for key,value in jumlah_data_teruji[i].items():
+				print(f"Jumlah file latih pada menit ke-{key} = {value}")
 
 		return file_name_o, jarak_all_o, semua_hasil_o, hasil_final_o
 
