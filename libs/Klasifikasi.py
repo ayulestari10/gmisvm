@@ -15,5 +15,6 @@ class Klasifikasi:
 
 	def classify(self, ciri):
 		result = self.clf.predict(ciri)
-		return str(self.encoder.inverse_transform(result[0]))
+		ekspresi = str(self.encoder.inverse_transform(result[0]))
+		return ekspresi
 

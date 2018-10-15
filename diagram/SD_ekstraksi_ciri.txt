@@ -17,33 +17,35 @@ activate Ekspresi_wajah
 Ekspresi_wajah -> Ekspresi_wajah : latih(files, 'latih_uji', directory)
 activate Ekspresi_wajah
 
-	loop i in range(len(dir1))
-		loop file in files
-			Ekspresi_wajah -> Deteksi_wajah : nama_file = resize_image(berkas, file, directory, dir2)
-			activate Deteksi_wajah
-			Ekspresi_wajah -> Deteksi_wajah : berkas_wajah = deteksi(ket, nama_file, directory, dir2) 
-			deactivate Deteksi_wajah
+	opt request.method == 'POST'
+		loop i in range(len(dir1))
+			loop file in files
+				Ekspresi_wajah -> Deteksi_wajah : nama_file = resize_image(berkas, file, directory, dir2)
+				activate Deteksi_wajah
+				Ekspresi_wajah -> Deteksi_wajah : berkas_citra = deteksi(ket, nama_file, directory, dir2) 
+				deactivate Deteksi_wajah
 
-			create control Praproses
-			Ekspresi_wajah -> Praproses : pra = Praproses()
-			activate Praproses
-			Ekspresi_wajah -> Praproses : pixel_binary = pra.biner(berkas_citra)
-			deactivate Praproses
+				create control Praproses
+				Ekspresi_wajah -> Praproses : pra = Praproses()
+				activate Praproses
+				Ekspresi_wajah -> Praproses : pixel_binary = pra.biner(berkas_citra)
+				deactivate Praproses
 
-			create control GMI
-			Ekspresi_wajah -> GMI : gmi = GMI(pixel_binary)
-			activate GMI
-			Ekspresi_wajah -> GMI : gmi.hitungMomenNormalisasi()
-			Ekspresi_wajah -> GMI : ciri = gmi.hitungCiri()
-			deactivate GMI
+				create control GMI
+				Ekspresi_wajah -> GMI : gmi = GMI(pixel_binary)
+				activate GMI
+				Ekspresi_wajah -> GMI : gmi.hitungMomenNormalisasi()
+				Ekspresi_wajah -> GMI : ciri = gmi.hitungCiri()
+				deactivate GMI
 
-			Ekspresi_wajah -> Database : insert_ciri_pelatihan('ciri_pelatihan', kelas, ciri, 'S')
-			activate Database
-			Ekspresi_wajah -> Database :  insert_ciri_pelatihan('ciri_pelatihan', kelas, ciricv, 'O')
-			deactivate Database
-			Ekspresi_wajah --> Ekspresi_wajah : True
+				Ekspresi_wajah -> Database : insert_ciri_pelatihan('ciri_pelatihan', kelas, ciri, 'S')
+				activate Database
+				Ekspresi_wajah -> Database :  insert_ciri_pelatihan('ciri_pelatihan', kelas, ciricv, 'O')
+				deactivate Database
+				Ekspresi_wajah --> Ekspresi_wajah : True
 
-			deactivate Ekspresi_wajah
+				deactivate Ekspresi_wajah
+			end
 		end
 	end
 

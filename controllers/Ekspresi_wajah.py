@@ -13,14 +13,27 @@ from libs.GMI import GMI
 from models.Database import Database
 from libs.Klasifikasi import Klasifikasi
 from libs.Praproses import Praproses
+from libs.OpenCV import OpenCV
+from collections import Counter
 
 class Ekspresi_wajah:
 
-	page = Blueprint('Ekspresi_wajah_page', __name__, template_folder = 'templates')
-	base = '/ekspresi-wajah'
-	Db = Database('localhost', 'root', '', 'gmisvm')
-	Dw = Deteksi_wajah()
-	pra = Praproses()
+	page 		= Blueprint('Ekspresi_wajah_page', __name__, template_folder = 'templates')
+	base 		= '/ekspresi-wajah'
+	Db 			= Database('localhost', 'root', '', 'gmisvm')
+	Dw 			= Deteksi_wajah()
+	pra 		= Praproses()
+	OC 			= OpenCV()
+	jarak 		= 0
+	rectColor 	= {
+		'bahagia'	: (102, 255, 255),	# kuning
+		'sedih'		: (255, 191, 0),	# biru
+		'jijik'		: (50, 205, 50),	# hijau
+		'takut'		: (128, 0, 128),	# ungu
+		'natural'	: (255, 248, 248),	# putih  
+		'marah'		: (60, 20, 220),  	# merah
+		'kaget' 	: (30, 105, 210)	# coklat
+	}
 
 	@page.route(f'{base}/')
 	def home():
@@ -37,90 +50,40 @@ class Ekspresi_wajah:
 			filename = 'data/' + secure_filename(strftime("%Y-%m-%d-%H-%M-%S") + '_' + f.filename)
 			f.save(filename)
 
-			directory = strftime("%Y-%m-%d-%H-%M-%S")
+			direktori = strftime("%Y-%m-%d-%H-%M-%S")
 
 			with open(filename, mode = 'r') as file:
 				zip_file = zipfile.ZipFile(filename)
-				files = [zip_file.extract(fl, 'data/training/' + directory) for fl in zip_file.namelist()]
+				files = [zip_file.extract(fl, 'data/training/' + direktori) for fl in zip_file.namelist()]
 				zip_file.close()
 			os.remove(filename)
 
 			# pelatihan disini
-			dir1 		= os.listdir('data/training/' + directory)
+			dir1 		= os.listdir('data/training/' + direktori)
 			cwd 		= os.getcwd()
 
 			for i in range(len(dir1)):
 				print(i)
 
-				dir2		= os.listdir('data/training/' + directory + '/') [i]
+				dir2		= os.listdir('data/training/' + direktori + '/') [i]
 				print("dir 2 = " + dir2)
 
 				jenis_kelas = dir1[i]
 				print("jenis kelas = " + jenis_kelas)
 
-				file_name	= os.listdir('data/training/' + directory + '/' + dir2)[0]	
+				file_name	= os.listdir('data/training/' + direktori + '/' + dir2)[0]	
 				print("file name = " + file_name)
-				files	= os.listdir('data/training/' + directory + '/' + dir2)
+				files	= os.listdir('data/training/' + direktori + '/' + dir2)
+
 				for file in files:
-
-					# berkas 		= cwd + '\\data\\training\\' + directory + '\\' + dir2 + '\\' + file
-
 					print(f"file pelatihan single = {file}")
-					Ekspresi_wajah.latih(file, 'training', directory)
+					Ekspresi_wajah.latih(file, 'training', direktori)
 
 			flash('Ciri data pelatihan berhasil disimpan!')
 			return redirect(url_for('.pelatihan'))
 
 		return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan'})
 
-	@page.route(f'{base}/pelatihan2', methods=['GET', 'POST'])
-	def pelatihan2():
-		if request.method == 'POST':
-		
-			f = request.files['zip_file']
-			filename = 'data/' + secure_filename(strftime("%Y-%m-%d-%H-%M-%S") + '_' + f.filename)
-			f.save(filename)
-
-			directory = strftime("%Y-%m-%d-%H-%M-%S")
-
-			# if not os.path.exists(directory):
-			# 	os.makedirs(directory)
-
-			with open(filename, mode = 'r') as file:
-				zip_file = zipfile.ZipFile(filename)
-				files = [zip_file.extract(fl, 'data/training/' + directory) for fl in zip_file.namelist()]
-				zip_file.close()
-			os.remove(filename)
-
-			# pelatihan disini
-			dir1 		= os.listdir('data/training/' + directory)
-			cwd 		= os.getcwd()
-
-			for i in range(len(dir1)):
-				print(i)
-
-				dir2		= os.listdir('data/training/' + directory + '/') [i]
-				print("dir 2 = " + dir2)
-
-				jenis_kelas = dir1[i]
-				print("jenis kelas = " + jenis_kelas)
-
-				file_name	= os.listdir('data/training/' + directory + '/' + dir2)[0]	
-				print("file name = " + file_name)
-				files	= os.listdir('data/training/' + directory + '/' + dir2)
-				for file in files:
-
-					berkas 		= cwd + '\\data\\training\\' + directory + '\\' + dir2 + '\\' + file
-
-					print("berkas = " + berkas)
-
-					# openCV
-					berkas_citra = Ekspresi_wajah.Dw.deteksi_single(berkas, directory, jenis_kelas)
-
-			flash('Data pelatihan berhasil dilatih')
-			return redirect(url_for('.pelatihan'))
-
-		return render_template('layout.html', data = { 'view' : 'pelatihan', 'title' : 'Pelatihan2'})
 
 	@page.route(f'{base}/pelatihan3', methods=['GET', 'POST'])
 	def pelatihan3():
@@ -131,28 +94,28 @@ class Ekspresi_wajah:
 
 			selected_label = request.form.get('label')
 			time = strftime("%Y-%m-%d-%H-%M-%S")
-			directory = time + '/' + selected_label
+			direktori = time + '/' + selected_label
 
-			if not os.path.exists('data/training/' + directory):
-				os.makedirs('data/training/' + directory)
+			if not os.path.exists('data/training/' + direktori):
+				os.makedirs('data/training/' + direktori)
 
 			# with open(filename, mode = 'r') as file:
 			# 	zip_file = zipfile.ZipFile(filename)
-			# 	files = [zip_file.extract(fl, 'data/training/' + directory) for fl in zip_file.namelist()]
+			# 	files = [zip_file.extract(fl, 'data/training/' + direktori) for fl in zip_file.namelist()]
 			# 	zip_file.close()
 			# os.remove(filename)
-			Ekspresi_wajah.upload_multiple_files('zip_file[]', 'data/training/' + directory)
+			Ekspresi_wajah.upload_multiple_files('zip_file[]', 'data/training/' + direktori)
 
 			# pelatihan disini
-			dir1 		= os.listdir('data/training/' + directory)
+			dir1 		= os.listdir('data/training/' + direktori)
 			cwd 		= os.getcwd()
 
 			for file in dir1:
-				berkas = cwd + '\\data\\training\\' + directory + '\\' + file
+				berkas = cwd + '\\data\\training\\' + direktori + '\\' + file
 				face = Ekspresi_wajah.Dw.deteksi('training', berkas, time, selected_label)
 				praproses = Praproses()
-				pixel_binary = praproses.biner(face)
-				gmi 		= GMI(pixel_binary) 
+				piksel_biner = praproses.biner(face)
+				gmi 		= GMI(piksel_biner) 
 				gmi.hitungMomenNormalisasi()
 				ciri 		= gmi.hitungCiri()
 				kelas 		= selected_label
@@ -162,23 +125,23 @@ class Ekspresi_wajah:
 			# for i in range(len(dir1)):
 			# 	print(i)
 
-			# 	dir2		= os.listdir('data/training/' + directory + '/') [i]
+			# 	dir2		= os.listdir('data/training/' + direktori + '/') [i]
 			# 	print("dir 2 = " + dir2)
 
 			# 	jenis_kelas = dir1[i]
 			# 	print("jenis kelas = " + jenis_kelas)
 
-			# 	file_name	= os.listdir('data/training/' + directory + '/' + dir2)[0]	
+			# 	file_name	= os.listdir('data/training/' + direktori + '/' + dir2)[0]	
 			# 	print("file name = " + file_name)
-			# 	files	= os.listdir('data/training/' + directory + '/' + dir2)
+			# 	files	= os.listdir('data/training/' + direktori + '/' + dir2)
 			# 	for file in files:
 
-			# 		berkas 		= cwd + '\\data\\training\\' + directory + '\\' + dir2 + '\\' + file
+			# 		berkas 		= cwd + '\\data\\training\\' + direktori + '\\' + dir2 + '\\' + file
 
 			# 		print("berkas = " + berkas)
 
 			# 		# openCV
-			# 		berkas_citra = Ekspresi_wajah.Dw.deteksi(berkas, directory, dir2)
+			# 		berkas_citra = Ekspresi_wajah.Dw.deteksi(berkas, direktori, dir2)
 
 			# 		# im 			= Image.open(berkas_citra)
 			# 		# im			= im.convert('L')
@@ -188,12 +151,12 @@ class Ekspresi_wajah:
 			# 		# threshold 	= 256 / 2
 			# 		# binary 		= grayscale.point(lambda p: p > threshold and 255)
 			# 		# binary.save('result/'+ file +'.png')
-			# 		# pixel_binary= np.array(binary)
+			# 		# piksel_biner= np.array(binary)
 
 			# 		pra = Praproses()
-			# 		pixel_binary = pra.biner(berkas_citra)
+			# 		piksel_biner = pra.biner(berkas_citra)
 
-			# 		gmi 		= GMI(pixel_binary) 
+			# 		gmi 		= GMI(piksel_biner) 
 			# 		gmi.hitungMomenNormalisasi()
 			# 		ciri 		= gmi.hitungCiri()
 			# 		kelas 		= jenis_kelas
@@ -213,27 +176,22 @@ class Ekspresi_wajah:
 		ciri = []
 		ciricv = []
 		rata_rata_ciri = {}
-		directory = ""
+		direktori = ""
 
 		if request.method == "POST":
 			f = request.files['foto']
 			
-			directory = strftime("%Y-%m-%d-%H-%M-%S")
+			direktori 	= strftime("%Y-%m-%d_%H-%M-%S")
 
-			filename = 'data\\testing\\' + secure_filename(directory + '_' + f.filename)
+			filename 	= 'data\\testing\\' + secure_filename(direktori + '_' + f.filename)
 			f.save(filename)
 
-			os.makedirs(f'data/testing/{directory}')
-
-			cwd = os.getcwd()
-
-			berkas 		= cwd + '\\data\\testing\\' + secure_filename(directory + '_' + f.filename)
-			print(berkas)
-
-			ekspresi, ciri, ciricv = Ekspresi_wajah.Dw.deteksi_multi_face2(berkas, directory)
+			cwd 		= os.getcwd()
+			nama_file 	= f.filename
+			berkas 		= cwd + '\\data\\testing\\' + secure_filename(direktori + '_' + f.filename)
+			ekspresi, ciri, ciricv = Ekspresi_wajah.Dw.deteksi_multi_face2(berkas, nama_file, direktori)
 		
-		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi, ciri = ciri, ciricv = ciricv, directory = directory)
-
+		return render_template('layout.html', data = { 'view' : 'pengujian', 'title' : 'Pengujian'}, hasil = ekspresi, ciri = ciri, ciricv = ciricv)
 
 
 	@page.route(f'{base}/latih-uji', methods=['GET', 'POST'])
@@ -245,9 +203,9 @@ class Ekspresi_wajah:
 		files 			= {}
 		file_name_s 	= []
 		file_name_o 	= []
-		hasil_all_s 	= []
+		semua_hasil_s 	= []
 		hasil_final_s 	= []
-		hasil_all_o 	= []
+		semua_hasil_o 	= []
 		hasil_final_o 	= []
 		target 			= []
 		waktu 			= []
@@ -259,114 +217,76 @@ class Ekspresi_wajah:
 			filename = 'data/' + secure_filename(strftime("%Y-%m-%d-%H-%M-%S") + '_' + f.filename)
 			f.save(filename)
 
-			directory = strftime("%Y-%m-%d-%H-%M-%S")
+			direktori = strftime("%Y-%m-%d-%H-%M-%S")
 
 			with open(filename, mode = 'r') as file:
 				zip_file = zipfile.ZipFile(filename)
-				files = [zip_file.extract(fl, 'data/latih_uji/' + directory) for fl in zip_file.namelist()]
+				files = [zip_file.extract(fl, 'data/latih_uji/' + direktori) for fl in zip_file.namelist()]
 				zip_file.close()
 			os.remove(filename)
 
-			Ekspresi_wajah.latih(files, 'latih_uji', directory)
+			Ekspresi_wajah.latih(files, 'latih_uji', direktori)
 			jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi = Ekspresi_wajah.uji()
 
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, hasil_all_s = hasil_final_s, hasil_all_o = hasil_final_o, waktu = waktu, akurasi = akurasi)
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, semua_hasil_s = hasil_final_s, semua_hasil_o = hasil_final_o, waktu = waktu, akurasi = akurasi)
 
 
-	def latih(files, ket, directory):
-		dir1 		= os.listdir('data/'+ ket +'/' + directory)
+	def latih(files, ket, direktori):
+		dir1 		= os.listdir('data/'+ ket +'/' + direktori)
 		cwd 		= os.getcwd()
 
 		for i in range(len(dir1)):
-			print(i)
 
-			dir2		= os.listdir('data/'+ ket +'/' + directory + '/') [i]
-			print("dir 2 = " + dir2)
-
-			jenis_kelas = dir1[i]
-			print("jenis kelas = " + jenis_kelas)
-
-			file_name	= os.listdir('data/'+ ket +'/' + directory + '/' + dir2)[0]	
-			print("file name = " + file_name)
-			files	= os.listdir('data/'+ ket +'/' + directory + '/' + dir2)
+			dir2			= os.listdir('data/'+ ket +'/' + direktori + '/') [i]
+			jenis_kelas	 	= dir1[i]
+			file_name		= os.listdir('data/'+ ket +'/' + direktori + '/' + dir2)[0]	
+			files			= os.listdir('data/'+ ket +'/' + direktori + '/' + dir2)
+			
 			for file in files:
 
-				print(f"file = {file}")
-				berkas 		= cwd + '\\data\\'+ ket +'\\' + directory + '\\' + dir2 + '\\' + file
+				berkas 		= cwd + '\\data\\'+ ket +'\\' + direktori + '\\' + dir2 + '\\' + file
+				path 		= Ekspresi_wajah.Dw.resize_image(berkas, file, direktori, dir2)
+				
+				# Deteksi Wajah
+				berkas_citra= Ekspresi_wajah.Dw.deteksi(ket, path, direktori, dir2)
 
-				print(f"Resize = {berkas}")
-				nama_file 	 = Ekspresi_wajah.Dw.resize_image(berkas, file, directory, dir2)
-				print(f"nama_file = {nama_file}")
-				berkas_citra = Ekspresi_wajah.Dw.deteksi(ket, nama_file, directory, dir2)
+				# Praproses Wajah
+				piksel_biner= Ekspresi_wajah.pra.biner(berkas_citra)
 
-				pixel_binary = Ekspresi_wajah.pra.biner(berkas_citra)
-
-				gmi 		= GMI(pixel_binary) 
+				# Ekstraksi Ciri
+				gmi 		= GMI(piksel_biner) 
 				gmi.hitungMomenNormalisasi()
 				ciri 		= gmi.hitungCiri()
 				kelas 		= jenis_kelas
 				Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciri, 'S')
 
-				momen = cv2.moments(pixel_binary)
-				ciricv 		= cv2.HuMoments(momen).flatten()
-
+				ciricv 		= Ekspresi_wajah.OC.gmi_OpenCV(piksel_biner)
 				Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciricv, 'O')
 
 		return True
 
+
 	def uji():
+		
 		jarak_s 		= {}
 		jarak_o 		= {}
 		jarak 			= {}
 		files 			= {}
-		file_name_s 	= []
 		file_name_o 	= []
-		hasil_all_s 	= []
-		hasil_final_s 	= []
-		hasil_all_o 	= []
+		semua_hasil_s 	= []
+		semua_hasil_o 	= []
 		hasil_final_o 	= []
 		target 			= []
-
 		data_uji 		= Ekspresi_wajah.Db.select_data_uji()
-		
-		print(f"data_uji = {data_uji} dan tipe = {type(data_uji)}")
-		print(f"data_uji [0] = {data_uji[0]} dan tipe = {type(data_uji[0])}")
-		print(f"data_uji [0][2] = {data_uji[0][2]} dan tipe = {type(data_uji[0][2])}")
-		print(f"Jumlah data_uji = {len(data_uji)}")
-
 		jumlah_data 	= len(data_uji)
-		waktu			= []
-		cwd				= os.getcwd()
-		dirr 			= cwd + '\\data\\uji\\'
+		print(f"Jumlah data uji = {jumlah_data}")
+		waktu 			= []
+		
+		file_name_s, jarak_all_s, direktori, semua_hasil_s, hasil_final_s, id_pengujian_update, waktu = Ekspresi_wajah.uji_ciri_sendiri(data_uji, 0)
 
-		for i in range(jumlah_data):
-			path  		= dirr + str(data_uji[i][1])
-			file_name__s, jarak_s, directory, hasil_all_s, id_pengujian_update = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], path, data_uji[i][1])
-			print(f"id file = {data_uji[i][0]}")
-			file_name_s.append(file_name__s)
-			waktu.append(hasil_all_s['waktu'])
-			hasil_final_s.append({
-				'WS'	: hasil_all_s['wajah'],
-				'B'		: hasil_all_s['bahagia'],
-				'S'		: hasil_all_s['sedih'],
-				'M'		: hasil_all_s['marah'],
-				# 'J'		: hasil_all_s['jijik'],
-				'K'		: hasil_all_s['kaget'],
-				# 'T'		: hasil_all_s['takut'],
-				# 'N'		: hasil_all_s['natural']
-			})
- 
-			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], path, data_uji[i][1], directory, id_pengujian_update)
-			hasil_final_o.append({
-				'WO'	: hasil_all_o['wajah'],
-				'B'		: hasil_all_o['bahagia'],
-				'S'		: hasil_all_o['sedih'],
-				'M'		: hasil_all_o['marah'],
-				# 'J'		: hasil_all_o['jijik'],
-				'K'		: hasil_all_o['kaget'],
-				# 'T'		: hasil_all_o['takut'],
-				# 'N'		: hasil_all_o['natural']
-			})
+		print(f"id_pengujian_update = {id_pengujian_update} dan jumlah = {len(id_pengujian_update)}")
+		
+		file_name_o, jarak_o, semua_hasil_o, hasil_final_o = Ekspresi_wajah.uji_ciri_opencv(data_uji, 0, direktori, id_pengujian_update, waktu)
 
 		files = {
 			'jumlah_file_name_s'	: len(file_name_s),
@@ -390,10 +310,10 @@ class Ekspresi_wajah:
 				'B'		: data_uji[i][3],
 				'S'		: data_uji[i][4],
 				'M'		: data_uji[i][5],
-				# 'J'		: data_uji[i][6],
+				'J'		: data_uji[i][6],
 				'K'		: data_uji[i][7],
-				# 'T'		: data_uji[i][8],
-				# 'N'		: data_uji[i][9]
+				'T'		: data_uji[i][8],
+				'N'		: data_uji[i][9]
 			})
 
 		target_akhir = []
@@ -509,10 +429,10 @@ class Ekspresi_wajah:
 			'B'			: aB/jB if jB != 0 else 0,
 			'S'			: aS/jS if jS != 0 else 0,
 			'M'			: aM/jM if jM != 0 else 0,
-			# 'J'			: aJ/jJ if jJ != 0 else 0,
+			'J'			: aJ/jJ if jJ != 0 else 0,
 			'K'			: aK/jK if jK != 0 else 0,
-			# 'T'			: aT/jT if jT != 0 else 0,
-			# 'N'			: aN/jN if jN != 0 else 0
+			'T'			: aT/jT if jT != 0 else 0,
+			'N'			: aN/jN if jN != 0 else 0
 		}
 
 		for i in range(jumlah_data):
@@ -547,10 +467,10 @@ class Ekspresi_wajah:
 			'B'			: aB/jB if jB != 0 else 0,
 			'S'			: aS/jS if jS != 0 else 0,
 			'M'			: aM/jM if jM != 0 else 0,
-			# 'J'			: aJ/jJ if jJ != 0 else 0,
+			'J'			: aJ/jJ if jJ != 0 else 0,
 			'K'			: aK/jK if jK != 0 else 0,
-			# 'T'			: aT/jT if jT != 0 else 0,
-			# 'N'			: aN/jN if jN != 0 else 0
+			'T'			: aT/jT if jT != 0 else 0,
+			'N'			: aN/jN if jN != 0 else 0
 		}
 
 		r_all_s = []
@@ -573,79 +493,35 @@ class Ekspresi_wajah:
 			'rata_s'	: set(r_all_s),
 			'rata_o'	: set(r_all_o)
 		}
-
-		print(f"Hasil akurasi s = {akurasi['s']} dan tipe = {type(akurasi['s'])}")
-		print(f"Hasil akurasi s[0] = {akurasi['s'][0]} dan tipe = {type(akurasi['s'][0])}")
-		print(f"Hasil akurasi o = {akurasi['o']} dan tipe = {type(akurasi['o'])}")
-		print(f"Hasil akurasi o[0] = {akurasi['o'][0]} dan tipe = {type(akurasi['o'][0])}")
-
 
 		return jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi
 
 
-
 	# ####################################
-
-
-	@page.route(f'{base}/hasil', methods=['GET', 'POST'])
-	def hasil():
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'})
 	
 
 	@page.route(f'{base}/lakukan-uji', methods=['GET', 'POST'])
 	def lakukan_uji():
+
 		jarak_s 		= {}
 		jarak_o 		= {}
 		jarak 			= {}
 		files 			= {}
-		file_name_s 	= []
 		file_name_o 	= []
-		hasil_all_s 	= []
-		hasil_final_s 	= []
-		hasil_all_o 	= []
+		semua_hasil_s 	= []
+		semua_hasil_o 	= []
 		hasil_final_o 	= []
 		target 			= []
-
 		data_uji 		= Ekspresi_wajah.Db.select_data_uji()
-		
-		print(f"data_uji = {data_uji} dan tipe = {type(data_uji)}")
-		print(f"data_uji [0] = {data_uji[0]} dan tipe = {type(data_uji[0])}")
-		print(f"data_uji [0][2] = {data_uji[0][2]} dan tipe = {type(data_uji[0][2])}")
-		print(f"Jumlah data_uji = {len(data_uji)}")
-
 		jumlah_data 	= len(data_uji)
-		waktu			= []
-		cwd				= os.getcwd()
-		dirr 			= cwd + '\\data\\uji\\'
+		print(f"Jumlah data uji = {jumlah_data}")
+		waktu 			= []
+		
+		file_name_s, jarak_all_s, direktori, semua_hasil_s, hasil_final_s, id_pengujian_update, waktu = Ekspresi_wajah.uji_ciri_sendiri(data_uji, 0)
 
-		for i in range(jumlah_data):
-			path  		= dirr + str(data_uji[i][1])
-			file_name__s, jarak_s, directory, hasil_all_s, id_pengujian_update = Ekspresi_wajah.Dw.deteksi_multi_face_sendiri(data_uji[i][0], path, data_uji[i][1])
-			print(f"id file = {data_uji[i][0]}")
-			file_name_s.append(file_name__s)
-			waktu.append(hasil_all_s['waktu'])
-			hasil_final_s.append({
-				'WS'	: hasil_all_s['wajah'],
-				'B'		: hasil_all_s['bahagia'],
-				'S'		: hasil_all_s['sedih'],
-				'M'		: hasil_all_s['marah'],
-				# 'J'		: hasil_all_s['jijik'],
-				'K'		: hasil_all_s['kaget'],
-				# 'T'		: hasil_all_s['takut'],
-				# 'N'		: hasil_all_s['natural']
-			})
- 
-			file_name_o, jarak_o, hasil_all_o= Ekspresi_wajah.Dw.deteksi_multi_face_opencv(data_uji[i][0], path, data_uji[i][1], directory, id_pengujian_update)
-			hasil_final_o.append({
-				'WO'	: hasil_all_o['wajah'],
-				'B'		: hasil_all_o['bahagia'],
-				'S'		: hasil_all_o['sedih'],
-				'M'		: hasil_all_o['marah'],
-				# 'J'		: hasil_all_o['jijik'],
-				'K'		: hasil_all_o['kaget'],
-				# 'T'		: hasil_all_o['takut'],
-				# 'N'		: hasil_all_o['natural']
-			})
+		print(f"id_pengujian_update = {id_pengujian_update} dan jumlah = {len(id_pengujian_update)}")
+		
+		file_name_o, jarak_o, semua_hasil_o, hasil_final_o = Ekspresi_wajah.uji_ciri_opencv(data_uji, 0, direktori, id_pengujian_update, waktu)
 
 		files = {
 			'jumlah_file_name_s'	: len(file_name_s),
@@ -669,10 +545,10 @@ class Ekspresi_wajah:
 				'B'		: data_uji[i][3],
 				'S'		: data_uji[i][4],
 				'M'		: data_uji[i][5],
-				# 'J'		: data_uji[i][6],
+				'J'		: data_uji[i][6],
 				'K'		: data_uji[i][7],
-				# 'T'		: data_uji[i][8],
-				# 'N'		: data_uji[i][9]
+				'T'		: data_uji[i][8],
+				'N'		: data_uji[i][9]
 			})
 
 		target_akhir = []
@@ -788,10 +664,10 @@ class Ekspresi_wajah:
 			'B'			: aB/jB if jB != 0 else 0,
 			'S'			: aS/jS if jS != 0 else 0,
 			'M'			: aM/jM if jM != 0 else 0,
-			# 'J'			: aJ/jJ if jJ != 0 else 0,
+			'J'			: aJ/jJ if jJ != 0 else 0,
 			'K'			: aK/jK if jK != 0 else 0,
-			# 'T'			: aT/jT if jT != 0 else 0,
-			# 'N'			: aN/jN if jN != 0 else 0
+			'T'			: aT/jT if jT != 0 else 0,
+			'N'			: aN/jN if jN != 0 else 0
 		}
 
 		for i in range(jumlah_data):
@@ -826,10 +702,10 @@ class Ekspresi_wajah:
 			'B'			: aB/jB if jB != 0 else 0,
 			'S'			: aS/jS if jS != 0 else 0,
 			'M'			: aM/jM if jM != 0 else 0,
-			# 'J'			: aJ/jJ if jJ != 0 else 0,
+			'J'			: aJ/jJ if jJ != 0 else 0,
 			'K'			: aK/jK if jK != 0 else 0,
-			# 'T'			: aT/jT if jT != 0 else 0,
-			# 'N'			: aN/jN if jN != 0 else 0
+			'T'			: aT/jT if jT != 0 else 0,
+			'N'			: aN/jN if jN != 0 else 0
 		}
 
 		r_all_s = []
@@ -853,12 +729,340 @@ class Ekspresi_wajah:
 			'rata_o'	: set(r_all_o)
 		}
 
-		print(f"Hasil akurasi s = {akurasi['s']} dan tipe = {type(akurasi['s'])}")
-		print(f"Hasil akurasi s[0] = {akurasi['s'][0]} dan tipe = {type(akurasi['s'][0])}")
-		print(f"Hasil akurasi o = {akurasi['o']} dan tipe = {type(akurasi['o'])}")
-		print(f"Hasil akurasi o[0] = {akurasi['o'][0]} dan tipe = {type(akurasi['o'][0])}")
+		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, semua_hasil_s = hasil_final_s, semua_hasil_o = hasil_final_o, waktu = waktu, akurasi = akurasi)
 
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, hasil_all_s = hasil_final_s, hasil_all_o = hasil_final_o, waktu = waktu, akurasi = akurasi)
+	def uji_ciri_sendiri(data_uji, data_latih):
+		jarak_all_s 		= []
+		id_pengujian_update = []
+		file_name_s 		= []
+		waktu 				= []
+		hasil_final_s 		= []
+		dir_s 				= []
+
+		# ciri dan kelas sendiri dari data pelatihan
+		if data_latih == 0:
+			kumpulan_ciri_s 	= Ekspresi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
+			kumpulan_kelas_s 	= Ekspresi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
+		else:
+			data_lat 			= np.array(data_latih)
+			ciri 				= data_lat[:, 3:]
+			kumpulan_ciri_s 	= ciri.astype(np.float64)
+			kumpulan_kelas_s 	= data_lat[:, 2] 
+
+		rata_rata_ciri_s 	= {}
+		for kelas_s in kumpulan_kelas_s:
+			rata_rata_ciri_s[kelas_s] = Ekspresi_wajah.Db.select_avg('ciri_pelatihan', kelas_s)
+
+		cwd				= os.getcwd()
+		dirr 			= cwd + '\\data\\uji\\'
+
+		# lakukan sebanyak data uji
+		for j in range(len(data_uji)):
+			waktu_s 		= strftime("%Y-%m-%d_%H-%M-%S")
+
+			id_file 	= data_uji[j][0]
+			nama_file	= data_uji[j][1]
+
+			# Deteksi wajah
+			path_img  	= dirr + str(nama_file)
+		
+			faces, img, direktori, path2	= Ekspresi_wajah.Dw.deteksi_multi_face(path_img, nama_file, 'sendiri')
+
+			dir_s.append(direktori)
+
+			for i, f in enumerate(faces):
+				x, y, w, h 		= np.array([v for v in f], dtype=np.int64)
+
+				sub_face 		= img[y:y+h, x:x+w]
+				path_wajah 		= path2 + '/' + str(i) + '.png'
+				cv2.imwrite(path_wajah, sub_face)
+
+				
+				# Praproses Wajah
+				sub_face 	= Ekspresi_wajah.pra.biner(path_wajah)
+				
+				# Ekstraksi Ciri GMI
+				gmi 		= GMI(sub_face) 
+				gmi.hitungMomenNormalisasi()
+				ciri 		= gmi.hitungCiri()
+				
+				# Klasifikasi Ekspresi Wajah
+				kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)			
+				ekspresi_s 	= kl_s.classify([ciri])
+
+				cv2.rectangle(img, (x,y), (x+w, y+h), Ekspresi_wajah.rectColor[ekspresi_s])
+				cv2.rectangle(img, (x, y - 20), (x + w, y), Ekspresi_wajah.rectColor[ekspresi_s], -1)
+				cv2.putText(img, ekspresi_s, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 0.8 , (0, 0, 0), 1)
+
+				Ekspresi_wajah.Db.insert_ciri('ciri_pengujian', ciri, 'S')
+				data_pengujian_s	= Ekspresi_wajah.Db.select_first_row()
+				id_ciri_pengujian_s	= str(data_pengujian_s[0][0])
+
+				# insert pengujian
+				data_pengujian 	= {
+					'id_file'				: str(id_file),
+					'id_ciri_pengujian_s'	: id_ciri_pengujian_s,
+					'waktu'					: waktu_s,
+					'hasil_sendiri'			: ekspresi_s,
+					'direktori'				: direktori
+				}
+				print(f"Data pengujian s = {data_pengujian}")
+				pengujian = Ekspresi_wajah.Db.insert_pengujian(data_pengujian)
+				select_pengujian = Ekspresi_wajah.Db.select_pengujian_first_row()
+				id_pengujian_update.append(select_pengujian[0][0])
+
+				# Jarak Setiap Ciri
+				if data_latih == 0:
+					jarak_bahagia_s = []
+					for b in range(7):
+						jarak_bahagia_s.append(Ekspresi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['bahagia'][b]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'bahagia', jarak_bahagia_s)
+
+					jarak_sedih_s = []
+					for s in range(7):
+						jarak_sedih_s.append(Ekspresi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['sedih'][s]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'sedih', jarak_sedih_s)
+
+					jarak_marah_s = []
+					for m in range(7):
+						jarak_marah_s.append(Ekspresi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['marah'][m]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'marah', jarak_marah_s)
+
+					jarak_jijik_s = []
+					for ji in range(7):
+						jarak_jijik_s.append(Ekspresi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['jijik'][ji]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'jijik', jarak_jijik_s)
+
+					jarak_kaget_s = []
+					for k in range(7):
+						jarak_kaget_s.append(Ekspresi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['kaget'][k]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'kaget', jarak_kaget_s)
+
+					jarak_takut_s = []
+					for t in range(7):
+						jarak_takut_s.append(Ekspresi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['takut'][t]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'takut', jarak_takut_s)
+
+					jarak_natural_s = []
+					for n in range(7):
+						jarak_natural_s.append(Ekspresi_wajah.hitung_jarak(ciri[i], rata_rata_ciri_s['natural'][n]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_s, 'natural', jarak_natural_s)
+						
+					jarak_all = {
+						'bahagia'	: jarak_bahagia_s,
+						'sedih'		: jarak_sedih_s,
+						'marah'		: jarak_marah_s, 
+						'jijik'		: jarak_jijik_s,
+						'kaget'		: jarak_kaget_s,
+						'takut'		: jarak_takut_s,
+						'natural'	: jarak_natural_s
+					}
+
+					jarak_all_s.append(jarak_all)
+
+
+			# select data hasil pengujian sendiri dan insert hasil sendiri
+			hasil_s 	= Ekspresi_wajah.Db.select_hasil('hasil_sendiri', id_file, waktu_s)
+			hitung_s 	= Counter(elem[0] for elem in hasil_s)
+
+			semua_hasil_s = {
+				'id_file'	: id_file,
+				'ket'		: 'S', 
+				'wajah' 	: len(faces),
+				'bahagia'	: hitung_s['bahagia'],
+				'sedih'		: hitung_s['sedih'],
+				'marah'		: hitung_s['marah'],
+				'jijik'		: hitung_s['jijik'],
+				'kaget'		: hitung_s['kaget'],
+				'takut'		: hitung_s['takut'],
+				'natural'	: hitung_s['natural'],
+				'waktu'		: waktu_s
+			}
+			Ekspresi_wajah.Db.insert_hasil(semua_hasil_s)
+
+			dir_file_name 	= 'static/data/latih_uji/' + direktori + '_Hasil_Sendiri.png'
+			file_name_s.append(direktori + '_Hasil_Sendiri.png')
+			cv2.imwrite(dir_file_name, img)
+			
+			waktu.append(semua_hasil_s['waktu'])
+
+			hasil_final_s.append({
+				'WS'	: semua_hasil_s['wajah'],
+				'B'		: semua_hasil_s['bahagia'],
+				'S'		: semua_hasil_s['sedih'],
+				'M'		: semua_hasil_s['marah'],
+				'J'		: semua_hasil_s['jijik'],
+				'K'		: semua_hasil_s['kaget'],
+				'T'		: semua_hasil_s['takut'],
+				'N'		: semua_hasil_s['natural']
+			})
+
+		return file_name_s, jarak_all_s, dir_s, semua_hasil_s, hasil_final_s, id_pengujian_update, waktu
+
+
+
+	def uji_ciri_opencv(data_uji, data_latih, direktori, id_pengujian_update, waktu):
+		jarak_all_o 		= []
+		file_name_o 		= []
+		hasil_final_o 		= []
+
+		# ciri dan kelas sendiri dari data pelatihan
+		if data_latih == 0:
+			kumpulan_ciri_o 	= Ekspresi_wajah.Db.select_ciri('ciri_pelatihan', 'O')
+			kumpulan_kelas_o 	= Ekspresi_wajah.Db.select_kelas('ciri_pelatihan', 'O')
+		else:
+			data_lat 			= np.array(data_latih)
+			ciri 				= data_lat[:, 3:]
+			kumpulan_ciri_o 	= ciri.astype(np.float64)
+			kumpulan_kelas_o 	= data_lat[:, 2] 
+
+		rata_rata_ciri_o 	= {}
+		for kelas_o in kumpulan_kelas_o:
+			rata_rata_ciri_o[kelas_o] = Ekspresi_wajah.Db.select_avg('ciri_pelatihan', kelas_o)
+
+		Ekspresi_wajah.waktu_o 		= strftime("%Y-%m-%d_%H-%M-%S")
+		cwd				= os.getcwd()
+		dirr 			= cwd + '\\data\\uji\\'
+
+		# lakukan sebanyak data uji
+		for j in range(len(data_uji)):
+			id_file 	= data_uji[j][0]
+			nama_file	= data_uji[j][1]
+
+			# Deteksi wajah
+			path_img  	= dirr + str(nama_file)
+		
+			faces, img	= Ekspresi_wajah.Dw.deteksi_multi_face(path_img, nama_file, 'opencv')
+
+			for i, f in enumerate(faces):
+				x, y, w, h 		= np.array([v for v in f], dtype=np.int64)
+
+				sub_face 		= img[y:y+h, x:x+w]
+				path_wajah 		= 'static/data/latih_uji/' + direktori[j] + '/' + str(i) + '_.png'
+				cv2.imwrite(path_wajah, sub_face)
+
+				
+				# Praproses Wajah
+				sub_face 	= Ekspresi_wajah.pra.biner(path_wajah)
+				
+				# Ekstraksi Ciri GMI
+				ciricv		= Ekspresi_wajah.OC.gmi_OpenCV(sub_face)
+				
+				# Klasifikasi Ekspresi Wajah
+				kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)			
+				ekspresi_o 	= kl_o.classify([ciricv])
+
+				cv2.rectangle(img, (x,y), (x+w, y+h), Ekspresi_wajah.rectColor[ekspresi_o])
+				cv2.rectangle(img, (x, y - 20), (x + w, y), Ekspresi_wajah.rectColor[ekspresi_o], -1)
+				cv2.putText(img, ekspresi_o, (x, y - 5), cv2.FONT_HERSHEY_PLAIN, 0.8 , (0, 0, 0), 1)
+
+				Ekspresi_wajah.Db.insert_ciri('ciri_pengujian', ciricv, 'O')
+				data_pengujian_o	= Ekspresi_wajah.Db.select_first_row()
+				id_ciri_pengujian_o	= str(data_pengujian_o[0][0])
+
+				# Update pengujian
+				data_pengujian 	= {
+					'id_file'				: str(id_file),
+					'id_ciri_pengujian_o'	: id_ciri_pengujian_o,
+					'hasil_opencv'			: ekspresi_o,
+					'waktu'					: waktu[j],
+					'id_pengujian'			: id_pengujian_update[0]
+				}
+				pengujian = Ekspresi_wajah.Db.update_pengujian(data_pengujian)
+				print(f"hasil data_pengujian o = {data_pengujian} dan tipe = {type(data_pengujian)}")
+
+				# hapus id_pengujian_update yang telah terupdate
+				del id_pengujian_update[0]
+
+				# Jarak Setiap Ciri
+				if data_latih == 0:
+					jarak_bahagia_o = []
+					for b in range(7):
+						jarak_bahagia_o.append(Ekspresi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['bahagia'][b]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'bahagia', jarak_bahagia_o)
+
+					jarak_sedih_o = []
+					for s in range(7):
+						jarak_sedih_o.append(Ekspresi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['sedih'][s]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'sedih', jarak_sedih_o)
+
+					jarak_marah_o = []
+					for m in range(7):
+						jarak_marah_o.append(Ekspresi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['marah'][m]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'marah', jarak_marah_o)
+
+					jarak_jijik_o = []
+					for ji in range(7):
+						jarak_jijik_o.append(Ekspresi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['jijik'][ji]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'jijik', jarak_jijik_o)
+
+					jarak_kaget_o = []
+					for k in range(7):
+						jarak_kaget_o.append(Ekspresi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['kaget'][k]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'kaget', jarak_kaget_o)
+
+					jarak_takut_o = []
+					for t in range(7):
+						jarak_takut_o.append(Ekspresi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['takut'][t]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'takut', jarak_takut_o)
+
+					jarak_natural_o = []
+					for n in range(7):
+						jarak_natural_o.append(Ekspresi_wajah.hitung_jarak(ciricv[i], rata_rata_ciri_o['natural'][n]))
+					Ekspresi_wajah.Db.insert_jarak_ciri(id_ciri_pengujian_o, 'natural', jarak_natural_o)
+						
+					jarak_all = {
+						'bahagia'	: jarak_bahagia_o,
+						'sedih'		: jarak_sedih_o,
+						'marah'		: jarak_marah_o, 
+						'jijik'		: jarak_jijik_o,
+						'kaget'		: jarak_kaget_o,
+						'takut'		: jarak_takut_o,
+						'natural'	: jarak_natural_o
+					}
+
+					jarak_all_o.append(jarak_all)
+
+			# select data hasil pengujian sendiri dan insert hasil sendiri
+			hasil_o 	= Ekspresi_wajah.Db.select_hasil('hasil_opencv', id_file, waktu[j])
+			hitung_o 	= Counter(elem[0] for elem in hasil_o)
+
+			semua_hasil_o = {
+				'id_file'	: id_file,
+				'ket'		: 'O', 
+				'wajah' 	: len(faces),
+				'bahagia'	: hitung_o['bahagia'],
+				'sedih'		: hitung_o['sedih'],
+				'marah'		: hitung_o['marah'],
+				'jijik'		: hitung_o['jijik'],
+				'kaget'		: hitung_o['kaget'],
+				'takut'		: hitung_o['takut'],
+				'natural'	: hitung_o['natural']
+			}
+			Ekspresi_wajah.Db.insert_hasil(semua_hasil_o)
+
+			dir_file_name 	= 'static/data/latih_uji/' + direktori[j] + '_Hasil_OpenCV.png'
+			file_name_o.append(direktori[j] + '_Hasil_OpenCV.png')
+			cv2.imwrite(dir_file_name, img)
+
+			hasil_final_o.append({
+				'WO'	: semua_hasil_o['wajah'],
+				'B'		: semua_hasil_o['bahagia'],
+				'S'		: semua_hasil_o['sedih'],
+				'M'		: semua_hasil_o['marah'],
+				'J'		: semua_hasil_o['jijik'],
+				'K'		: semua_hasil_o['kaget'],
+				'T'		: semua_hasil_o['takut'],
+				'N'		: semua_hasil_o['natural']
+			})
+
+		return file_name_o, jarak_all_o, semua_hasil_o, hasil_final_o
+
+
+
+
+
+
 
 
 
@@ -867,16 +1071,10 @@ class Ekspresi_wajah:
 
 		data_pengujian 	= Ekspresi_wajah.Db.select_data_pengujian(id_file, waktu)
 		jumlah_wajah 	= len(data_pengujian)
-
-		print(f"Jumlah data = {len(data_pengujian)}")
-		print(f"data pengujian = {data_pengujian} dan tipe = {type(data_pengujian)}")
-		print(f"data pengujian = {data_pengujian[0]} dan tipe = {type(data_pengujian[0])}")
-
 		ciri_all_s 		= []
 		ciri_all_o 		= []
 
 		for i in range(jumlah_wajah):
-			print(f"_____ {data_pengujian[0][2]}")
 			ciri_s = Ekspresi_wajah.Db.select_ciri_pengujian(data_pengujian[i][2], 'S')
 			ciri_all_s.append(ciri_s)
 
@@ -886,141 +1084,277 @@ class Ekspresi_wajah:
 		return render_template('layout.html', data = { 'view' : 'detail', 'title' : 'Pengujian dan Pelatihan'}, ciri_s = ciri_all_s, ciri_o = ciri_all_o, data_pengujian = data_pengujian)
 
 
-	@page.route(f'{base}/latih_data', methods=['GET', 'POST'])
-	def latih_data():
-		if request.method == 'POST':
-			jumlah = request.form['jumlah']
-
-			# jumlah * setiap kelas
-			data_b = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Bahagia', jumlah)
-			data_s = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Sedih', jumlah)
-			data_m = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Marah', jumlah)
-			data_j = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Jijik', jumlah)
-			data_k = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Kaget', jumlah)
-			data_t = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Takut', jumlah)
-			data_n = Ekspresi_wajah.Db.select_sejumlah_data_latih('S', 'Natural', jumlah)
-		
-
-			print(f"data_b = {data_b} dan tipe = {type(data_b)}")
-			print(f"jumlah data_b = {len(data_b)}")
-
-			data_latih = []
-			data_latih.extend(data_b)
-			data_latih.extend(data_s)
-			data_latih.extend(data_m)
-			data_latih.extend(data_j)
-			data_latih.extend(data_k)
-			data_latih.extend(data_t)
-			data_latih.extend(data_n) 	
-
-			# Cari rata-rata setiap ciri
-			jumlah_data = len(data_latih)
-
-			ciri1 = [float(el[0]) for el in data_latih]
-			ciri2 = [float(el[1]) for el in data_latih]
-			ciri3 = [float(el[2]) for el in data_latih]
-			ciri4 = [float(el[3]) for el in data_latih]
-			ciri5 = [float(el[4]) for el in data_latih]
-			ciri6 = [float(el[5]) for el in data_latih]
-			ciri7 = [float(el[6]) for el in data_latih]
-
-			jum_c = ciri1 + ciri2 + ciri3 + ciri4 + ciri5 + ciri6 + ciri7
-			jumlah_c = 0
-			for i in range(len(jum_c)):
-				jumlah_c += jum_c[i]
-
-			print(f"Jumlah semua ciri = {jumlah_c}")
-
-			mean_ciri1 = np.mean(ciri1)
-			mean_ciri2 = np.mean(ciri2)
-			mean_ciri3 = np.mean(ciri3)
-			mean_ciri4 = np.mean(ciri4)
-			mean_ciri5 = np.mean(ciri5)
-			mean_ciri6 = np.mean(ciri6)
-			mean_ciri7 = np.mean(ciri7)
-
-			mean = np.mean(jumlah_c)
-
-			print(f"Mean = {mean} dan tipe = {type(mean)}")
-
-			# cari ciri - ciri rata2 dan dikuadratkan
-
-			ciri_1 = (ciri1 - mean_ciri1) * (ciri1 - mean_ciri1)
-			ciri_2 = (ciri2 - mean_ciri2) * (ciri2 - mean_ciri2)
-			ciri_3 = (ciri3 - mean_ciri3) * (ciri3 - mean_ciri3)
-			ciri_4 = (ciri4 - mean_ciri4) * (ciri4 - mean_ciri4)
-			ciri_5 = (ciri5 - mean_ciri5) * (ciri5 - mean_ciri5)
-			ciri_6 = (ciri6 - mean_ciri6) * (ciri6 - mean_ciri6)
-			ciri_7 = (ciri7 - mean_ciri7) * (ciri7 - mean_ciri7)
-
-			jumlah_kuadrat_ciri = ciri_1 + ciri_2 + ciri_3 + ciri_4 + ciri_5 + ciri_6 + ciri_7
-			jumlah_k = 0
-			for i in range(len(jumlah_kuadrat_ciri)):
-				jumlah_k += jumlah_kuadrat_ciri[i]
-
-			# Simpangan Baku
-			Sbaku = np.sqrt(jumlah_k/jumlah_data)
-			# Sbaku = Sbaku*100
-			print(f"Data rata2 = {ciri_1} dan tipe = {type(ciri_1)}")
-			print(f"Data rata2 = {len(ciri_1)}")
-			print(f"Jumlah kuadrat ciri = {jumlah_k}")
-			print(f"Simpangan Baku = {Sbaku}")
-
-			# SUD 
-			sud = 6/6 # 6 SD / 6 unit dari 7 kelas
-			skala_unit_deviasi = sud * Sbaku
-			print(f"skala_unit_deviasi = {skala_unit_deviasi} dan tipe={type(skala_unit_deviasi)}")
-
-			# Nilai tengah Kelas Ke-4 = rata2 = mean
-			k4 = mean
-			k3 = mean - (0.5 * skala_unit_deviasi)
-			k2 = mean - (0.8 * skala_unit_deviasi)
-			k1 = mean - (1 * skala_unit_deviasi)
-			k5 = mean + (0.5 * skala_unit_deviasi)
-			k6 = mean + (0.8 * skala_unit_deviasi)
-			k7 = mean + (1 * skala_unit_deviasi)
-
-			print(f"K1 = {k1}")
-			print(f"K3 = {k3}")
-			print(f"K2 = {k2}")
-			print(f"K4 = {k4}")
-			print(f"K5 = {k5}")
-			print(f"K6 = {k6}")
-			print(f"K7 = {k7}")
-
-			data_uji = Ekspresi_wajah.Db.select_data_uji_jumlah(1)
-
-			print(f"Data uji = {data_uji} dan tipe = {type(data_uji)}")
-
-			ciri, ciricv = Ekspresi_wajah.Dw.deteksi_single_uji(data_uji[0][0], data_uji[0][1])
-
-			mean_ciri 		= np.mean(ciri)
-			mean_ciricv 	= np.mean(ciricv)
-
-			print(f"Mean ciri = {mean_ciri} dan tipe = {type(mean_ciri)}")
-			print(f"Mean ciricv = {mean_ciricv} dan tipe = {type(mean_ciricv)}")
-
-			# Klasifikasi data uji
-
-			if mean_ciri <= k1:
-				print(f"Kelas Bahagia")
-			elif k1 < mean_ciri <= k3:
-				print(f"Kelas Sedih") 
-			elif k3 < mean_ciri <= k2:
-				print(f"Kelas Marah")
-			elif k2 < mean_ciri <= k4:
-				print(f"Kelas Jijik")
-			elif k4 < mean_ciri <= k5:
-				print(f"Kelas Kaget")
-			elif k5 < mean_ciri <= k6:
-				print(f"Kelas Takut")
-			elif k6 < mean_ciri <= k7:
-				print(f"Kelas Natural")
-			else:
-				print(f"Kelas Tidak Terdeteksi")      
-			
-		return "hasil"
 
 
+	@page.route(f'{base}/uji_data', methods=['GET', 'POST'])
+	def uji_data():
+		# if request.method == 'POST':
+		# jumlah = request.form['jumlah']
+
+		jumlah 		= [10, 20, 30, 68]
+		print(f"JUMLAH = {jumlah}")
+		print(f"JUMLAH[3] = {jumlah[3]}")
+		kum_ekspresi= ['Bahagia', 'Sedih', 'Takut', 'Kaget']
+		data_latih_s= []
+		data_latih_o= []
+
+		semua_hasil_s 	= []
+		semua_hasil_o 	= []
+		hasil_final_o 	= []
+		target 			= []
+		waktu 			= []
+		data_uji 		= Ekspresi_wajah.Db.select_data_uji()
+		jumlah_data 	= len(data_uji)
+		print(f"Jumlah data uji = {jumlah_data}")
+
+		#  Target
+
+		for i in range(jumlah_data):
+			target.append({
+				'WT'	: data_uji[i][2],
+				'B'		: data_uji[i][3],
+				'S'		: data_uji[i][4],
+				'M'		: data_uji[i][5],
+				'J'		: data_uji[i][6],
+				'K'		: data_uji[i][7],
+				'T'		: data_uji[i][8],
+				'N'		: data_uji[i][9]
+			})
+
+		target_akhir = []
+		for i in range(jumlah_data):
+			t_a = {}
+			for key, value in target[i].items():
+				if value != 0:
+					t_a[key] = value
+			target_akhir.append(t_a) 
 
 
+		result_s = []
+		result_o = []
+		# jumlah * setiap kelas
+		for i in range(len(jumlah)):
+			a = []
+			for j in range(len(kum_ekspresi)):
+				a.extend(Ekspresi_wajah.Db.select_sejumlah_data_latih('S', kum_ekspresi[j], jumlah[i]))
+			data_latih_s.append(a) 
+
+		for i in range(len(jumlah)):
+			a = []
+			for j in range(len(kum_ekspresi)):
+				a.extend(Ekspresi_wajah.Db.select_sejumlah_data_latih('O', kum_ekspresi[j], jumlah[i]))
+			data_latih_o.append(a) 
+
+		data_latih = {
+			'S'		: data_latih_s,
+			'O'		: data_latih_o
+		}
+
+		#  Pengujian
+		jW = 0
+		aW = 0
+		jB = 0
+		aB = 0
+		jW = 0
+		aS = 0
+		jS = 0
+		aM = 0
+		jM = 0
+		aJ = 0
+		jJ = 0
+		aK = 0
+		jK = 0
+		aT = 0
+		jT = 0
+		aN = 0
+		jN = 0
+
+
+		# pengujian ciri sendiri
+		for j_s in range(len(data_latih['S'])):
+			print(f"Jumlah data_latih ke-{j_s} = {len(data_latih['S'][j_s])}")
+			file_name_s, jarak_all_s, direktori, semua_hasil_s, hasil_final_s, id_pengujian_update, waktu = Ekspresi_wajah.uji_ciri_sendiri(data_uji, data_latih['S'][j_s])
+
+			hasil_s = []
+			for i in range(jumlah_data):
+				h_s = {}
+				for key, value in hasil_final_s[i].items():
+					if value != 0:
+						h_s[key] = value
+				hasil_s.append(h_s)
+
+			akurasi_s = []
+			for i in range(jumlah_data):
+				a_s = {}
+				for key,value in  hasil_s[i].items():
+					if key == 'WS':
+						a_s[key] = (hasil_s[i][key]/target_akhir[i]['WT']) * 100 if target_akhir[i]['WT'] != 0 else 0
+
+				for x, y in target_akhir[i].items():
+					if x not in hasil_s[i].keys() and x != 'WT':
+						a_s[x] 	= 0
+
+				for key,value in hasil_s[i].items():
+					if key != 'WS':
+						a_s[key] = (hasil_s[i][key]/target[i][key]) * 100 if target[i][key] != 0 else 0
+				akurasi_s.append(a_s)
+
+			for i in range(jumlah_data):
+				for key, value in akurasi_s[i].items():
+					if key == 'WS':
+						jW += 1
+						aW += value
+					elif key == 'B':
+						jB += 1
+						aB += value
+					elif key == 'S':
+						jS += 1
+						aS += value
+					elif key == 'M':
+						jM += 1
+						aM += value
+					elif key == 'J':
+						jJ += 1
+						aJ += value
+					elif key == 'K':
+						jK += 1
+						aK += value
+					elif key == 'T':
+						jT += 1
+						aT += value
+					elif key == 'N':
+						jN += 1
+						aN += value
+
+			rata2_akurasi_s = {
+				'WS'		: aW/jW if jW != 0 else 0,
+				'B'			: aB/jB if jB != 0 else 0,
+				'S'			: aS/jS if jS != 0 else 0,
+				'M'			: aM/jM if jM != 0 else 0,
+				'J'			: aJ/jJ if jJ != 0 else 0,
+				'K'			: aK/jK if jK != 0 else 0,
+				'T'			: aT/jT if jT != 0 else 0,
+				'N'			: aN/jN if jN != 0 else 0
+			}
+
+			r_all_s = []
+			for i in range(jumlah_data):
+				for key, value in rata2_akurasi_s.items():
+					if key in akurasi_s[i].keys():
+						v = int(value)
+						r_all_s.append(key + '=' + str(v))
+			print(f"_____________________________________________________js = {j_s}")
+			result_s.append(r_all_s)
+
+			print(f"Akurasi s ke - {j_s} = {r_all_s}")
+			print(f"Result s  = {result_s} dan jumlah = {len(result_s)} dan tipe = {type(result_s)}")
+			print(f"Data latih sendiri ke - {j_s} selesai diuji.")
+
+
+		# Pengujian ciri OpenCV
+
+		for j_o in range(len(data_latih['O'])):
+			print(f"Jumlah data_latih ke-{j_o} = {len(data_latih['O'][j_o])}")
+			file_name_o, jarak_o, semua_hasil_o, hasil_final_o = Ekspresi_wajah.uji_ciri_opencv(data_uji, data_latih['O'][j_o], direktori, id_pengujian_update, waktu)
+
+			hasil_o = []
+			for i in range(jumlah_data):
+				h_o = {}
+				for key, value in hasil_final_o[i].items():
+					if value != 0:
+						h_o[key] = value
+				hasil_o.append(h_o)
+
+			akurasi_o = []
+			for i in range(jumlah_data):
+				a_o = {}
+				for key,value in  hasil_o[i].items():
+					a_o[key] = (hasil_o[i][key]/data_uji[i][2]) * 100 if data_uji[i][2] != 0 else 0
+				akurasi_o.append(a_o)
+
+			akurasi_o = []
+			for i in range(jumlah_data):
+				a_o = {}
+				for key,value in  hasil_o[i].items():
+					if key == 'WO':
+						a_o[key] = (hasil_o[i][key]/target_akhir[i]['WT']) * 100 if target_akhir[i]['WT'] != 0 else 0
+
+				for x, y in target_akhir[i].items():
+					if x not in hasil_o[i].keys() and x != 'WT':
+						a_o[x] 	= 0
+
+				for key,value in hasil_o[i].items():
+					if key != 'WO':
+						a_o[key] = (hasil_o[i][key]/target[i][key]) * 100 if target[i][key] != 0 else 0
+				akurasi_o.append(a_o)
+
+			for i in range(jumlah_data):
+				for key, value in akurasi_o[i].items():
+					if key == 'WO':
+						jW += 1
+						aW += value
+					elif key == 'B':
+						jB += 1
+						aB += value
+					elif key == 'S':
+						jS += 1
+						aS += value
+					elif key == 'M':
+						jM += 1
+						aM += value
+					elif key == 'J':
+						jJ += 1
+						aJ += value
+					elif key == 'K':
+						jK += 1
+						aK += value
+					elif key == 'T':
+						jT += 1
+						aT += value
+					elif key == 'N':
+						jN += 1
+						aN += value
+
+			rata2_akurasi_o = {
+				'WO'		: aW/jW if jW != 0 else 0,
+				'B'			: aB/jB if jB != 0 else 0,
+				'S'			: aS/jS if jS != 0 else 0,
+				'M'			: aM/jM if jM != 0 else 0,
+				'J'			: aJ/jJ if jJ != 0 else 0,
+				'K'			: aK/jK if jK != 0 else 0,
+				'T'			: aT/jT if jT != 0 else 0,
+				'N'			: aN/jN if jN != 0 else 0
+			}
+
+
+			r_all_o = []
+			for i in range(jumlah_data):
+				for key, value in rata2_akurasi_o.items():
+					if key in akurasi_o[i].keys():
+						v = int(value)
+						r_all_o.append(key + '=' + str(v))
+			print(f"_____________________________________________________jo = {j_o}")
+			result_o.append(r_all_o)
+
+			print(f"Akurasi s ke - {j_o} = {r_all_o}")
+			print(f"Result s  = {result_o} dan jumlah = {len(result_o)} dan tipe = {type(result_o)}")
+			print(f"Data latih sendiri ke - {j_o} selesai diuji.")
+
+		akurasi = {
+			's'			: akurasi_s,
+			'o'			: akurasi_o,
+			'rata_s'	: result_s,
+			'rata_o'	: result_o,
+			'jumlah_data_uji' : jumlah_data,
+			'jumlah_ekspresi' : len(kum_ekspresi)
+		}
+
+		print(f"Jumlah rata2 akurasi = {len(akurasi['rata_s'])}")
+		print(f"akurasi akhir s = {akurasi['rata_s']}  dan tipe = {type(akurasi['rata_s'])}")
+		print(f"akurasi akhir o = {akurasi['rata_o']}  dan tipe = {type(akurasi['rata_o'])}")
+
+		return render_template('layout.html', data = { 'view' : 'latih_uji2', 'title' : 'Pengujian dan Pelatihan'}, target = target, akurasi = akurasi, files = data_latih)
+
+
+	def hitung_jarak(data1, data2):
+		return abs(data1-data2)

@@ -1,16 +1,17 @@
 @startuml
 | Peneliti |
 start
-:Memilih menu pelatihan atau pengujian;
+:Memilih menu latih dan uji;
 | Sistem |
-:Menampilkan halaman pelatihan atau pengujian;
+:Menampilkan halaman latih dan uji;
 | Peneliti |
-:Menekan tombol pilih berkas;
+:Menekan tombol unggah berkas;
 | Sistem |
 :Menampilkan kotak dialog pencarian berkas;
 | Peneliti |
-:Memilih berkas citra yang akan dilakukan pelatihan atau pengujian;
+:Memilih berkas yang akan dilatih;
 | Sistem |
-:Melakukan deteksi wajah dengan metode Viola-Jones;
+:Melakukan deteksi wajah;
+
 stop
 @enduml

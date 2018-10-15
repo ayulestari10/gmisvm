@@ -1,0 +1,152 @@
+@startuml
+hide footbox
+title Proses Pengujian\n
+
+control Ekspresi_wajah
+control Deteksi_wajah
+control OpenCV
+control Praproses
+entity Database
+
+activate Ekspresi_wajah
+ref over Ekspresi_wajah, Database : Proses Pelatihan
+
+	Ekspresi_wajah -> Ekspresi_wajah : uji()
+	activate Ekspresi_wajah
+
+	Ekspresi_wajah -> Database : select_data_uji()
+	activate Database
+	Database --> Ekspresi_wajah : data
+	deactivate Database
+
+	loop i in range(jumlah_data)
+		Ekspresi_wajah -> Deteksi_wajah : deteksi_multi_face_sendiri(data_uji[i][0], path, data_uji[i][1])
+		activate Deteksi_wajah
+
+		Deteksi_wajah -> Deteksi_wajah : resize_image(image, nama_file, 'uji', 'uji')
+		activate Deteksi_wajah
+		Deteksi_wajah --> Deteksi_wajah : path
+		deactivate Deteksi_wajah
+
+		Deteksi_wajah -> OpenCV : deteksi(path)
+		activate OpenCV
+		OpenCV --> Deteksi_wajah : faces, img
+		deactivate OpenCV
+
+		Deteksi_wajah -> Database : select_ciri('ciri_pelatihan', 'S')
+		activate Database
+		Database --> Deteksi_wajah : kumpulan_ciri
+
+		Deteksi_wajah -> Database : select_kelas('ciri_pelatihan', 'S')
+		Database --> Deteksi_wajah : kumpulan_kelas
+
+		loop kelas_s in kumpulan_kelas_s
+			Deteksi_wajah -> Database : select_avg('ciri_pelatihan', kelas_s)
+			Database --> Deteksi_wajah : data_rata_rata
+			deactivate Database
+		end
+
+		loop i, f in enumerate(faces)
+			Ekspresi_wajah -> Praproses : biner(path_wajah)
+			activate Praproses
+			Praproses --> Ekspresi_wajah : img_biner
+			deactivate Praproses
+
+			create control GMI
+			Ekspresi_wajah -> GMI : <<GMI(sub_face)>>
+			activate GMI
+			GMI -> GMI : hitungMomenNormalisasi()
+			GMI -> GMI : hitungCiri()
+			GMI --> Ekspresi_wajah : ciri
+			deactivate GMI
+
+			create control Klasifikasi
+			Deteksi_wajah -> Klasifikasi : <<Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)>>
+			activate Klasifikasi
+			Deteksi_wajah -> Klasifikasi : kl_s.classify([ciri])
+			Klasifikasi --> Deteksi_wajah : ekspresi
+			deactivate Klasifikasi
+
+			Deteksi_wajah -> Database : insert_ciri('ciri_pengujian', ciri, 'S')
+			activate Database
+			Deteksi_wajah -> Database : select_first_row()
+			Database --> Deteksi_wajah : data
+			Deteksi_wajah -> Database : insert_pengujian(data_pengujian)
+			Deteksi_wajah -> Database : select_pengujian_first_row()
+			Database --> Deteksi_wajah : data_pengujian
+		end
+
+		Deteksi_wajah -> Database : select_hasil('hasil_sendiri', id_file, waktu_s)
+		Database --> Deteksi_wajah : data_hasil
+		Deteksi_wajah -> Database : insert_hasil(hasil_all_s)
+		deactivate Database
+
+		Deteksi_wajah --> Ekspresi_wajah : file_name_s, jarak_all_s, directory, hasil_all_s, id_pengujian_update 
+
+	
+
+
+
+		Ekspresi_wajah -> Deteksi_wajah : deteksi_multi_face_opencv(data_uji[i][0], path, data_uji[i][1], direktori, id_pengujian_update)
+
+		Deteksi_wajah -> Deteksi_wajah : resize_image(image, nama_file, 'uji', 'uji')
+		activate Deteksi_wajah
+		Deteksi_wajah --> Deteksi_wajah : path
+		deactivate Deteksi_wajah
+
+		Deteksi_wajah -> OpenCV : deteksi(path)
+		activate OpenCV
+		OpenCV --> Deteksi_wajah : faces, img
+		deactivate OpenCV
+
+		Deteksi_wajah -> Database : select_ciri('ciri_pelatihan', 'O')
+		activate Database
+		Database --> Deteksi_wajah : kumpulan_ciri
+
+		Deteksi_wajah -> Database : select_kelas('ciri_pelatihan', 'O')
+		Database --> Deteksi_wajah : kumpulan_kelas
+
+		loop kelas_o in kumpulan_kelas_o
+			Deteksi_wajah -> Database : select_avg('ciri_pelatihan', kelas_o)
+			Database --> Deteksi_wajah : data_rata_rata
+			deactivate Database
+		end
+
+		loop i, f in enumerate(faces)
+			Ekspresi_wajah -> Praproses : biner(path_wajah)
+			activate Praproses
+			Praproses --> Ekspresi_wajah : img_biner
+			deactivate Praproses
+
+			Ekspresi_wajah -> OpenCV : gmi_OpenCV(sub_face)
+			activate OpenCV
+			OpenCV --> Ekspresi_wajah : ciricv
+			deactivate OpenCV
+
+			create control Klasifikasi
+			Deteksi_wajah -> Klasifikasi : <<Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)>>
+			activate Klasifikasi
+			Deteksi_wajah -> Klasifikasi : kl_o.classify([ciri])
+			Klasifikasi --> Deteksi_wajah : ekspresi
+			deactivate Klasifikasi
+
+			Deteksi_wajah -> Database : insert_ciri('ciri_pengujian', ciri, 'O')
+			activate Database
+			Deteksi_wajah -> Database : select_first_row()
+			Database --> Deteksi_wajah : data
+
+			Deteksi_wajah -> Database : update_pengujian(data_pengujian)
+		end
+
+		Deteksi_wajah -> Database : select_hasil('hasil_sendiri', id_file, waktu_o)
+		Database --> Deteksi_wajah : data_hasil
+		Deteksi_wajah -> Database : insert_hasil(hasil_all_o)
+		deactivate Database
+
+		Deteksi_wajah --> Ekspresi_wajah : file_name_o, jarak_all_o, hasil_all_o
+	
+		deactivate Deteksi_wajah
+		deactivate Ekspresi_wajah
+	end
+
+@enduml

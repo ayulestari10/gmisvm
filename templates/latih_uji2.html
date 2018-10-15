@@ -70,100 +70,47 @@
 						<table class="table table-bordered" style="text-align: center;">
 							<thead class="thead-light">
 								<tr>
-									<th rowspan="2">No</th>
-									<th rowspan="2">File Name</th>
-									<th rowspan="2">Thumbnail <br> Kode Sendiri </th>
-									<th rowspan="2">Target</th>
-									<th colspan="2">Hasil</th>
-									<th colspan="2">Akurasi</th>
-									<th colspan="2">Jarak</th>
-									<th rowspan="2">Aksi</th>
+									<th rowspan="2" style="width: 50px !important;">No</th>
+									<th colspan="3">Jumlah</th>
+									<th colspan="2">Rata-Rata</th>
 								</tr>
 								<tr>
-									<th>Kode Sendiri</th>
-									<th>OpenCV</th>
-									<th>Kode Sendiri</th>
-									<th>OpenCV</th>
-									<th>Kode Sendiri</th>
-									<th>OpenCV</th>
+									<th style="width: 100px;">Data <br>Latih</th>
+									<th style="width: 100px;">Data <br>Uji</th>
+									<th style="width: 100px;">Ekspresi</th>
+									<th>Akurasi Sendiri</th>
+									<th>Akurasi OpenCV</th> 
 								</tr>
 							</thead>
 							<tbody>
-								{% for i in range(files['jumlah_data']) %}
-									<tr style="text-align: left;">
+								{% set jumlah_uji = files['S']|length %}
+								{% for i in range(jumlah_uji) %}
+									<tr>
 										<td>{{ i + 1 }}</td>
-										<td>{{ files['data_uji'][i][1] }}</td>
-										<td style="width: 100px;  max-height: 100px !important;">
-											<div class="gallery-block cards-gallery">
-												<div class="card border-0 transform-on-hover" style="max-height: 100px !important;">
-								                	<a class="lightbox" href="{{ url_for('static', filename='data/latih_uji/' + files['file_s'][i]) }}">
-								                		<img src="{{ url_for('static', filename='data/latih_uji/' + files['file_s'][i]) }}" alt="Gambar {{ files['file_s'][i] }}" class="card-img-top">
-								                	</a>
-								                </div>
-											</div>
+										<td>
+											{% set files = files['S'][i]|length %}
+											{{ files }}
+										</td>
+										<td>
+											{{ akurasi['jumlah_data_uji'] }}
+										</td> 
+										<td>
+											{{ akurasi['jumlah_ekspresi'] }}
 										</td>  
 										<td>
-											{% for key, value in target[i].items(): %}
-												{% if value != 0: %}
-													{{ key + '=' + value|string}}</br>
-												{% endif %}
+											{% set jumlah_akurasi_s = akurasi['rata_s'][i]|length %}
+											{% for x in range(jumlah_akurasi_s): %}
+											{{ akurasi['rata_s'][i][x]|string + '%' }} <br>
 											{% endfor %}
 										</td>
 										<td>
-											{% for key, value in semua_hasil_s[i].items(): %}
-												{% if value != 0: %}
-													{{ key + '=' + value|string}}</br>
-												{% endif %}
+											{% set jumlah_akurasi_o = akurasi['rata_o'][i]|length %}
+											{% for y in range(jumlah_akurasi_o): %}
+											{{ akurasi['rata_o'][i][y]|string + '%' }} <br>
 											{% endfor %}
 										</td>
-										<td>
-											{% for key, value in semua_hasil_o[i].items(): %}
-												{% if value != 0: %}
-													{{ key + '=' + value|string}}</br>
-												{% endif %}
-											{% endfor %}
-										</td>
-										<td>
-											{% for key, value in akurasi['s'][i].items(): %}
-												{{ key + '=' + value|int|string + '%'}}</br>
-											{% endfor %}
-										</td>
-										<td>
-											{% for key, value in akurasi['o'][i].items(): %}
-												{{ key + '=' + value|int|string + '%'}}</br>
-											{% endfor %}
-										</td>
-										<td>
-											W1 = 0.01</br>
-											W2 = 0.0031</br>
-											W3 = 0.0131</br>
-											W4 = 0.0111</br>
-										</td>
-										<td>
-											W1 = 0.01</br>
-											W2 = 0.0031</br>
-											W3 = 0.0131</br>
-											W4 = 0.0111</br>
-										</td>
-										<td>
-											<a href="http://localhost:5000/ekspresi-wajah/hasil_detail/{{ files['data_uji'][i][0] }}/{{ waktu[i] }}" class="btn btn-primary"><i class="fa fa-info"></i> DETAIL</a>
-										</td> 
 									</tr>
 								{% endfor %}
-									<tr>
-										<td colspan="6" style="font-weight: bolder;">Rata-Rata</td>
-										<td>
-											{% for x in akurasi['rata_s']: %}
-											{{ x|string + '%' }} <br>
-											{% endfor %}
-										</td>
-										<td>
-											{% for x in akurasi['rata_o']: %}
-											{{ x|string + '%' }} <br>
-											{% endfor %}
-										</td>
-										<td colspan="3"></td>
-									</tr>
 							</tbody>
 						</table>
 					</div>
