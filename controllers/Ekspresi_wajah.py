@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, abort,  render_template, request, flash, redirect, url_for
+from flask import Flask, Blueprint, abort,  render_template, request, flash, redirect, url_for, session
 from PIL import Image
 from jinja2 import TemplateNotFound
 import numpy as np
@@ -7,6 +7,7 @@ from time import gmtime, strftime
 import os
 from werkzeug.utils import secure_filename
 import cv2
+import time
 
 from libs.Deteksi_wajah import Deteksi_wajah
 from libs.GMI import GMI
@@ -235,7 +236,14 @@ class Ekspresi_wajah:
 		dir1 		= os.listdir('data/'+ ket +'/' + direktori)
 		cwd 		= os.getcwd()
 
+		waktu_mulai 			= time.time()
+		session['waktu_mulai'] 	= waktu_mulai
+		session['waktu_latih'] 	= waktu_mulai
+		session['durasi'] = 0
+
+
 		for i in range(len(dir1)):
+
 
 			dir2			= os.listdir('data/'+ ket +'/' + direktori + '/') [i]
 			jenis_kelas	 	= dir1[i]
@@ -263,11 +271,28 @@ class Ekspresi_wajah:
 				ciricv 		= Ekspresi_wajah.OC.gmi_OpenCV(piksel_biner)
 				Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciricv, 'O')
 
+				session['durasi'] = time.time() - waktu_mulai
+
+				## cek apakah durasi lebih dari 25 menit
+
+				## berak
+
+			## cek apakah durasi lebih dari 25 menit
+
+			## berak
+
+		waktu_selesai 			= time.time()
+		session['waktu_latih'] = waktu_selesai - waktu_mulai 
+
 		return True
 
 
 	def uji():
-		
+		session['file_teruji'] = []
+		session['waktu_sekarang'] = 0
+		session['waktu_uji'] = 0
+
+
 		jarak_s 		= {}
 		jarak_o 		= {}
 		jarak 			= {}
@@ -279,12 +304,12 @@ class Ekspresi_wajah:
 		target 			= []
 		data_uji 		= Ekspresi_wajah.Db.select_data_uji()
 		jumlah_data 	= len(data_uji)
-		print(f"Jumlah data uji = {jumlah_data}")
+		# print(f"Jumlah data uji = {jumlah_data}")
 		waktu 			= []
 		
 		file_name_s, jarak_all_s, direktori, semua_hasil_s, hasil_final_s, id_pengujian_update, waktu = Ekspresi_wajah.uji_ciri_sendiri(data_uji, 0)
 
-		print(f"id_pengujian_update = {id_pengujian_update} dan jumlah = {len(id_pengujian_update)}")
+		# print(f"id_pengujian_update = {id_pengujian_update} dan jumlah = {len(id_pengujian_update)}")
 		
 		file_name_o, jarak_o, semua_hasil_o, hasil_final_o = Ekspresi_wajah.uji_ciri_opencv(data_uji, 0, direktori, id_pengujian_update, waktu)
 
@@ -493,6 +518,10 @@ class Ekspresi_wajah:
 			'rata_s'	: set(r_all_s),
 			'rata_o'	: set(r_all_o)
 		}
+
+		print(f"Total waktu pelatihan: {round(session['waktu_latih'], 2)}s")
+		print(f"Total waktu pengujian: {round(session['waktu_uji'], 2)}s")
+		print(f"Total waktu: {round(session['waktu_latih'] + session['waktu_uji'], 2)}s")
 
 		return jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi
 
@@ -756,8 +785,14 @@ class Ekspresi_wajah:
 		cwd				= os.getcwd()
 		dirr 			= cwd + '\\data\\uji\\'
 
+		waktu_mulai = time.time()
+
 		# lakukan sebanyak data uji
 		for j in range(len(data_uji)):
+			file_teruji = session['file_teruji']
+			file_teruji.append(data_uji[j])
+			session['file_teruji'] = file_teruji
+
 			waktu_s 		= strftime("%Y-%m-%d_%H-%M-%S")
 
 			id_file 	= data_uji[j][0]
@@ -806,7 +841,7 @@ class Ekspresi_wajah:
 					'hasil_sendiri'			: ekspresi_s,
 					'direktori'				: direktori
 				}
-				print(f"Data pengujian s = {data_pengujian}")
+				# print(f"Data pengujian s = {data_pengujian}")
 				pengujian = Ekspresi_wajah.Db.insert_pengujian(data_pengujian)
 				select_pengujian = Ekspresi_wajah.Db.select_pengujian_first_row()
 				id_pengujian_update.append(select_pengujian[0][0])
@@ -897,6 +932,22 @@ class Ekspresi_wajah:
 				'N'		: semua_hasil_s['natural']
 			})
 
+			waktu_loop = time.time()
+			print(f"Jumlah file teruji: {len(file_teruji)}")
+			waktu_sekarang = session['waktu_sekarang'] + (waktu_loop - waktu_mulai)
+			print(f"Waktu sekarang: {round(waktu_sekarang, 2)}s")
+			
+			waktu_pelatihan = session['waktu_latih']
+			session['waktu_sekarang'] = waktu_sekarang
+
+			## cek waktu_sekarang + waktu pelatihan apakah lebih dari 30 menit
+
+			##
+
+		waktu_selesai = time.time()
+		durasi = waktu_selesai - waktu_mulai
+		session['waktu_uji'] = durasi if session['waktu_uji'] is None else (session['waktu_uji'] + durasi)
+
 		return file_name_s, jarak_all_s, dir_s, semua_hasil_s, hasil_final_s, id_pengujian_update, waktu
 
 
@@ -923,6 +974,8 @@ class Ekspresi_wajah:
 		Ekspresi_wajah.waktu_o 		= strftime("%Y-%m-%d_%H-%M-%S")
 		cwd				= os.getcwd()
 		dirr 			= cwd + '\\data\\uji\\'
+
+		waktu_mulai = time.time()
 
 		# lakukan sebanyak data uji
 		for j in range(len(data_uji)):
@@ -969,7 +1022,7 @@ class Ekspresi_wajah:
 					'id_pengujian'			: id_pengujian_update[0]
 				}
 				pengujian = Ekspresi_wajah.Db.update_pengujian(data_pengujian)
-				print(f"hasil data_pengujian o = {data_pengujian} dan tipe = {type(data_pengujian)}")
+				# print(f"hasil data_pengujian o = {data_pengujian} dan tipe = {type(data_pengujian)}")
 
 				# hapus id_pengujian_update yang telah terupdate
 				del id_pengujian_update[0]
@@ -1055,6 +1108,32 @@ class Ekspresi_wajah:
 				'T'		: semua_hasil_o['takut'],
 				'N'		: semua_hasil_o['natural']
 			})
+
+			file_teruji = session['file_teruji']
+			file_teruji.append(data_uji[j])
+			session['file_teruji'] = file_teruji
+
+			waktu_loop = time.time()
+			print(f"Jumlah file teruji: {len(file_teruji)}")
+			waktu_sekarang = session['waktu_sekarang'] + (waktu_loop - waktu_mulai)
+			print(f"Waktu sekarang: {round(waktu_sekarang, 2)}s")
+			
+			## btw waktu_sekarang == durasi_pengujian loch
+
+			waktu_pelatihan = session['waktu_latih']
+			session['waktu_sekarang'] = waktu_sekarang
+
+			## cek int(waktu_sekarang) % 60 * 5
+
+			## print(len(file_teruji))
+
+			## cek waktu_sekarang + waktu pelatihan apakah lebih dari 30 menit
+			
+			##
+
+		waktu_selesai = time.time()
+		durasi = waktu_selesai - waktu_mulai
+		session['waktu_uji'] = durasi if session['waktu_uji'] is None else (session['waktu_uji'] + durasi)
 
 		return file_name_o, jarak_all_o, semua_hasil_o, hasil_final_o
 
@@ -1355,6 +1434,9 @@ class Ekspresi_wajah:
 
 		return render_template('layout.html', data = { 'view' : 'latih_uji2', 'title' : 'Pengujian dan Pelatihan'}, target = target, akurasi = akurasi, files = data_latih)
 
+
+	def uji_dengan_waktu(data_waktu):
+		return render_template('layout.html', data = { 'view' : 'uji_dengan_waktu', 'title' : 'Hasil Pengujian dan Pelatihan'}, data_waktu = data_waktu)
 
 	def hitung_jarak(data1, data2):
 		return abs(data1-data2)
