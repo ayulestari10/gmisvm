@@ -15,4 +15,5 @@ class Praproses:
 		grayscale 	= Image.fromarray(im)
 		threshold 	= 256 / 2
 		img_biner 	= grayscale.point(lambda p: p > threshold and 255)
-		return np.array(img_biner)
+		img_biner 	= np.array(img_biner)
+		return img_biner

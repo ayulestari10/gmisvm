@@ -12,15 +12,17 @@
 			</div>
 
 			<div class="row">
+				
+			
+			<div class="row" style="margin-top: 2%;">
 				<div class="col-md-12 heading">
 					<h3><strong>Daftar Waktu dan Data Pelatihan dan Pengujian</strong></h3>
 				</div>
-			</div>
-			
-			<div class="row" style="margin-top: 2%;">
+
 				<div class="col-md-12">
 					<table class="table table-bordered" style="text-align: center;">
 						<thead class="thead-light">
+							<tr>Hasil Waktu dan Data Pelatihan</tr>
 							<tr>
 								<th>No</th>
 								<th>Waktu</th>
@@ -28,11 +30,42 @@
 							</tr>
 						</thead>
 						<tbody>
+							{% set jumlah_latih = latih|length %}
+							{% if jumlah_latih != 0 %}
+								{% for i in range(jumlah_latih): %}
+									{% for key, value in latih[i].items(): %}
+										<tr>
+											<td>{{ key }}</td>
+											<td>{{ str(value) }}</td>
+										</tr>
+									{% endfor %}
+								{% endfor %}
+							{% endif %}
+						</tbody>
+					</table>
+				</div>
+				<div class="col-md-12">
+					<table class="table table-bordered" style="text-align: center;">
+						<thead class="thead-light">
+							<tr>Hasil Waktu dan Data Pengujian</tr>
 							<tr>
-								<td></td>
-								<td></td>
-								<td></td>
+								<th>No</th>
+								<th>Waktu</th>
+								<th>Jumlah Data</th>
 							</tr>
+						</thead>
+						<tbody>
+							{% set jumlah_uji = uji|length %}
+							{% if jumlah_uji != 0 %}
+								{% for i in range(jumlah_uji): %}
+									{% for key, value in uji[i].items(): %}
+										<tr>
+											<td>{{ key }}</td>
+											<td>{{ str(value) }}</td>
+										</tr>
+									{% endfor %}
+								{% endfor %}
+							{% endif %}
 						</tbody>
 					</table>
 				</div>

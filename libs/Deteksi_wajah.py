@@ -217,7 +217,6 @@ class Deteksi_wajah:
 	def deteksi(self, ket, path, dir1, dir2):
 
 		faces, img = Deteksi_wajah.OC.deteksi(path)
-		global path_wajah
 		
 		for f in faces:
 			x, y, w, h 		= [v for v in f]

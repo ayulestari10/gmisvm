@@ -73,6 +73,22 @@
 				</div>
 				
 				<div class="row" style="margin-top: 2%;">
+					<ul class="nav nav-tabs">
+					  	<li class="nav-item">
+					    	<a class="nav-link active" href="#hasil" id="lihat_hasil">Hasil</a>
+					  	</li>
+
+						{% set jumlah_latih = hasil_waktu_latih['latih']|length %}
+						{% set jumlah_uji = hasil_waktu_uji['uji']|length %}
+						{% if jumlah_latih != 0 or jumlah_uji !=0 %}
+						  	<li class="nav-item">
+						    	<a class="nav-link" href="#" id="lihat_waktu_dan_data">Waktu dan Data</a>
+						  	</li>
+						{% endif %}
+					</ul>
+				</div>
+
+				<div class="row" id="hasil" style="margin-top: 2%;">
 					<div class="col-md-12">
 						<table class="table table-bordered" style="text-align: center;">
 							<thead class="thead-light">
@@ -175,6 +191,66 @@
 						</table>
 					</div>
 				</div>
+
+				<div class="row" style="margin-top: 2%; margin-bottom: 3%;" id="waktu_dan_data">
+					<div class="col-md-12 heading">
+						<h4><strong>Daftar Waktu dan Data Pelatihan dan Pengujian</strong></h4>
+					</div>
+
+					{% if jumlah_latih != 0 %}
+					<div class="col-md-12">
+						<table class="table table-bordered" style="text-align: center;">
+							<thead class="thead-light">
+								<tr><th colspan="3">Hasil Waktu dan Data Pelatihan</th></tr>
+								<tr>
+									<th>No</th>
+									<th>Waktu</th>
+									<th>Jumlah Data</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for i in range(jumlah_latih): %}
+									{% for key, value in hasil_waktu_latih['latih'][i].items(): %}
+										<tr>
+											<td>{{ i+1 }}</td>
+											<td>{{ key }}</td>
+											<td>{{ value }}</td>
+										</tr>
+									{% endfor %}
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					{% endif %}
+
+					{% if jumlah_uji != 0 %}
+						<div class="col-md-12" style="margin-top: 3%;">
+							<table class="table table-bordered" style="text-align: center;">
+								<thead class="thead-light">
+									<tr>
+										<th colspan="3">Hasil Waktu dan Data Pengujian</th>
+									</tr>
+									<tr>
+										<th>No</th>
+										<th>Waktu</th>
+										<th>Jumlah Data</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for i in range(jumlah_uji): %}
+										{% for key, value in hasil_waktu_uji['uji'][i].items(): %}
+											<tr>
+												<td>{{ key }}</td>
+												<td>{{ value }}</td>
+											</tr>
+										{% endfor %}
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% endif %}
+				</div>
+
 			{% endif %}
 		</div>
 	</div>
@@ -184,6 +260,27 @@
 	var UI;
 	window.onload = function() {
 		$(document).ready(function() {
+			$('#waktu_dan_data').hide();
+			
+			$('#lihat_waktu_dan_data').click(function(){
+				$('.nav-link').each(function() {
+					$(this).removeClass('active');
+				});
+				$(this).addClass('active');
+			    $('#hasil').hide();
+				$('#waktu_dan_data').show();
+
+			});
+
+			$('#lihat_hasil').click(function(){
+				$('.nav-link').each(function() {
+					$(this).removeClass('active');
+				});
+				$(this).addClass('active');
+			    $('#waktu_dan_data').hide();
+				$('#hasil').show();
+
+			});
 
 			UI = {
 				latih_uji: function() {

@@ -31,7 +31,7 @@ activate Ekspresi_wajah
 				activate OpenCV
 				OpenCV --> Deteksi_wajah : faces, img
 				deactivate OpenCV
-				Deteksi_wajah --> Ekspresi_wajah : face_file_name
+				Deteksi_wajah --> Ekspresi_wajah : path_wajah
 				deactivate Deteksi_wajah
 
 				Ekspresi_wajah -> Praproses : biner(berkas_citra)
@@ -58,7 +58,7 @@ activate Ekspresi_wajah
 				activate Database
 				deactivate Database
 
-				Ekspresi_wajah --> Ekspresi_wajah : True
+				Ekspresi_wajah --> Ekspresi_wajah : hasil_waktu_latih
 			end
 			deactivate Ekspresi_wajah
 		end

@@ -130,7 +130,6 @@ class Database:
 			self.cur.execute("SELECT * FROM pengujian WHERE id_file = '" + str(id_file) + "' AND waktu = '" + waktu + "'")
 			self.db.commit()
 			data = self.cur.fetchall()
-			print(f"Data cantik = {data}")
 			return data
 		except:
 			print("Error select pengujian")
@@ -186,6 +185,17 @@ class Database:
 			return data
 		except:
 			print("Error select sejumlah data uji")
+			return None
+
+	def select_data_jarak(self, id_ciri_pengujian):
+		try:
+			self.cur.execute("SELECT * FROM jarak WHERE id_ciri_pengujian = " + str(id_ciri_pengujian))
+			self.db.commit()
+			data = self.cur.fetchall()
+			data2 = np.array(data)
+			return data2[:, 2:]
+		except:
+			print("Error select data jarak")
 			return None
 
 
