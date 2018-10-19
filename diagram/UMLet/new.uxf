@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>8</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>184</x>
+      <y>72</y>
+      <w>544</w>
+      <h>232</h>
+    </coordinates>
+    <panel_attributes>Ekspresi_wajah
+--
+- page : Blueprint
+- base : string
+- Db : Database
+- Dw : Deteksi_wajah
+- pra : Praproses
+- OC : OpenCV
+- rectColor : dictionary
+--
+- latih_uji() : function
+- latih(files: string, ket: string, direktori: string) : dictionary
+- uji() : tuple
+- uji_ciri_sendiri(data_uji: tuple, data_latih: list) : tuple
+- uji_ciri_opencv(data_uji: tuple, data_latih: list, direktori: list, id_pengujian_update : list, waktu: list) : tuple
+- ambil_data_latih(data_latih: list) : tuple
+- hasil_detail(id_file: string, waktu: string) : function
+- hitung_jarak(data1: double, data2: double) : double</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

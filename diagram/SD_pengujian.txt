@@ -22,7 +22,7 @@ ref over Ekspresi_wajah, Database : Proses Pelatihan
 	Ekspresi_wajah -> Ekspresi_wajah : uji_ciri_sendiri(data_uji, 0)
 	activate Ekspresi_wajah
 
-	alt data_latih == 0
+	alt len(data_latih) == 0
 		Ekspresi_wajah -> Database : select_ciri('ciri_pelatihan', 'S')
 		activate Database
 		Database --> Ekspresi_wajah : kumpulan_ciri
@@ -94,7 +94,7 @@ ref over Ekspresi_wajah, Database : Proses Pelatihan
 			Database --> Ekspresi_wajah : data_pengujian
 			deactivate Database
 
-			opt if data_latih == 0
+			opt len(data_latih) == 0
 				loop for b in range(7)
 					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_s['bahagia'][b])
 					activate Ekspresi_wajah

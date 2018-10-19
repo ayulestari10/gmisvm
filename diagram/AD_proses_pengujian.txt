@@ -27,6 +27,9 @@ start
 :Melakukan ekstraksi ciri wajah dengan Geometric Moment Invariants;
 | Sistem |
 :Melakukan klasifikasi ekspresi wajah;
+| Sistem |
+:Menampilkan hasil pengujian;
+
 
 stop
 @enduml

@@ -16,7 +16,7 @@ activate Ekspresi_wajah
 	Ekspresi_wajah -> Ekspresi_wajah : uji_ciri_opencv(data_uji, 0, direktori, id_pengujian_update, waktu)
 	activate Ekspresi_wajah
 
-	alt data_latih == 0
+	alt len(data_latih) == 0
 		Ekspresi_wajah -> Database : select_ciri('ciri_pelatihan', 'O')
 		activate Database
 		Database --> Ekspresi_wajah : kumpulan_ciri
@@ -79,7 +79,7 @@ activate Ekspresi_wajah
 			Ekspresi_wajah -> Database : update_pengujian(data_pengujian)
 			deactivate Database
 
-			opt if data_latih == 0
+			opt len(data_latih) == 0
 				loop for b in range(7)
 					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_o['bahagia'][b])
 					activate Ekspresi_wajah

@@ -1,17 +1,26 @@
 @startuml
 | Peneliti |
 start
+
 :Memilih menu latih dan uji;
 | Sistem |
 :Menampilkan halaman latih dan uji;
 | Peneliti |
-:Menekan tombol unggah berkas;
+:Menekan tombol pada unggah data;
 | Sistem |
 :Menampilkan kotak dialog pencarian berkas;
 | Peneliti |
-:Memilih berkas yang akan dilatih;
+:Memilih berkas citra yang akan dilakukan pelatihan;
 | Sistem |
-:Melakukan deteksi wajah;
+:Melakukan deteksi wajah pada data latih;
+| Sistem |
+:Melakukan praproses wajah;
+| Sistem |
+:Melakukan ekstraksi ciri wajah dengan Geometric Moment Invariants;
+| Sistem |
+:Menyimpan kumpulan ciri dan kelasnya ke dalam database;
+| Sistem |
+:Melakukan deteksi wajah pada data uji;
 
 stop
 @enduml
