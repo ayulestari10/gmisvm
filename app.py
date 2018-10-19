@@ -14,18 +14,10 @@ import json
 
 
 from controllers.Ekspresi_wajah import Ekspresi_wajah
-from libs.Deteksi_wajah import Deteksi_wajah
-from libs.Praproses import Praproses
-from libs.GMI import GMI
-from libs.Klasifikasi import Klasifikasi
 # from models.Database import Database
 
 app = Flask(__name__)
 app.register_blueprint(Ekspresi_wajah.page)
-app.register_blueprint(Deteksi_wajah.page)
-app.register_blueprint(Praproses.page)
-app.register_blueprint(GMI.page)
-app.register_blueprint(Klasifikasi.page)
 
 
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'

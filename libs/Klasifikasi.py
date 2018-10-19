@@ -1,11 +1,7 @@
-from flask import Flask, Blueprint, abort
 from sklearn.svm import SVC, LinearSVC
 from sklearn.preprocessing import LabelEncoder
 
 class Klasifikasi:
-
-	page = Blueprint('Klasifikasi_page', __name__, template_folder = 'templates')
-	base = '/klasifikasi'
 
 	def __init__(self, ciri, kelas):
 		self.encoder = LabelEncoder()

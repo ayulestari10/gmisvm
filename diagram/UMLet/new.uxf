@@ -4,8 +4,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>184</x>
-      <y>72</y>
+      <x>192</x>
+      <y>0</y>
       <w>544</w>
       <h>232</h>
     </coordinates>
@@ -26,7 +26,143 @@
 - uji_ciri_opencv(data_uji: tuple, data_latih: list, direktori: list, id_pengujian_update : list, waktu: list) : tuple
 - ambil_data_latih(data_latih: list) : tuple
 - hasil_detail(id_file: string, waktu: string) : function
-- hitung_jarak(data1: double, data2: double) : double</panel_attributes>
+- hitung_jarak(data1: float, data2: float) : float</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>256</y>
+      <w>432</w>
+      <h>88</h>
+    </coordinates>
+    <panel_attributes>Deteksi_wajah
+--
+- OC : OpenCV
+--
+- resize_image(image: string, file_name: string, direktori: string, dir2: string) : string
+- deteksi(ket: string, path: string, dir1: string, dir2: string) : string
+- deteksi_multi_face(path: string, nama_file: string, ket: string) : tuple
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>400</y>
+      <w>232</w>
+      <h>280</h>
+    </coordinates>
+    <panel_attributes>GMI
+--
+- matrix : array
+- mt20 : float
+- mt02 : float
+- mt11 : float
+- mt30 : float
+- mt12 : float
+- mt21 : float
+- mt03 : float
+- xbar : function
+- ybar : function
+--
+- __init__(img : array) : void
+- hitungMomen(p: int, q: int) : float
+- hitungMomenPusat(p: int, q: int) : float
+- x_bar() : float
+- y_bar() : float
+- momenNormalisasi(p: int, q: int) : float
+- gamma(p: int, q: int) : float
+- hitungMomenNormalisasi() : void
+- hitungCiri() : array
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>256</x>
+      <y>520</y>
+      <w>448</w>
+      <h>296</h>
+    </coordinates>
+    <panel_attributes>Database
+--
+- db: MySQLdb
+- cur: cursor
+--
+- __init__(hostname: string, username: string, password: string, database: string)
+- select_kelas(table: string, ket: string) : array
+- select_ciri(table: string, ket: string) : array
+- insert_ciri(table: string, ciri: array, ket: string): void
+- insert_ciri_pelatihan(table: string, kelas: string, ciri: array, ket: string): void
+- insert_pengujian(data: dictionary): void
+- update_pengujian(data : dictionary): void
+- insert_jarak_ciri(id_ciri_pengujian: string, kelas: string, data: list) : void
+- select_hasil(col: string, id_file: int, waktu: string) : tuple
+- insert_hasil(data : dictionary) : void
+- select_data_uji() : tuple
+- select_data_pengujian(id_file: int, waktu: string) : tuple
+- select_ciri_pengujian(id_ciri_pengujian: int, ket: string) : array
+- select_pengujian_first_row() : tuple
+- select_sejumlah_data_latih(ket: string, kelas: string, jumlah: int) : tuple
+- select_data_jarak(id_ciri_pengujian: int) : array
+- select_first_row() : tuple
+- select_avg(table: string, kelas: string) : tuple
+
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>472</x>
+      <y>256</y>
+      <w>168</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>Praproses
+--
+
+--
+- biner(img: string) : array</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>280</x>
+      <y>400</y>
+      <w>216</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>OpenCV
+--
+- face_cascade : CascadeClassifier
+--
+- __init__(): void
+- deteksi(path: string): tuple
+- gmi_OpenCV(piksel_biner: array): array
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>552</x>
+      <y>344</y>
+      <w>176</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>Klasifikasi
+--
+- encoder : LabelEncoder
+- clf : LinearSVC
+--
+- classify(ciri: array) : string</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>
