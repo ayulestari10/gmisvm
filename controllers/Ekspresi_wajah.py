@@ -73,8 +73,9 @@ class Ekspresi_wajah:
 
 			print(f"Tipe file = {type(files)}")
 
-			hasil_waktu_latih = Ekspresi_wajah.latih(, 'latih_uji', direktori)
+			hasil_waktu_latih = Ekspresi_wajah.latih(files, 'latih_uji', direktori)
 			jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi, hasil_waktu_uji = Ekspresi_wajah.uji()
+			flash('Data berhasil dilatih dan uji', category='latih_uji1')
 
 		return Ekspresi_wajah.RT.tampilan_latih_uji(jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi, hasil_waktu_uji, hasil_waktu_latih) 
 
@@ -135,12 +136,12 @@ class Ekspresi_wajah:
 				## cek apakah durasi lebih dari 30 menit
 
 				if session['durasi'] >= (60 * 30):
-					flash('Waktu pelatihan telah mencapai 30 menit, proses dihentikan!')
+					flash('Waktu pelatihan telah mencapai 30 menit, proses dihentikan!', category='latih_uji1')
 					break;
 
 			## cek apakah durasi lebih dari 30 menit
 			if session['durasi'] >= (60 * 30):
-				flash('Waktu pelatihan telah mencapai 30 menit, proses dihentikan!')
+				flash('Waktu pelatihan telah mencapai 30 menit, proses dihentikan!', category='latih_uji1')
 				break;
 
 		waktu_selesai 			= time.time()
@@ -453,7 +454,6 @@ class Ekspresi_wajah:
 				gmi 		= GMI(sub_face) 
 				gmi.hitungMomenNormalisasi()
 				ciri 		= gmi.hitungCiri()
-				print(f"Tipe ciri = {type(ciri)}")
 				
 				# Klasifikasi Ekspresi Wajah
 				kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)			
@@ -475,7 +475,6 @@ class Ekspresi_wajah:
 					'hasil_sendiri'			: ekspresi_s,
 					'direktori'				: direktori
 				}
-				# print(f"Data pengujian s = {data_pengujian}")
 				pengujian = Ekspresi_wajah.Db.insert_pengujian(data_pengujian)
 				select_pengujian = Ekspresi_wajah.Db.select_pengujian_first_row()
 				id_pengujian_update.append(select_pengujian[0][0])
@@ -581,7 +580,7 @@ class Ekspresi_wajah:
 			## cek waktu_sekarang + waktu pelatihan apakah lebih dari 30 menit
 
 			if session['waktu_sekarang'] + waktu_pelatihan >= 1800:
-				flash('Waktu pelatihan telah mencapai 30 menit, proses dihentikan!')
+				flash('Waktu pelatihan telah mencapai 30 menit, proses dihentikan!', category='latih_uji1')
 				break;
 
 		waktu_selesai = time.time()
@@ -593,6 +592,8 @@ class Ekspresi_wajah:
 
 
 	def uji_ciri_opencv(data_uji, data_latih, direktori, id_pengujian_update, waktu):
+		print(f"ID PENGUJIAN WOY = {id_pengujian_update} DAN JUMLAH = {len(id_pengujian_update)} dan tipe = {type(id_pengujian_update)}")
+
 		jarak_all_o 		= []
 		file_name_o 		= []
 		hasil_final_o 		= []
@@ -818,8 +819,6 @@ class Ekspresi_wajah:
 		for i in range(jumlah_wajah):
 			hasil_s.append(data_pengujian[i][5])
 			hasil_o.append(data_pengujian[i][6])
-
-		print(f"HASIL S = {hasil_s} dan jumlah = {len(hasil_s)} dan tipe = {type(hasil_s)}")
 
 		for i in range(len(id_ciri_s)):
 			data_jarak_s.append(Ekspresi_wajah.Db.select_data_jarak(id_ciri_s[i]))
@@ -1081,10 +1080,9 @@ class Ekspresi_wajah:
 		# if request.method == 'POST':
 		# jumlah = request.form['jumlah']
 
-		jumlah 		= [10, 20, 30, 68]
+		jumlah 		= [1, 2]
 		print(f"JUMLAH = {jumlah}")
-		print(f"JUMLAH[3] = {jumlah[3]}")
-		kum_ekspresi= ['Bahagia', 'Sedih', 'Takut', 'Kaget']
+		kum_ekspresi= ['Bahagia', 'Sedih', 'Takut']
 		data_latih_s= []
 		data_latih_o= []
 
@@ -1140,6 +1138,9 @@ class Ekspresi_wajah:
 			'O'		: data_latih_o
 		}
 
+		# print(f"Data latih s = {data_latih['S'][0]} dan jumlah = {len(data_latih['S'][0])} dan tipe = {type(data_latih['S'][0])}")
+		# print(f"Data latih s = {data_latih['O'][1]} dan jumlah = {len(data_latih['O'][1])} dan tipe = {type(data_latih['O'][1])}")
+
 		#  Pengujian
 		jW = 0
 		aW = 0
@@ -1160,10 +1161,14 @@ class Ekspresi_wajah:
 		jN = 0
 
 
-		# pengujian ciri sendiri
+		# pengujian ciri sendiri dan OpenCV
+
 		for j_s in range(len(data_latih['S'])):
 			print(f"Jumlah data_latih ke-{j_s} = {len(data_latih['S'][j_s])}")
 			file_name_s, jarak_all_s, direktori, semua_hasil_s, hasil_final_s, id_pengujian_update, waktu = Ekspresi_wajah.uji_ciri_sendiri(data_uji, data_latih['S'][j_s])
+
+			file_name_o, jarak_o, semua_hasil_o, hasil_final_o, jumlah_data_teruji = Ekspresi_wajah.uji_ciri_opencv(data_uji, data_latih['S'][j_s], direktori, id_pengujian_update, waktu)
+
 
 			hasil_s = []
 			for i in range(jumlah_data):
@@ -1239,13 +1244,6 @@ class Ekspresi_wajah:
 			print(f"Akurasi s ke - {j_s} = {r_all_s}")
 			print(f"Result s  = {result_s} dan jumlah = {len(result_s)} dan tipe = {type(result_s)}")
 			print(f"Data latih sendiri ke - {j_s} selesai diuji.")
-
-
-		# Pengujian ciri OpenCV
-
-		for j_o in range(len(data_latih['O'])):
-			print(f"Jumlah data_latih ke-{j_o} = {len(data_latih['O'][j_o])}")
-			file_name_o, jarak_o, semua_hasil_o, hasil_final_o, jumlah_data_teruji = Ekspresi_wajah.uji_ciri_opencv(data_uji, data_latih['O'][j_o], direktori, id_pengujian_update, waktu)
 
 			hasil_o = []
 			for i in range(jumlah_data):
@@ -1323,25 +1321,28 @@ class Ekspresi_wajah:
 					if key in akurasi_o[i].keys():
 						v = int(value)
 						r_all_o.append(key + '=' + str(v))
-			print(f"_____________________________________________________jo = {j_o}")
+			print(f"_____________________________________________________jo = {j_s}")
 			result_o.append(r_all_o)
 
-			print(f"Akurasi s ke - {j_o} = {r_all_o}")
+			print(f"Akurasi s ke - {j_s} = {r_all_o}")
 			print(f"Result s  = {result_o} dan jumlah = {len(result_o)} dan tipe = {type(result_o)}")
-			print(f"Data latih sendiri ke - {j_o} selesai diuji.")
+			print(f"Data latih sendiri ke - {j_s} selesai diuji.")
+			
 
 		akurasi = {
-			's'			: akurasi_s,
-			'o'			: akurasi_o,
-			'rata_s'	: result_s,
-			'rata_o'	: result_o,
-			'jumlah_data_uji' : jumlah_data,
-			'jumlah_ekspresi' : len(kum_ekspresi)
+			's'					: akurasi_s,
+			'o'					: akurasi_o,
+			'rata_s'			: result_s,
+			'rata_o'			: result_o,
+			'jumlah_data_uji' 	: jumlah_data,
+			'jumlah_ekspresi' 	: len(kum_ekspresi)
 		}
 
 		print(f"Jumlah rata2 akurasi = {len(akurasi['rata_s'])}")
 		print(f"akurasi akhir s = {akurasi['rata_s']}  dan tipe = {type(akurasi['rata_s'])}")
 		print(f"akurasi akhir o = {akurasi['rata_o']}  dan tipe = {type(akurasi['rata_o'])}")
+		
+		flash('Data berhasil dilatih dan uji Ke-2', category='latih_uji2')
 
 		return render_template('layout.html', data = { 'view' : 'latih_uji2', 'title' : 'Pengujian dan Pelatihan'}, target = target, akurasi = akurasi, files = data_latih)
 
