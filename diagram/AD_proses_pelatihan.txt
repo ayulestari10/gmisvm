@@ -11,6 +11,8 @@ start
 :Menampilkan kotak dialog pencarian berkas;
 | Peneliti |
 :Memilih berkas citra yang akan dilakukan pelatihan;
+| Peneliti |
+:Menekan tombol latih dan uji;
 | Sistem |
 :Melakukan deteksi wajah pada data latih;
 | Sistem |

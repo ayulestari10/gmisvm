@@ -4,7 +4,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>192</x>
+      <x>472</x>
       <y>0</y>
       <w>544</w>
       <h>232</h>
@@ -32,8 +32,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>0</x>
-      <y>256</y>
+      <x>624</x>
+      <y>584</y>
       <w>432</w>
       <h>88</h>
     </coordinates>
@@ -50,8 +50,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>0</x>
-      <y>400</y>
+      <x>80</x>
+      <y>0</y>
       <w>232</w>
       <h>280</h>
     </coordinates>
@@ -83,8 +83,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>256</x>
-      <y>520</y>
+      <x>80</x>
+      <y>384</y>
       <w>448</w>
       <h>296</h>
     </coordinates>
@@ -119,23 +119,24 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>472</x>
-      <y>256</y>
-      <w>168</w>
+      <x>80</x>
+      <y>704</y>
+      <w>1008</w>
       <h>64</h>
     </coordinates>
-    <panel_attributes>Praproses
+    <panel_attributes>Render_template
 --
 
 --
-- biner(img: string) : array</panel_attributes>
+- tampilan_latih_uji(jarak: dictionary, files: dictionary, target: list, semua_hasil_s: list, semua_hasil_o: list, waktu: list, akurasi:dictionary, hasil_waktu_uji:dictionary, hasil_waktu_latih:dictionary) : function
+- tampilan_detail(ciri_all_s: list, ciri_all_o: list, data_pengujian: tuple, data_jarak_s: list, data_jarak_o: list, hasil_s: list, hasil_o: list) : function</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>280</x>
-      <y>400</y>
+      <x>744</x>
+      <y>464</y>
       <w>216</w>
       <h>96</h>
     </coordinates>
@@ -152,8 +153,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>552</x>
-      <y>344</y>
+      <x>824</x>
+      <y>368</y>
       <w>176</w>
       <h>80</h>
     </coordinates>
@@ -164,5 +165,97 @@
 --
 - classify(ciri: array) : string</panel_attributes>
     <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>304</x>
+      <y>104</y>
+      <w>184</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>210.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>704</x>
+      <y>224</y>
+      <w>24</w>
+      <h>376</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;450.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>328</x>
+      <y>224</y>
+      <w>208</w>
+      <h>176</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>240.0;10.0;10.0;200.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>592</x>
+      <y>224</y>
+      <w>24</w>
+      <h>496</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;600.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>768</x>
+      <y>224</y>
+      <w>24</w>
+      <h>256</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;300.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>816</x>
+      <y>224</y>
+      <w>24</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;180.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>856</x>
+      <y>288</y>
+      <w>168</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>Praproses
+--
+
+--
+- biner(img: string) : array</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>928</x>
+      <y>224</y>
+      <w>24</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
   </element>
 </diagram>

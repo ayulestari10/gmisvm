@@ -3,17 +3,17 @@ hide footbox
 title Proses Pelatihan\n
 
 actor Peneliti
-boundary latih_uji
+boundary Render_template
 control Ekspresi_wajah
+entity Database
 control Deteksi_wajah
 control OpenCV
 control Praproses
-entity Database
 
 activate Peneliti
-Peneliti -> latih_uji : latih_dan_uji()
-activate latih_uji
-latih_uji -> Ekspresi_wajah : latih_uji()
+Peneliti -> Render_template : latih_dan_uji()
+activate Render_template
+Render_template -> Ekspresi_wajah : latih_uji()
 activate Ekspresi_wajah
 	opt request.method == 'POST'
 
@@ -43,7 +43,11 @@ activate Ekspresi_wajah
 				Ekspresi_wajah -> GMI : <<GMI(piksel_biner)>>
 				activate GMI
 				GMI -> GMI : hitungMomenNormalisasi()
+				activate GMI
+				deactivate GMI
 				GMI -> GMI : hitungCiri()
+				activate GMI
+				deactivate GMI
 				GMI --> Ekspresi_wajah : ciri
 				deactivate GMI
 				Ekspresi_wajah -> Database : insert_ciri_pelatihan('ciri_pelatihan', kelas, ciri, 'S')

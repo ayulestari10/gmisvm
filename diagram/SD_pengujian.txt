@@ -9,7 +9,7 @@ control OpenCV
 control Praproses
 
 activate Ekspresi_wajah
-ref over Ekspresi_wajah, Database : Proses Pelatihan
+ref over Ekspresi_wajah, Praproses : Proses Pelatihan
 
 	Ekspresi_wajah -> Ekspresi_wajah : uji()
 	activate Ekspresi_wajah

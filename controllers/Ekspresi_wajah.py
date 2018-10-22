@@ -15,6 +15,7 @@ from models.Database import Database
 from libs.Klasifikasi import Klasifikasi
 from libs.Praproses import Praproses
 from libs.OpenCV import OpenCV
+from libs.Render_template import Render_template
 from collections import Counter
 
 class Ekspresi_wajah:
@@ -25,6 +26,7 @@ class Ekspresi_wajah:
 	Dw 			= Deteksi_wajah()
 	pra 		= Praproses()
 	OC 			= OpenCV()
+	RT 			= Render_template()
 	rectColor 	= {
 		'bahagia'	: (102, 255, 255),	# kuning
 		'sedih'		: (255, 191, 0),	# biru
@@ -71,10 +73,10 @@ class Ekspresi_wajah:
 
 			print(f"Tipe file = {type(files)}")
 
-			hasil_waktu_latih = Ekspresi_wajah.latih(files, 'latih_uji', direktori)
+			hasil_waktu_latih = Ekspresi_wajah.latih(, 'latih_uji', direktori)
 			jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi, hasil_waktu_uji = Ekspresi_wajah.uji()
 
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, semua_hasil_s = hasil_final_s, semua_hasil_o = hasil_final_o, waktu = waktu, akurasi = akurasi, hasil_waktu_uji = hasil_waktu_uji, hasil_waktu_latih = hasil_waktu_latih)
+		return Ekspresi_wajah.RT.tampilan_latih_uji(jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi, hasil_waktu_uji, hasil_waktu_latih) 
 
 
 	def latih(files, ket, direktori):
@@ -825,7 +827,7 @@ class Ekspresi_wajah:
 
 		
 
-		return render_template('layout.html', data = { 'view' : 'detail', 'title' : 'Pengujian dan Pelatihan'}, ciri_s = ciri_all_s, ciri_o = ciri_all_o, data_pengujian = data_pengujian, data_jarak_s = data_jarak_s, data_jarak_o = data_jarak_o, hasil_s = hasil_s, hasil_o = hasil_o)
+		return Ekspresi_wajah.RT.tampilan_detail(ciri_all_s, ciri_all_o, data_pengujian, data_jarak_s, data_jarak_o, hasil_s, hasil_o)
 
 
 	# ####################################
