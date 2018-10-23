@@ -60,6 +60,13 @@ class Ekspresi_wajah:
 		if request.method == 'POST':
 		
 			f = request.files['zip_file']
+			print(f"Filename = {f.filename}")
+			
+			if f.filename[-3:] != 'zip':
+				print(f"Filename[-3:] = {f.filename[-3:]}")
+				flash('Data yang diunggah harus dalam bentuk zip!', category='error')
+				return Ekspresi_wajah.RT.tampilan_latih_uji2() 
+
 			filename = 'data/' + secure_filename(strftime("%Y-%m-%d-%H-%M-%S") + '_' + f.filename)
 			f.save(filename)
 
@@ -71,11 +78,9 @@ class Ekspresi_wajah:
 				zip_file.close()
 			os.remove(filename)
 
-			print(f"Tipe file = {type(files)}")
-
 			hasil_waktu_latih = Ekspresi_wajah.latih(files, 'latih_uji', direktori)
 			jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi, hasil_waktu_uji = Ekspresi_wajah.uji()
-			flash('Data berhasil dilatih dan uji', category='latih_uji1')
+			flash('Data berhasil dilatih dan uji!', category='latih_uji1')
 
 		return Ekspresi_wajah.RT.tampilan_latih_uji(jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi, hasil_waktu_uji, hasil_waktu_latih) 
 
@@ -221,13 +226,36 @@ class Ekspresi_wajah:
 					h_s[key] = value
 			hasil_s.append(h_s)
 
+		# cek jika nilai hasil s tidak sama dengan 0 dan nilai ada pada target
+		hasil_s = []
+		for i in range(jumlah_data):
+			print(f"Hasil Final S ke-{i} = {hasil_final_s[i]} dan jumlah={len(hasil_final_s[i])}")
+			h_s = {}
+			for key, value in hasil_final_s[i].items():
+				if value != 0 and key in target_akhir[i].keys():
+					h_s[key] = value
+				if key == 'WS':
+					# if any('WS' in d for d in hasil_s) == False:
+					h_s['WS'] = value
+			hasil_s.append(h_s)
+
+			print(f"Hasil S ke-{i} = {hasil_s[i]} dan jumlah={len(hasil_s[i])}")
+			print(f"Target akhir ke-{i} = {target_akhir[i]} dan jumlah={len(target_akhir[i])}")
+
 		hasil_o = []
 		for i in range(jumlah_data):
+			print(f"Hasil Final O ke-{i} = {hasil_final_o[i]} dan jumlah={len(hasil_final_o[i])}")
 			h_o = {}
 			for key, value in hasil_final_o[i].items():
-				if value != 0:
+				if value != 0 and key in target_akhir[i].keys():
 					h_o[key] = value
+				if key == 'WO':
+					# if any('WO' in d for d in hasil_o) == False:
+					h_o['WO'] = value
 			hasil_o.append(h_o)
+
+			print(f"hasil_o ke-{i} = {hasil_o[i]} dan jumlah={len(hasil_o[i])}")
+			print(f"Target akhir ke-{i} = {target_akhir[i]} dan jumlah={len(target_akhir[i])}")
 
 		akurasi_s = []
 		for i in range(jumlah_data):
@@ -235,10 +263,6 @@ class Ekspresi_wajah:
 			for key,value in  hasil_s[i].items():
 				if key == 'WS':
 					a_s[key] = (hasil_s[i][key]/target_akhir[i]['WT']) * 100 if target_akhir[i]['WT'] != 0 else 0
-
-			for x, y in target_akhir[i].items():
-				if x not in hasil_s[i].keys() and x != 'WT':
-					a_s[x] 	= 0
 
 			for key,value in hasil_s[i].items():
 				if key != 'WS':
@@ -250,19 +274,8 @@ class Ekspresi_wajah:
 		for i in range(jumlah_data):
 			a_o = {}
 			for key,value in  hasil_o[i].items():
-				a_o[key] = (hasil_o[i][key]/data_uji[i][2]) * 100 if data_uji[i][2] != 0 else 0
-			akurasi_o.append(a_o)
-
-		akurasi_o = []
-		for i in range(jumlah_data):
-			a_o = {}
-			for key,value in  hasil_o[i].items():
 				if key == 'WO':
 					a_o[key] = (hasil_o[i][key]/target_akhir[i]['WT']) * 100 if target_akhir[i]['WT'] != 0 else 0
-
-			for x, y in target_akhir[i].items():
-				if x not in hasil_o[i].keys() and x != 'WT':
-					a_o[x] 	= 0
 
 			for key,value in hasil_o[i].items():
 				if key != 'WO':
@@ -366,14 +379,14 @@ class Ekspresi_wajah:
 		for i in range(jumlah_data):
 			for key, value in rata2_akurasi_s.items():
 				if key in akurasi_s[i].keys():
-					v = int(value)
+					v = round(value, 2)
 					r_all_s.append(key + '=' + str(v))
 
 		r_all_o = []
 		for i in range(jumlah_data):
 			for key, value in rata2_akurasi_o.items():
 				if key in akurasi_o[i].keys():
-					v = int(value)
+					v = round(value, 2)
 					r_all_o.append(key + '=' + str(v))
 
 		akurasi = {
@@ -592,7 +605,6 @@ class Ekspresi_wajah:
 
 
 	def uji_ciri_opencv(data_uji, data_latih, direktori, id_pengujian_update, waktu):
-		print(f"ID PENGUJIAN WOY = {id_pengujian_update} DAN JUMLAH = {len(id_pengujian_update)} dan tipe = {type(id_pengujian_update)}")
 
 		jarak_all_o 		= []
 		file_name_o 		= []
@@ -1170,13 +1182,22 @@ class Ekspresi_wajah:
 			file_name_o, jarak_o, semua_hasil_o, hasil_final_o, jumlah_data_teruji = Ekspresi_wajah.uji_ciri_opencv(data_uji, data_latih['S'][j_s], direktori, id_pengujian_update, waktu)
 
 
+			# cek jika nilai hasil s tidak sama dengan 0 dan nilai ada pada target
 			hasil_s = []
 			for i in range(jumlah_data):
+				print(f"Hasil Final S ke-{i} = {hasil_final_s[i]} dan jumlah={len(hasil_final_s[i])}")
 				h_s = {}
 				for key, value in hasil_final_s[i].items():
-					if value != 0:
+					if value != 0 and key in target_akhir[i].keys():
 						h_s[key] = value
+					if key == 'WS':
+						# if any('WS' in d for d in hasil_s) == False:
+						h_s['WS'] = value
 				hasil_s.append(h_s)
+
+				print(f"Hasil S ke-{i} = {hasil_s[i]} dan jumlah={len(hasil_s[i])}")
+				print(f"Target akhir ke-{i} = {target_akhir[i]} dan jumlah={len(target_akhir[i])}")
+
 
 			akurasi_s = []
 			for i in range(jumlah_data):
@@ -1185,15 +1206,47 @@ class Ekspresi_wajah:
 					if key == 'WS':
 						a_s[key] = (hasil_s[i][key]/target_akhir[i]['WT']) * 100 if target_akhir[i]['WT'] != 0 else 0
 
-				for x, y in target_akhir[i].items():
-					if x not in hasil_s[i].keys() and x != 'WT':
-						a_s[x] 	= 0
-
+				# untuk key di hasil s, jika key != WS maka key yang sesuai dibagi dgn target.
 				for key,value in hasil_s[i].items():
 					if key != 'WS':
 						a_s[key] = (hasil_s[i][key]/target[i][key]) * 100 if target[i][key] != 0 else 0
 				akurasi_s.append(a_s)
 
+
+			hasil_o = []
+			for i in range(jumlah_data):
+				print(f"Hasil Final O ke-{i} = {hasil_final_o[i]} dan jumlah={len(hasil_final_o[i])}")
+				h_o = {}
+				for key, value in hasil_final_o[i].items():
+					if value != 0 and key in target_akhir[i].keys():
+						h_o[key] = value
+					if key == 'WO':
+						# if any('WO' in d for d in hasil_o) == False:
+						h_o['WO'] = value
+				hasil_o.append(h_o)
+
+				print(f"hasil_o ke-{i} = {hasil_o[i]} dan jumlah={len(hasil_o[i])}")
+				print(f"Target akhir ke-{i} = {target_akhir[i]} dan jumlah={len(target_akhir[i])}")
+
+			# akurasi o untuk satu data uji
+			akurasi_o = []
+			for i in range(jumlah_data):
+				a_o = {}
+				for key,value in  hasil_o[i].items():
+					if key == 'WO':
+						a_o[key] = (hasil_o[i][key]/target_akhir[i]['WT']) * 100 if target_akhir[i]['WT'] != 0 else 0
+
+				for key,value in hasil_o[i].items():
+					if key != 'WO':
+						a_o[key] = (hasil_o[i][key]/target[i][key]) * 100 if target[i][key] != 0 else 0
+				akurasi_o.append(a_o)
+
+
+			######################### 
+			# Hitung rata2 akurasi dari semua percobaan
+
+			print(f"___....____ hasil akurasi s = {akurasi_s} dan jumlah = {len(akurasi_s)}")
+			print(f"___....____ hasil akurasi_o = {akurasi_o} dan jumlah = {len(akurasi_o)}")
 			for i in range(jumlah_data):
 				for key, value in akurasi_s[i].items():
 					if key == 'WS':
@@ -1221,6 +1274,16 @@ class Ekspresi_wajah:
 						jN += 1
 						aN += value
 
+			print(f"aW/jW = {aW}/{jW}")
+			print(f"aB/jB = {aB}/{jB}")
+			print(f"aS/jS = {aS}/{jS}")
+			print(f"aM/jM = {aM}/{jM}")
+			print(f"aJ/jJ = {aJ}/{jJ}")
+			print(f"aK/jK = {aK}/{jK}")
+			print(f"aT/jT = {aT}/{jT}")
+			print(f"aN/jN = {aN}/{jN}")
+
+			# rata2 akurasi dari jumlah file uji
 			rata2_akurasi_s = {
 				'WS'		: aW/jW if jW != 0 else 0,
 				'B'			: aB/jB if jB != 0 else 0,
@@ -1232,12 +1295,14 @@ class Ekspresi_wajah:
 				'N'			: aN/jN if jN != 0 else 0
 			}
 
+			print(f"_____|||_____ rata2 akurasi_s = {rata2_akurasi_s} dan jumlah = {len(rata2_akurasi_s)}")
+
+			# Cek nilai rata2 akurasi yang terdapat pada akurasi
 			r_all_s = []
-			for i in range(jumlah_data):
-				for key, value in rata2_akurasi_s.items():
-					if key in akurasi_s[i].keys():
-						v = int(value)
-						r_all_s.append(key + '=' + str(v))
+			for key, value in rata2_akurasi_s.items():
+				if any(key in d for d in akurasi_s) == True:
+					v = round(value, 2)
+					r_all_s.append(key + '=' + str(v))
 			print(f"_____________________________________________________js = {j_s}")
 			result_s.append(r_all_s)
 
@@ -1245,36 +1310,7 @@ class Ekspresi_wajah:
 			print(f"Result s  = {result_s} dan jumlah = {len(result_s)} dan tipe = {type(result_s)}")
 			print(f"Data latih sendiri ke - {j_s} selesai diuji.")
 
-			hasil_o = []
-			for i in range(jumlah_data):
-				h_o = {}
-				for key, value in hasil_final_o[i].items():
-					if value != 0:
-						h_o[key] = value
-				hasil_o.append(h_o)
 
-			akurasi_o = []
-			for i in range(jumlah_data):
-				a_o = {}
-				for key,value in  hasil_o[i].items():
-					a_o[key] = (hasil_o[i][key]/data_uji[i][2]) * 100 if data_uji[i][2] != 0 else 0
-				akurasi_o.append(a_o)
-
-			akurasi_o = []
-			for i in range(jumlah_data):
-				a_o = {}
-				for key,value in  hasil_o[i].items():
-					if key == 'WO':
-						a_o[key] = (hasil_o[i][key]/target_akhir[i]['WT']) * 100 if target_akhir[i]['WT'] != 0 else 0
-
-				for x, y in target_akhir[i].items():
-					if x not in hasil_o[i].keys() and x != 'WT':
-						a_o[x] 	= 0
-
-				for key,value in hasil_o[i].items():
-					if key != 'WO':
-						a_o[key] = (hasil_o[i][key]/target[i][key]) * 100 if target[i][key] != 0 else 0
-				akurasi_o.append(a_o)
 
 			for i in range(jumlah_data):
 				for key, value in akurasi_o[i].items():
@@ -1316,17 +1352,19 @@ class Ekspresi_wajah:
 
 
 			r_all_o = []
-			for i in range(jumlah_data):
-				for key, value in rata2_akurasi_o.items():
-					if key in akurasi_o[i].keys():
-						v = int(value)
-						r_all_o.append(key + '=' + str(v))
+			for key, value in rata2_akurasi_o.items():
+				if any(key in d for d in akurasi_o) == True:
+					v = round(value, 2)
+					r_all_o.append(key + '=' + str(v))
 			print(f"_____________________________________________________jo = {j_s}")
 			result_o.append(r_all_o)
 
 			print(f"Akurasi s ke - {j_s} = {r_all_o}")
 			print(f"Result s  = {result_o} dan jumlah = {len(result_o)} dan tipe = {type(result_o)}")
 			print(f"Data latih sendiri ke - {j_s} selesai diuji.")
+
+
+
 			
 
 		akurasi = {
@@ -1341,8 +1379,10 @@ class Ekspresi_wajah:
 		print(f"Jumlah rata2 akurasi = {len(akurasi['rata_s'])}")
 		print(f"akurasi akhir s = {akurasi['rata_s']}  dan tipe = {type(akurasi['rata_s'])}")
 		print(f"akurasi akhir o = {akurasi['rata_o']}  dan tipe = {type(akurasi['rata_o'])}")
+		print(f"akurasi s = {akurasi['s']}  dan tipe = {type(akurasi['s'])}")
+		print(f"akurasi o = {akurasi['o']}  dan tipe = {type(akurasi['o'])}")
 		
-		flash('Data berhasil dilatih dan uji Ke-2', category='latih_uji2')
+		flash('Data berhasil dilatih dan uji!', category='latih_uji2')
 
 		return render_template('layout.html', data = { 'view' : 'latih_uji2', 'title' : 'Pengujian dan Pelatihan'}, target = target, akurasi = akurasi, files = data_latih)
 

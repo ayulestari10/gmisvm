@@ -15,6 +15,16 @@
 							</div>
 							{% endif %}
 						{% endwith %}
+
+						{% with msg_error = get_flashed_messages(category_filter=["error"]) %}
+							{% if msg_error %}
+							<div class="alert alert-danger">
+								{%- for msg_e in msg_error %}
+									{{ msg_e }}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
 					</div>
 
 					<form id="form-latih-uji" action="{{ url_for('.latih_uji') }}" method="POST" enctype="multipart/form-data">
