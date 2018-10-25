@@ -9,6 +9,19 @@ from werkzeug.utils import secure_filename
 import cv2
 import time
 
+
+from sklearn.model_selection import GridSearchCV, KFold
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn import svm, tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import GaussianNB, BernoulliNB, MultinomialNB
+from sklearn.linear_model import SGDClassifier
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.neighbors.nearest_centroid import NearestCentroid
+from sklearn.neural_network import MLPClassifier
+from sklearn import datasets
+
+
 from libs.Deteksi_wajah import Deteksi_wajah
 from libs.GMI import GMI
 from models.Database import Database
@@ -1387,17 +1400,176 @@ class Ekspresi_wajah:
 		return render_template('layout.html', data = { 'view' : 'latih_uji2', 'title' : 'Pengujian dan Pelatihan'}, target = target, akurasi = akurasi, files = data_latih)
 
 
-	# @page.route(f'{base}/uji_dengan_waktu/<latih>/<uji>', methods=['GET', 'POST'])
-	# def uji_dengan_waktu(latih, uji):
-	# 	print(f"Latih = {latih} dan tipe = {type(latih)} dan jumlah = {len(latih)}")
-	# 	print(f"uji = {uji} dan tipe = {type(uji)} dan jumlah = {len(uji)}")
+	@page.route(f'{base}/pengujian2', methods=['GET', 'POST'])
+	def pengujian2():
 
-	# 	if len(latih) <= 0:
-	# 		latih = 0
-	# 	elif len(uji) <= 0:
-	# 		uji = 0 
+		kumpulan_ciri_s 	= Ekspresi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
+		kumpulan_kelas_s 	= Ekspresi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
 
-	# 	return render_template('layout.html', data = { 'view' : 'uji_dengan_waktu', 'title' : 'Hasil Pengujian dan Pelatihan'}, latih = latih, uji = uji)
+		semua_hasil = {}
+		pembagi = [2, 3, 4, 5, 6, 7, 8, 9, 10] 
+
+		## Metode Multi Class SVM
+		hasil_metode1 = []
+		for i in range(len(pembagi)):
+			kf 			= KFold(n_splits = pembagi[i], random_state = 1, shuffle = True)
+			k_scores 	= []
+
+			for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
+				clf 	= svm.LinearSVC()
+				clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
+				scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
+				k_scores.append(scores)
+				print(f"Score k-{j + 1} : {scores}%")
+
+			hasil_metode1.append( round(np.mean(np.array(k_scores)), 2) )
+			print(f"Mean: {round(np.mean(np.array(k_scores)), 2)}%")
+
+		hasil_metode1.append(round(np.mean(hasil_metode1), 2))
+		semua_hasil['Multi Class SVM'] = hasil_metode1
+
+
+		## Metode Decision Tree Classifier
+		hasil_metode2 = []
+		for i in range(len(pembagi)):
+			kf 			= KFold(n_splits = pembagi[i], random_state = 1, shuffle = True)
+			k_scores 	= []
+
+			for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
+				clf 	= tree.DecisionTreeClassifier()
+				clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
+				scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
+				k_scores.append(scores)
+				print(f"Score k-{j + 1} : {scores}%")
+
+			hasil_metode2.append( round(np.mean(np.array(k_scores)), 2) )
+			print(f"Mean: {round(np.mean(np.array(k_scores)), 2)}%")
+
+		hasil_metode2.append(round(np.mean(hasil_metode2), 2))
+		semua_hasil['Decision Tree Classifier'] = hasil_metode2
+
+
+		## Metode Random Forest Classifier
+		hasil_metode3 = []
+		for i in range(len(pembagi)):
+			kf 			= KFold(n_splits = pembagi[i], random_state = 1, shuffle = True)
+			k_scores 	= []
+
+			for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
+				clf 	= RandomForestClassifier()
+				clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
+				scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
+				k_scores.append(scores)
+				print(f"Score k-{j + 1} : {scores}%")
+
+			hasil_metode3.append( round(np.mean(np.array(k_scores)), 2) )
+			print(f"Mean: {round(np.mean(np.array(k_scores)), 2)}%")
+
+		hasil_metode3.append(round(np.mean(hasil_metode3), 2))
+		semua_hasil['Random Forest Classifier'] = hasil_metode3
+
+
+		## Metode Gaussian Naive Bayes
+		hasil_metode4 = []
+		for i in range(len(pembagi)):
+			kf 			= KFold(n_splits = pembagi[i], random_state = 1, shuffle = True)
+			k_scores 	= []
+
+			for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
+				clf 	= GaussianNB()
+				clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
+				scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
+				k_scores.append(scores)
+				print(f"Score k-{j + 1} : {scores}%")
+
+			hasil_metode4.append( round(np.mean(np.array(k_scores)), 2) )
+			print(f"Mean: {round(np.mean(np.array(k_scores)), 2)}%")
+
+		hasil_metode4.append(round(np.mean(hasil_metode4), 2))
+		semua_hasil['Gaussian Naive Bayes'] = hasil_metode4
+
+
+		## Metode Nearest Centroid
+		hasil_metode5 = []
+		for i in range(len(pembagi)):
+			kf 			= KFold(n_splits = pembagi[i], random_state = 1, shuffle = True)
+			k_scores 	= []
+
+			for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
+				clf 	= NearestCentroid()
+				clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
+				scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
+				k_scores.append(scores)
+				print(f"Score k-{j + 1} : {scores}%")
+
+			hasil_metode5.append( round(np.mean(np.array(k_scores)), 2) )
+			print(f"Mean: {round(np.mean(np.array(k_scores)), 2)}%")
+
+		hasil_metode5.append(round(np.mean(hasil_metode5), 2))
+		semua_hasil['Nearest Centroid'] = hasil_metode5
+
+
+		## Metode MLP Classifier
+		hasil_metode6 = []
+		for i in range(len(pembagi)):
+			kf 			= KFold(n_splits = pembagi[i], random_state = 1, shuffle = True)
+			k_scores 	= []
+
+			for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
+				clf 	= MLPClassifier()
+				clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
+				scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
+				k_scores.append(scores)
+				print(f"Score k-{j + 1} : {scores}%")
+
+			hasil_metode6.append( round(np.mean(np.array(k_scores)), 2) )
+			print(f"Mean: {round(np.mean(np.array(k_scores)), 2)}%")
+
+		hasil_metode6.append(round(np.mean(hasil_metode6), 2))
+		semua_hasil['MLP Classifier'] = hasil_metode6
+
+
+		## Metode Stochastic Gradient Descent Classifier
+		hasil_metode7 = []
+		for i in range(len(pembagi)):
+			kf 			= KFold(n_splits = pembagi[i], random_state = 1, shuffle = True)
+			k_scores 	= []
+
+			for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
+				clf 	= SGDClassifier()
+				clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
+				scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
+				k_scores.append(scores)
+				print(f"Score k-{j + 1} : {scores}%")
+
+			hasil_metode7.append( round(np.mean(np.array(k_scores)), 2) )
+			print(f"Mean: {round(np.mean(np.array(k_scores)), 2)}%")
+
+		hasil_metode7.append(round(np.mean(hasil_metode7), 2))
+		semua_hasil['Stochastic Gradient Descent Classifier'] = hasil_metode7
+
+		print(f"semua_hasil = {semua_hasil} dan jumlah = {len(semua_hasil)} dan tipe = {type(semua_hasil)} ")
+
+	
+		# for key, value in semua_hasil:
+		# 	{{key + '<br>'}}
+		# 	# for i in range(9):
+		# 	{{value + '<br>'}}
+
+
+		return render_template('layout.html', data = { 'view' : 'pengujian2', 'title' : 'Pengujian dan Pelatihan'}, semua_hasil = semua_hasil)
+
+	def encode_class(labels):
+		dct = {
+			"bahagia": 0,
+			"sedih": 1,
+			"marah": 2,
+			"jijik": 3,
+			"kaget": 4,
+			"takut": 5,
+			"natural": 6
+		}
+		return [dct[str(label)] for label in labels]
 
 	def hitung_jarak(data1, data2):
 		data = abs(data1-data2)
