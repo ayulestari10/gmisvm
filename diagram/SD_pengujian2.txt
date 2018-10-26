@@ -9,25 +9,19 @@ control OpenCV
 control Praproses
 
 activate Ekspresi_wajah
-ref over Ekspresi_wajah, Praproses : Proses Pelatihan
+ref over Ekspresi_wajah, Praproses : Uji Ciri Kode Sendiri
+activate Ekspresi_wajah
 
-	Ekspresi_wajah -> Ekspresi_wajah : uji()
-	activate Ekspresi_wajah
 
-	Ekspresi_wajah -> Database : select_data_uji()
-	activate Database
-	Database --> Ekspresi_wajah : data
-	deactivate Database
-
-	Ekspresi_wajah -> Ekspresi_wajah : uji_ciri_sendiri(data_uji, 0)
+	Ekspresi_wajah -> Ekspresi_wajah : uji_ciri_opencv(data_uji, 0, direktori, id_pengujian_update, waktu)
 	activate Ekspresi_wajah
 
 	alt len(data_latih) == 0
-		Ekspresi_wajah -> Database : select_ciri('ciri_pelatihan', 'S')
+		Ekspresi_wajah -> Database : select_ciri('ciri_pelatihan', 'O')
 		activate Database
 		Database --> Ekspresi_wajah : kumpulan_ciri
 
-		Ekspresi_wajah -> Database : select_kelas('ciri_pelatihan', 'S')
+		Ekspresi_wajah -> Database : select_kelas('ciri_pelatihan', 'O')
 		Database --> Ekspresi_wajah : kumpulan_kelas
 	else
 		Ekspresi_wajah -> Ekspresi_wajah : ambil_data_latih(data_latih)
@@ -36,14 +30,14 @@ ref over Ekspresi_wajah, Praproses : Proses Pelatihan
 		deactivate Ekspresi_wajah
 	end
 
-	loop kelas_s in kumpulan_kelas_s
-		Ekspresi_wajah -> Database : select_avg('ciri_pelatihan', kelas_s)
+	loop kelas_o in kumpulan_kelas_o
+		Ekspresi_wajah -> Database : select_avg('ciri_pelatihan', kelas_o)
 		Database --> Ekspresi_wajah : data_rata_rata
 		deactivate Database
 	end
 
 	loop j in range(len(data_uji))
-		Ekspresi_wajah -> Deteksi_wajah : deteksi_multi_face(path_img, nama_file, 'sendiri')
+		Ekspresi_wajah -> Deteksi_wajah : deteksi_multi_face(path_img, nama_file, 'opencv')
 		activate Deteksi_wajah
 
 		Deteksi_wajah -> Deteksi_wajah : resize_image(image, nama_file, 'uji', 'uji')
@@ -66,101 +60,92 @@ ref over Ekspresi_wajah, Praproses : Proses Pelatihan
 			Praproses --> Ekspresi_wajah : img_biner
 			deactivate Praproses
 
-			create control GMI
-			Ekspresi_wajah -> GMI : <<GMI(sub_face)>>
-			activate GMI
-			GMI -> GMI : hitungMomenNormalisasi()
-			activate GMI
-			deactivate GMI
-			GMI -> GMI : hitungCiri()
-			activate GMI
-			GMI --> Ekspresi_wajah : ciri
-			deactivate GMI
-			deactivate GMI
+			Ekspresi_wajah -> OpenCV : gmi_OpenCV(sub_face)
+			activate OpenCV
+			OpenCV --> Ekspresi_wajah : ciricv
+			deactivate OpenCV
 
 			create control Klasifikasi
-			Ekspresi_wajah -> Klasifikasi : <<Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)>>
+			Ekspresi_wajah -> Klasifikasi : <<Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)>>
 			activate Klasifikasi
-			Ekspresi_wajah -> Klasifikasi : classify([ciri])
+			Ekspresi_wajah -> Klasifikasi : classify([ciricv])
 			Klasifikasi --> Ekspresi_wajah : ekspresi
 			deactivate Klasifikasi
 
-			Ekspresi_wajah -> Database : insert_ciri('ciri_pengujian', ciri, 'S')
+			Ekspresi_wajah -> Database : insert_ciri('ciri_pengujian', ciricv, 'O')
 			activate Database
 			Ekspresi_wajah -> Database : select_first_row()
 			Database --> Ekspresi_wajah : data
-			Ekspresi_wajah -> Database : insert_pengujian(data_pengujian)
-			Ekspresi_wajah -> Database : select_pengujian_first_row()
-			Database --> Ekspresi_wajah : data_pengujian
+			Ekspresi_wajah -> Database : update_pengujian(data_pengujian)
 			deactivate Database
 
 			opt len(data_latih) == 0
 				loop for b in range(7)
-					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_s['bahagia'][b])
+					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_o['bahagia'][b])
 					activate Ekspresi_wajah
 					Ekspresi_wajah --> Ekspresi_wajah : data
 					deactivate Ekspresi_wajah
-					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_s, 'bahagia', jarak_bahagia_s)
+					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_o, 'bahagia', jarak_bahagia_o)
 					activate Database
 					deactivate Database
 				end
 
 				loop for s in range(7)
-					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_s['sedih'][s])
+					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_o['sedih'][s])
 					activate Ekspresi_wajah
 					Ekspresi_wajah --> Ekspresi_wajah : data
 					deactivate Ekspresi_wajah
-					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_s, 'sedih', jarak_sedih_s)
+					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_o, 'sedih', jarak_sedih_o)
 					activate Database
 					deactivate Database
 				end
 
 				loop for m in range(7)
-					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_s['marah'][m])
+					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_o['marah'][m])
 					activate Ekspresi_wajah
 					Ekspresi_wajah --> Ekspresi_wajah : data
 					deactivate Ekspresi_wajah
-					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_s, 'marah', jarak_marah_s)
+					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_o, 'marah', jarak_marah_o)
 					activate Database
 					deactivate Database
 				end
 
 				loop for ji in range(7)
-					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_s['jijik'][ji])
+					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_o['jijik'][ji])
 					activate Ekspresi_wajah
 					Ekspresi_wajah --> Ekspresi_wajah : data
 					deactivate Ekspresi_wajah
-					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_s, 'jijik', jarak_jijik_s)
+					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_o, 'jijik', jarak_jijik_o)
 					activate Database
 					deactivate Database
 				end
 
 				loop for k in range(7)
-					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_s['kaget'][k])
+					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_o['kaget'][k])
 					activate Ekspresi_wajah
 					Ekspresi_wajah --> Ekspresi_wajah : data
 					deactivate Ekspresi_wajah
-					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_s, 'kaget', jarak_kaget_s)
+					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_o, 'kaget', jarak_kaget_o)
 					activate Database
 					deactivate Database
 				end
 
 				loop for t in range(7)
-					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_s['takut'][t])
+					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_o['takut'][t])
 					activate Ekspresi_wajah
 					Ekspresi_wajah --> Ekspresi_wajah : data
 					deactivate Ekspresi_wajah
-					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_s, 'takut', jarak_takut_s)
+					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_o, 'takut', jarak_takut_o)
 					activate Database
 					deactivate Database
 				end
 
 				loop for n in range(7)
-					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_s['natural'][n])
+					Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciri[i], rata_rata_ciri_o['natural'][n])
 					activate Ekspresi_wajah
 					Ekspresi_wajah --> Ekspresi_wajah : data
 					deactivate Ekspresi_wajah
-					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_s, 'natural', jarak_natural_s)
+					Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_o, 'natural', jarak_natural_o)
 					activate Database
 					deactivate Database
 				end
@@ -169,21 +154,15 @@ ref over Ekspresi_wajah, Praproses : Proses Pelatihan
 
 
 
-		Ekspresi_wajah -> Database : select_hasil('hasil_sendiri', id_file, waktu_s)
+		Ekspresi_wajah -> Database : select_hasil('hasil_opencv', id_file, waktu[j])
 		activate Database
 		Database --> Ekspresi_wajah : data_hasil
 		Ekspresi_wajah -> Database : insert_hasil(hasil_semua_s)
 		deactivate Database
 
-		Ekspresi_wajah --> Ekspresi_wajah : file_name_s, jarak_all_s, dir_s, semua_hasil_s, hasil_final_s, id_pengujian_update, waktu
+		Ekspresi_wajah --> Ekspresi_wajah : file_name_o, jarak_all_o, semua_hasil_o, hasil_final_o, jumlah_data_teruji
 
-	
-		ref over Ekspresi_wajah, Praproses : Uji Ciri Hasil OpenCV
-		
-		deactivate Deteksi_wajah
 		deactivate Ekspresi_wajah
 	end
 
 @enduml
-
-

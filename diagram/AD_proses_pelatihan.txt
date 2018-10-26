@@ -21,10 +21,6 @@ start
 :Melakukan ekstraksi ciri wajah dengan Geometric Moment Invariants;
 | Sistem |
 :Menyimpan kumpulan ciri dan kelasnya ke dalam database;
-| Sistem |
-:Melakukan deteksi wajah pada data uji;
-| Sistem |
-:Melakukan praproses wajah;
 
 stop
 @enduml

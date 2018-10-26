@@ -3,7 +3,6 @@ import cv2
 class OpenCV:
 
 	def __init__(self):
-		
 		self.face_cascade = cv2.CascadeClassifier('C:\\xampp\\htdocs\\gmisvm\\static\\haarcascade_frontalface_default.xml')
 
 	def deteksi(self, path):
@@ -17,5 +16,6 @@ class OpenCV:
 	def gmi_OpenCV(self, piksel_biner):
 		momen 		= cv2.moments(piksel_biner)
 		ciricv 		= cv2.HuMoments(momen).flatten()
+		print(f"Ciricv = {type(ciricv)}")
 
 		return ciricv

@@ -1,11 +1,7 @@
-from flask import Flask, Blueprint, abort
 from PIL import Image
 import numpy as np
 
 class Praproses:
-
-	page = Blueprint('Praproses_page', __name__, template_folder = 'templates')
-	base = '/praproses'
 
 	def biner(self, img):
 		im 			= Image.open(img)
@@ -15,4 +11,5 @@ class Praproses:
 		grayscale 	= Image.fromarray(im)
 		threshold 	= 256 / 2
 		img_biner 	= grayscale.point(lambda p: p > threshold and 255)
-		return np.array(img_biner)
+		img_biner 	= np.array(img_biner)
+		return img_biner

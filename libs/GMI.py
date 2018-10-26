@@ -1,11 +1,6 @@
-from flask import Flask, Blueprint, abort
 import numpy as np
 
-class GMI():
-    
-    page = Blueprint('GMI_page', __name__, template_folder = 'templates')
-    base = '/gmi'
-    
+class GMI(): 
     
     def __init__(self, img):
         self.matrix = img
@@ -18,9 +13,6 @@ class GMI():
         self.mt03 = 0.0
         self.xbar = self.x_bar()
         self.ybar = self.y_bar()
-        self.n = np.zeros((4, 4))
-        self.nt = np.zeros((4, 4))
-        self.hitungMomenPusat2()
 
     def hitungMomen(self, p, q):
         
@@ -33,18 +25,6 @@ class GMI():
         # print(f"m{p}{q} = {m}, tipe = {type(m)}")
         return m
 
-    def hitungMomenPusat2(self):
-        self.n[0][0] = self.hitungMomen(0, 0)
-        self.n[0][1] = 0
-        self.n[1][0] = 0
-        self.n[1][1] = self.hitungMomen(1, 1) - (self.xbar * self.hitungMomen(0, 1))
-        self.n[2][0] = self.hitungMomen(2, 0) - (self.xbar * self.hitungMomen(1, 0))
-        self.n[0][2] = self.hitungMomen(0, 2) - (self.ybar * self.hitungMomen(0, 1))
-        self.n[2][1] = self.hitungMomen(2, 1) - (2 * self.xbar * self.hitungMomen(1, 1)) - (self.ybar * self.hitungMomen(2, 0)) + (2 * (self.xbar**2) * self.hitungMomen(0, 1))
-        self.n[1][2] = self.hitungMomen(1, 2) - (2 * self.ybar * self.hitungMomen(1, 1)) - (self.xbar * self.hitungMomen(0, 2)) + (2 * (self.ybar**2) * self.hitungMomen(1, 0))
-        self.n[3][0] = self.hitungMomen(3, 0) - (3 * self.xbar * self.hitungMomen(2, 0)) + (2 * (self.xbar**2) * self.hitungMomen(1, 0))
-        self.n[0][3] = self.hitungMomen(0, 3) - (3 * self.ybar * self.hitungMomen(0, 2)) + (2 * (self.ybar**2) * self.hitungMomen(0, 1))
-        
     def hitungMomenPusat(self, p, q):
         hasil = 0
         ukuran = self.matrix.shape
@@ -72,10 +52,6 @@ class GMI():
     def gamma(self, p, q):
         # return ((p+q)/2) + 1
         return ((p+q)/2)+1 
-
-    def momenNormalisasi2(self, p, q):
-        # print(f"mu{p}{q} = {self.n[p][q]}, tipe = {type(self.n[p][q])}")
-        return self.n[p][q] / (self.n[0][0] ** self.gamma(p, q))
         
     def hitungMomenNormalisasi(self):
         self.mt20 = self.momenNormalisasi(2, 0)
@@ -105,3 +81,25 @@ class GMI():
         ciri[6] = ((3*(self.mt21)) - self.mt03) * (self.mt30 + self.mt12) * ( ( (self.mt30 + self.mt12) ** 2) - (3 * (self.mt21 + self.mt03) ** 2) ) + ( (3*self.mt21) - self.mt30) * (self.mt21 + self.mt03) * ( (3*(self.mt30 + self.mt12) ** 2) - ((self.mt21 + self.mt03) ** 2) )
         
         return ciri
+
+
+    ###############################################################################################
+    def hitungMomenPusat2(self):
+        self.n = np.zeros((4, 4))
+        self.nt = np.zeros((4, 4))
+        self.hitungMomenPusat2()
+        
+        self.n[0][0] = self.hitungMomen(0, 0)
+        self.n[0][1] = 0
+        self.n[1][0] = 0
+        self.n[1][1] = self.hitungMomen(1, 1) - (self.xbar * self.hitungMomen(0, 1))
+        self.n[2][0] = self.hitungMomen(2, 0) - (self.xbar * self.hitungMomen(1, 0))
+        self.n[0][2] = self.hitungMomen(0, 2) - (self.ybar * self.hitungMomen(0, 1))
+        self.n[2][1] = self.hitungMomen(2, 1) - (2 * self.xbar * self.hitungMomen(1, 1)) - (self.ybar * self.hitungMomen(2, 0)) + (2 * (self.xbar**2) * self.hitungMomen(0, 1))
+        self.n[1][2] = self.hitungMomen(1, 2) - (2 * self.ybar * self.hitungMomen(1, 1)) - (self.xbar * self.hitungMomen(0, 2)) + (2 * (self.ybar**2) * self.hitungMomen(1, 0))
+        self.n[3][0] = self.hitungMomen(3, 0) - (3 * self.xbar * self.hitungMomen(2, 0)) + (2 * (self.xbar**2) * self.hitungMomen(1, 0))
+        self.n[0][3] = self.hitungMomen(0, 3) - (3 * self.ybar * self.hitungMomen(0, 2)) + (2 * (self.ybar**2) * self.hitungMomen(0, 1)) 
+
+    def momenNormalisasi2(self, p, q):
+        # print(f"mu{p}{q} = {self.n[p][q]}, tipe = {type(self.n[p][q])}")
+        return self.n[p][q] / (self.n[0][0] ** self.gamma(p, q))

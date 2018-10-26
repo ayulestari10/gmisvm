@@ -1,0 +1,75 @@
+<section style="min-height: 600px !important;">
+    <div class="container">
+      	<div class="section text-center" style="margin: auto 0 !important;">
+
+			<style type="text/css">
+				table{width: 100%}
+				.foto{width:100px; height:100px;}
+			</style>
+
+			<div style="margin-top: 5%;">
+				<hr><hr>
+			</div>
+
+			<div class="row">
+				
+			
+			<div class="row" style="margin-top: 2%;">
+				<div class="col-md-12 heading">
+					<h3><strong>Daftar Waktu dan Data Pelatihan dan Pengujian</strong></h3>
+				</div>
+
+				<div class="col-md-12">
+					<table class="table table-bordered" style="text-align: center;">
+						<thead class="thead-light">
+							<tr>Hasil Waktu dan Data Pelatihan</tr>
+							<tr>
+								<th>No</th>
+								<th>Waktu</th>
+								<th>Jumlah Data</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% set jumlah_latih = latih|length %}
+							{% if jumlah_latih != 0 %}
+								{% for i in range(jumlah_latih): %}
+									{% for key, value in latih[i].items(): %}
+										<tr>
+											<td>{{ key }}</td>
+											<td>{{ str(value) }}</td>
+										</tr>
+									{% endfor %}
+								{% endfor %}
+							{% endif %}
+						</tbody>
+					</table>
+				</div>
+				<div class="col-md-12">
+					<table class="table table-bordered" style="text-align: center;">
+						<thead class="thead-light">
+							<tr>Hasil Waktu dan Data Pengujian</tr>
+							<tr>
+								<th>No</th>
+								<th>Waktu</th>
+								<th>Jumlah Data</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% set jumlah_uji = uji|length %}
+							{% if jumlah_uji != 0 %}
+								{% for i in range(jumlah_uji): %}
+									{% for key, value in uji[i].items(): %}
+										<tr>
+											<td>{{ key }}</td>
+											<td>{{ str(value) }}</td>
+										</tr>
+									{% endfor %}
+								{% endfor %}
+							{% endif %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

@@ -1,4 +1,3 @@
-from flask import Flask, Blueprint, abort
 import MySQLdb
 import numpy as np
 
@@ -41,7 +40,6 @@ class Database:
 			return None
 
 	def insert_ciri(self, table, ciri, ket):
-
 		try:
 			self.cur.execute("INSERT INTO "+ table +"(ket, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + ket + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
 			self.db.commit()
@@ -49,7 +47,6 @@ class Database:
 			self.db.rollback()
 
 	def insert_ciri_pelatihan(self, table, kelas, ciri, ket):
-
 		try:
 			self.cur.execute("INSERT INTO "+ table +"(ket, kelas, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s )" % ("'" + ket + "'", "'" + kelas + "'", ciri[0], ciri[1], ciri[2], ciri[3], ciri[4], ciri[5], ciri[6]))
 			self.db.commit()
@@ -57,7 +54,6 @@ class Database:
 			self.db.rollback()
 
 	def insert_pengujian(self, data):
-
 		try:
 			self.cur.execute("INSERT INTO pengujian(id_file, id_ciri_pengujian_s, waktu, hasil_sendiri, direktori) VALUES (%s, %s, %s, %s, %s)" % ("'" + data['id_file'] + "'", "'" + data['id_ciri_pengujian_s'] + "'", "'" + data['waktu'] + "'", "'" + data['hasil_sendiri'] + "'", "'" + data['direktori'] + "'"))
 			self.db.commit()
@@ -66,7 +62,6 @@ class Database:
 			self.db.rollback()
 
 	def update_pengujian(self, data):
-
 		try:
 			self.cur.execute("UPDATE pengujian SET id_ciri_pengujian_o = '" + data['id_ciri_pengujian_o'] + "', hasil_opencv = '" + data['hasil_opencv'] + "' WHERE id_pengujian = '" + str(data['id_pengujian']) + "'")
 
@@ -93,9 +88,7 @@ class Database:
 			print("Error select hasil")
 			return None
 
-
 	def insert_hasil(self, data):
-
 		try:
 			self.cur.execute("INSERT INTO hasil(id_file, ket, jumlah_wajah_terdeteksi, klasifikasi_bahagia, klasifikasi_sedih, klasifikasi_marah, klasifikasi_jijik, klasifikasi_kaget, klasifikasi_takut, klasifikasi_natural) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % (data['id_file'], "'" + data['ket'] + "'", data['wajah'], data['bahagia'], data['sedih'], data['marah'], data['jijik'], data['kaget'], data['takut'], data['natural'] ))
 
@@ -103,7 +96,6 @@ class Database:
 		except:
 			print("error insert hasil")
 			self.db.rollback()
-
 
 	def select_data_uji(self):
 		try:
@@ -115,45 +107,14 @@ class Database:
 			print("Error select file uji")
 			return None
 
-	def select_data_uji_jumlah(self, jumlah):
-		try:
-			self.cur.execute("SELECT * FROM file_uji ORDER BY id_file ASC LIMIT " + str(jumlah))
-			self.db.commit()
-			data = self.cur.fetchall()
-			return data
-		except:
-			print("Error select file uji jumlah")
-			return None
-
 	def select_data_pengujian(self, id_file, waktu):
 		try:
 			self.cur.execute("SELECT * FROM pengujian WHERE id_file = '" + str(id_file) + "' AND waktu = '" + waktu + "'")
 			self.db.commit()
 			data = self.cur.fetchall()
-			print(f"Data cantik = {data}")
 			return data
 		except:
 			print("Error select pengujian")
-			return None
-
-	def select_join_hasil(self, ket):
-		try:
-			self.cur.execute("SELECT * FROM hasil inner join file_uji on hasil.id_file = file_uji.id_file WHERE hasil.ket = '" + ket + "'")
-			self.db.commit()
-			data = self.cur.fetchall()
-			return data
-		except:
-			print("Error select hasil uji")
-			return None
-	
-	def select_target(self, id_file):
-		try:
-			self.cur.execute("SELECT * FROM file_uji WHERE id_file = '" + str(id_file) + "'")
-			self.db.commit()
-			data = self.cur.fetchall()
-			return data
-		except:
-			print("Error select target")
 			return None
 
 	def select_ciri_pengujian(self, id_ciri_pengujian, ket):
@@ -188,10 +149,40 @@ class Database:
 			print("Error select sejumlah data uji")
 			return None
 
+	def select_data_jarak(self, id_ciri_pengujian):
+		try:
+			self.cur.execute("SELECT * FROM jarak WHERE id_ciri_pengujian = " + str(id_ciri_pengujian))
+			self.db.commit()
+			data = self.cur.fetchall()
+			data2 = np.array(data)
+			return data2[:, 2:]
+		except:
+			print("Error select data jarak")
+			return None
+
+	def select_first_row(self):
+		try:
+			self.cur.execute("SELECT * FROM ciri_pengujian ORDER BY id_ciri_pengujian DESC LIMIT 1")
+			self.db.commit()
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error first row")
+			return None
+
+	def select_avg(self, table, kelas):
+		try:
+			query = "SELECT AVG(ciri1) AS avg_ciri1, AVG(ciri2) AS avg_ciri2, AVG(ciri3) AS avg_ciri3, AVG(ciri4) AS avg_ciri4, AVG(ciri5) AS avg_ciri5, AVG(ciri6) AS avg_ciri6, AVG(ciri7) AS avg_ciri7 FROM " + table + " WHERE kelas='" + kelas + "'"
+			self.cur.execute(query)
+			self.db.commit()
+			data_rata_rata = self.cur.fetchall()
+			return data_rata_rata[0] if len(data_rata_rata) > 0 else None
+		except:
+			print("Error AVG")
+			return None
 
 
-
-	# ####
+	#############################################################################################
 
 
 
@@ -239,17 +230,6 @@ class Database:
 			print("Error select jarak")
 			return None
 
-	def select_first_row(self):
-		try:
-			self.cur.execute("SELECT * FROM ciri_pengujian ORDER BY id_ciri_pengujian DESC LIMIT 1")
-			self.db.commit()
-			data = self.cur.fetchall()
-			return data
-		except:
-			print("Error first row")
-			return None
-
-
 	def select_id(self, ciri, jarak):
 		try:
 			self.cur.execute("SELECT id_ciri FROM ciri_test WHERE ciri1 = " + ciri[0] + " AND ciri2 = " + ciri[1] + " AND ciri3 = " + ciri[2] + " AND ciri4 = " + ciri[3] + " AND ciri5 = " + ciri[4] + " AND ciri6 = " + ciri[5] + " AND ciri7 = " + ciri[6] + " AND jarak = " + jarak)
@@ -258,13 +238,3 @@ class Database:
 			print("Error ID")
 			return None
 
-	def select_avg(self, table, kelas):
-		try:
-			query = "SELECT AVG(ciri1) AS avg_ciri1, AVG(ciri2) AS avg_ciri2, AVG(ciri3) AS avg_ciri3, AVG(ciri4) AS avg_ciri4, AVG(ciri5) AS avg_ciri5, AVG(ciri6) AS avg_ciri6, AVG(ciri7) AS avg_ciri7 FROM " + table + " WHERE kelas='" + kelas + "'"
-			self.cur.execute(query)
-			self.db.commit()
-			data_rata_rata = self.cur.fetchall()
-			return data_rata_rata[0] if len(data_rata_rata) > 0 else None
-		except:
-			print("Error AVG")
-			return None

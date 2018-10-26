@@ -3,15 +3,25 @@
       	<div class="section text-center" style="margin: auto 0 !important;">
 
 			<div class="row" style="text-align: left;">
-				<div class="col-md-5 heading">
+				<div class="col-md-6 heading">
 					<h3>Pelatihan dan Pengujian</h3>
 					<div>
-						{% with messages = get_flashed_messages() %}
+						{% with messages = get_flashed_messages(category_filter=["latih_uji1"]) %}
 							{% if messages %}
 							<div class="alert alert-success">
-								{% for message in messages %}
+								{%- for message in messages %}
 									{{ message }}
-								{% endfor %}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
+
+						{% with msg_error = get_flashed_messages(category_filter=["error"]) %}
+							{% if msg_error %}
+							<div class="alert alert-danger">
+								{%- for msg_e in msg_error %}
+									{{ msg_e }}
+								{% endfor -%}
 							</div>
 							{% endif %}
 						{% endwith %}
@@ -27,25 +37,29 @@
 					</form> 
 				</div>
 
-				<div class="col-md-3 heading">
+				<!-- <div class="col-md-3 heading">
 					<h3>Lakukan Pengujian</h3> <br>
 					<a href="{{ url_for('.lakukan_uji') }}" class="btn btn-lg btn-primary"><i class="info"></i> UJI</a>
-				</div>
+				</div> -->
 
-				<div class="col-md-4 heading">
+				<div class="col-md-6 heading">
+					<h3>Pengujian dan Pelatihan</h3>
+					<div>
+					{% with messages2 = get_flashed_messages(category_filter=["latih_uji2"]) %}
+						{% if messages2 %}
+							<div class="alert alert-success">
+								{%- for msg in messages2 %}
+									{{ msg }}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
+					</div>
 					<form action="{{ url_for('.uji_data') }}" method="POST">
-						<!-- <div class="form-group">
-					    	<label for="Pilih Jumlah Data" class="heading">Pilih Jumlah Data Latih Untuk Setiap Kelas</label>
-					    	<select class="form-control" name="jumlah">
-					    		<option value="2">2</option>
-					    		<option value="10">10</option>
-					    		<option value="20">20</option>
-					    		<option value="30">30</option>
-					    		<option value="all">All</option>
-					    	</select>
-						</div> -->
-						<h3>Pengujian dan Pelatihan</h3> <br>
-						<input type="submit" name="uji_data" class="btn btn-primary" value="Latih dan Uji">
+						<div class="form-group">
+					    	<p class="text-danger" style="font-size: 12px;">* Jumlah data latih dan ekspresi yang berbeda</p>
+							<input type="submit" name="uji_data" class="btn btn-primary" value="Latih dan Uji">
+						</div>
 					</form> 
 				</div>
 			</div>
@@ -66,6 +80,22 @@
 				</div>
 				
 				<div class="row" style="margin-top: 2%;">
+					<ul class="nav nav-tabs">
+					  	<li class="nav-item">
+					    	<a class="nav-link active" href="#hasil" id="lihat_hasil">Hasil</a>
+					  	</li>
+
+						{% set jumlah_latih = hasil_waktu_latih['latih']|length %}
+						{% set jumlah_uji = hasil_waktu_uji['uji']|length %}
+						{% if jumlah_latih != 0 or jumlah_uji !=0 %}
+						  	<li class="nav-item">
+						    	<a class="nav-link" href="#" id="lihat_waktu_dan_data">Waktu dan Data</a>
+						  	</li>
+						{% endif %}
+					</ul>
+				</div>
+
+				<div class="row" id="hasil" style="margin-top: 2%;">
 					<div class="col-md-12">
 						<table class="table table-bordered" style="text-align: center;">
 							<thead class="thead-light">
@@ -76,12 +106,9 @@
 									<th rowspan="2">Target</th>
 									<th colspan="2">Hasil</th>
 									<th colspan="2">Akurasi</th>
-									<th colspan="2">Jarak</th>
 									<th rowspan="2">Aksi</th>
 								</tr>
 								<tr>
-									<th>Kode Sendiri</th>
-									<th>OpenCV</th>
 									<th>Kode Sendiri</th>
 									<th>OpenCV</th>
 									<th>Kode Sendiri</th>
@@ -92,7 +119,7 @@
 								{% for i in range(files['jumlah_data']) %}
 									<tr style="text-align: left;">
 										<td>{{ i + 1 }}</td>
-										<td>{{ files['data_uji'][i][1] }}</td>
+										<td style="width: 150px !important;"> {{ files['data_uji'][i][1] }}</td>
 										<td style="width: 100px;  max-height: 100px !important;">
 											<div class="gallery-block cards-gallery">
 												<div class="card border-0 transform-on-hover" style="max-height: 100px !important;">
@@ -134,18 +161,6 @@
 											{% endfor %}
 										</td>
 										<td>
-											W1 = 0.01</br>
-											W2 = 0.0031</br>
-											W3 = 0.0131</br>
-											W4 = 0.0111</br>
-										</td>
-										<td>
-											W1 = 0.01</br>
-											W2 = 0.0031</br>
-											W3 = 0.0131</br>
-											W4 = 0.0111</br>
-										</td>
-										<td>
 											<a href="http://localhost:5000/ekspresi-wajah/hasil_detail/{{ files['data_uji'][i][0] }}/{{ waktu[i] }}" class="btn btn-primary"><i class="fa fa-info"></i> DETAIL</a>
 										</td> 
 									</tr>
@@ -168,6 +183,66 @@
 						</table>
 					</div>
 				</div>
+
+				<div class="row" style="margin-top: 2%; margin-bottom: 3%;" id="waktu_dan_data">
+					<div class="col-md-12 heading">
+						<h4><strong>Daftar Waktu dan Data Pelatihan dan Pengujian</strong></h4>
+					</div>
+
+					{% if jumlah_latih != 0 %}
+					<div class="col-md-12">
+						<table class="table table-bordered" style="text-align: center;">
+							<thead class="thead-light">
+								<tr><th colspan="3">Hasil Waktu dan Data Pelatihan</th></tr>
+								<tr>
+									<th>No</th>
+									<th>Waktu</th>
+									<th>Jumlah Data</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for i in range(jumlah_latih): %}
+									{% for key, value in hasil_waktu_latih['latih'][i].items(): %}
+										<tr>
+											<td>{{ i+1 }}</td>
+											<td>{{ key }}</td>
+											<td>{{ value }}</td>
+										</tr>
+									{% endfor %}
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					{% endif %}
+
+					{% if jumlah_uji != 0 %}
+						<div class="col-md-12" style="margin-top: 3%;">
+							<table class="table table-bordered" style="text-align: center;">
+								<thead class="thead-light">
+									<tr>
+										<th colspan="3">Hasil Waktu dan Data Pengujian</th>
+									</tr>
+									<tr>
+										<th>No</th>
+										<th>Waktu</th>
+										<th>Jumlah Data</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for i in range(jumlah_uji): %}
+										{% for key, value in hasil_waktu_uji['uji'][i].items(): %}
+											<tr>
+												<td>{{ key }}</td>
+												<td>{{ value }}</td>
+											</tr>
+										{% endfor %}
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% endif %}
+				</div>
+
 			{% endif %}
 		</div>
 	</div>
@@ -177,6 +252,27 @@
 	var UI;
 	window.onload = function() {
 		$(document).ready(function() {
+			$('#waktu_dan_data').hide();
+			
+			$('#lihat_waktu_dan_data').click(function(){
+				$('.nav-link').each(function() {
+					$(this).removeClass('active');
+				});
+				$(this).addClass('active');
+			    $('#hasil').hide();
+				$('#waktu_dan_data').show();
+
+			});
+
+			$('#lihat_hasil').click(function(){
+				$('.nav-link').each(function() {
+					$(this).removeClass('active');
+				});
+				$(this).addClass('active');
+			    $('#waktu_dan_data').hide();
+				$('#hasil').show();
+
+			});
 
 			UI = {
 				latih_uji: function() {
