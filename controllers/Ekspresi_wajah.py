@@ -144,12 +144,13 @@ class Ekspresi_wajah:
 				print(f"Durasi = {session['durasi']}")
 
 				## cek apakah durasi mencapai stngah menit maka simpan jumlah data latih
-				if int(session['durasi'] / (60 * 1)) == len(penanda_menit):
+				if int(session['durasi'] / (60 * 0.1)) == len(penanda_menit):
 					durasi_menit = session['durasi']/60
 					jumlah_file_latih.append({
 						str(round(durasi_menit, 0)) : len(j_data_latih)
 					})
 					penanda_menit.append(str(round(durasi_menit, 0)))
+					print(f"___ jumlah_file_latih = {jumlah_file_latih} dan jumlah = {len(jumlah_file_latih)}")
 
 				## cek apakah durasi lebih dari 30 menit
 
@@ -430,6 +431,8 @@ class Ekspresi_wajah:
 		waktu 				= []
 		hasil_final_s 		= []
 		dir_s 				= []
+		hasil_final_s 		= []
+		semua_hasil_s		= {}
 
 		# ciri dan kelas sendiri dari data pelatihan
 		if len(data_latih) == 0:
@@ -622,6 +625,7 @@ class Ekspresi_wajah:
 		jarak_all_o 		= []
 		file_name_o 		= []
 		hasil_final_o 		= []
+		semua_hasil_o		= {}
 
 		# ciri dan kelas sendiri dari data pelatihan
 		if len(data_latih) == 0:
@@ -642,7 +646,7 @@ class Ekspresi_wajah:
 		jumlah_file_teruji	= []
 		j_data_uji 			= []
 		jumlah_data_teruji	= []
-		penanda_menit 		= [0]
+		penanda_menit 		= []
 
 		# lakukan sebanyak data uji
 		for j in range(len(data_uji)):
@@ -784,13 +788,16 @@ class Ekspresi_wajah:
 			waktu_pelatihan = session['waktu_latih']
 			session['waktu_sekarang'] = waktu_sekarang
 
+			print(f"____SESSION___: {int(session['waktu_sekarang'] / (60 * 1))}")
+			print(f"____PENANDA___: {len(penanda_menit)}")
 			## setiap 1 menit
-			if int(session['waktu_sekarang'] / (60 * 1)) == len(penanda_menit):
+			if int(session['waktu_sekarang'] / (60 * 0.2)) >= len(penanda_menit):
 				durasi_menit = session['durasi']/60
 				jumlah_file_teruji.append({
 					str(round(durasi_menit, 0)) : len(j_data_uji)
 				})
 				penanda_menit.append(str(round(durasi_menit, 0)))
+				print(f"____ jumlah_file_teruji = {jumlah_file_teruji} dan jumlah = {len(jumlah_file_teruji)}")
 
 			## cek waktu_sekarang + waktu pelatihan apakah lebih dari 30 menit
 			if session['waktu_sekarang'] + waktu_pelatihan >= (60 * 30):
@@ -801,9 +808,9 @@ class Ekspresi_wajah:
 		durasi = waktu_selesai - waktu_mulai
 		session['waktu_uji'] = durasi if session['waktu_uji'] is None else (session['waktu_uji'] + durasi)
 
-		# for i in range(len(jumlah_data_teruji)):
-		# 	for key,value in jumlah_data_teruji[i].items():
-		# 		print(f"Jumlah file latih pada menit ke-{key} = {value}")
+		for i in range(len(jumlah_data_teruji)):
+			for key,value in jumlah_data_teruji[i].items():
+				print(f"Jumlah file latih pada menit ke-{key} = {value}")
 
 		return file_name_o, jarak_all_o, semua_hasil_o, hasil_final_o, jumlah_data_teruji
 

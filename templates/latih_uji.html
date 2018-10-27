@@ -87,11 +87,9 @@
 
 						{% set jumlah_latih = hasil_waktu_latih['latih']|length %}
 						{% set jumlah_uji = hasil_waktu_uji['uji']|length %}
-						{% if jumlah_latih != 0 or jumlah_uji !=0 %}
 						  	<li class="nav-item">
 						    	<a class="nav-link" href="#" id="lihat_waktu_dan_data">Waktu dan Data</a>
 						  	</li>
-						{% endif %}
 					</ul>
 				</div>
 
@@ -189,7 +187,6 @@
 						<h4><strong>Daftar Waktu dan Data Pelatihan dan Pengujian</strong></h4>
 					</div>
 
-					{% if jumlah_latih != 0 %}
 					<div class="col-md-12">
 						<table class="table table-bordered" style="text-align: center;">
 							<thead class="thead-light">
@@ -213,9 +210,7 @@
 							</tbody>
 						</table>
 					</div>
-					{% endif %}
 
-					{% if jumlah_uji != 0 %}
 						<div class="col-md-12" style="margin-top: 3%;">
 							<table class="table table-bordered" style="text-align: center;">
 								<thead class="thead-light">
@@ -240,7 +235,6 @@
 								</tbody>
 							</table>
 						</div>
-					{% endif %}
 				</div>
 
 			{% endif %}
