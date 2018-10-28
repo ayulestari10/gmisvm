@@ -11,7 +11,6 @@ class Deteksi_wajah:
 	OC  = OpenCV()	
 
 	def resize_image(self, image, file_name, direktori, dir2):
-		print(f"IMG = {image}")
 		img1 		= Image.open(image)
 		width 		= 384
 		height 		= 288

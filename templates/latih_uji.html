@@ -3,10 +3,12 @@
       	<div class="section text-center" style="margin: auto 0 !important;">
 
 			<div class="row" style="text-align: left;">
-				<div class="col-md-6 heading">
-					<h3>Pelatihan dan Pengujian</h3>
+
+				<!-- Pelatihan -->
+				<div class="col-md-4 heading">
+					<h3>Pelatihan</h3>
 					<div>
-						{% with messages = get_flashed_messages(category_filter=["latih_uji1"]) %}
+						{% with messages = get_flashed_messages(category_filter=["pelatihan"]) %}
 							{% if messages %}
 							<div class="alert alert-success">
 								{%- for message in messages %}
@@ -16,7 +18,7 @@
 							{% endif %}
 						{% endwith %}
 
-						{% with msg_error = get_flashed_messages(category_filter=["error"]) %}
+						{% with msg_error = get_flashed_messages(category_filter=["error_pelatihan"]) %}
 							{% if msg_error %}
 							<div class="alert alert-danger">
 								{%- for msg_e in msg_error %}
@@ -27,25 +29,56 @@
 						{% endwith %}
 					</div>
 
-					<form id="form-latih-uji" action="{{ url_for('.latih_uji') }}" method="POST" enctype="multipart/form-data">
+					<form id="form-latih" action="{{ url_for('.pelatihan') }}" method="POST" enctype="multipart/form-data">
 						<div class="form-group">
 					    	<label for="Unggah Data">Unggah Data </label>
 					    	<p class="text-danger" style="font-size: 12px;">* Data dalam format zip</p>
 					    	<input type="file" name="zip_file" multiple="" class="form-control-file" id="zip_file">
 						</div>
-						<input type="submit" name="latih_uji" class="btn btn-primary" value="Latih dan Uji" onclick="UI.latih_uji(); return false;">
+						<input type="submit" name="latih_uji" class="btn btn-primary" value="Latih" onclick="UI.latih(); return false;">
+					</form>
+				</div>
+				<!-- /Pelatihan -->
+
+
+				<!-- Pengujian1 -->
+				<div class="col-md-4 heading">
+
+					<h3>Pengujian 1</h3>
+					<div>
+						{% with messages = get_flashed_messages(category_filter=["pengujian1"]) %}
+							{% if messages %}
+							<div class="alert alert-success">
+								{%- for message in messages %}
+									{{ message }}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
+
+						{% with msg_error = get_flashed_messages(category_filter=["error_pengujian1"]) %}
+							{% if msg_error %}
+							<div class="alert alert-danger">
+								{%- for msg_e in msg_error %}
+									{{ msg_e }}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
+					</div>
+
+					<form id="form-uji" action="{{ url_for('.pengujian1') }}" method="POST" enctype="multipart/form-data">
+						<input type="submit" name="pengujian1" class="btn btn-primary" value="Uji" onclick="UI.uji(); return false;">
 					</form> 
 				</div>
+				<!-- /Pengujian1 -->
 
-				<!-- <div class="col-md-3 heading">
-					<h3>Lakukan Pengujian</h3> <br>
-					<a href="{{ url_for('.lakukan_uji') }}" class="btn btn-lg btn-primary"><i class="info"></i> UJI</a>
-				</div> -->
 
-				<div class="col-md-6 heading">
-					<h3>Pengujian dan Pelatihan</h3>
+				<!-- Pengujian2 -->
+				<div class="col-md-4 heading">
+					<h3>Pengujian 2</h3>
 					<div>
-					{% with messages2 = get_flashed_messages(category_filter=["latih_uji2"]) %}
+					{% with messages2 = get_flashed_messages(category_filter=["pengujian2"]) %}
 						{% if messages2 %}
 							<div class="alert alert-success">
 								{%- for msg in messages2 %}
@@ -55,24 +88,27 @@
 							{% endif %}
 						{% endwith %}
 					</div>
-					<form action="{{ url_for('.uji_data') }}" method="POST">
+					<form action="{{ url_for('.pengujian2') }}" method="POST">
 						<div class="form-group">
-					    	<p class="text-danger" style="font-size: 12px;">* Jumlah data latih dan ekspresi yang berbeda</p>
-							<input type="submit" name="uji_data" class="btn btn-primary" value="Latih dan Uji">
+					    	<p class="text-danger" style="font-size: 12px;">* Klasifikasi dengan beberapa metode berbeda</p>
+							<input type="submit" name="pengujian2" class="btn btn-primary" value="Uji">
 						</div>
 					</form> 
 				</div>
+				<!-- /Pengujian2 -->
+
 			</div>
 
 			<style type="text/css">
 				table{width: 100%}
 				.foto{width:100px; height:100px;}
+				.grafik{}
 			</style>
 
 			{% if files %}
-			<div style="margin-top: 5%;">
-				<hr><hr>
-			</div>
+				<div style="margin-top: 5%;">
+					<hr><hr>
+				</div>
 				<div class="row">
 					<div class="col-md-12 heading">
 						<h3><strong>Hasil Pengujian</strong></h3>
@@ -84,14 +120,9 @@
 					  	<li class="nav-item">
 					    	<a class="nav-link active" href="#hasil" id="lihat_hasil">Hasil</a>
 					  	</li>
-
-						{% set jumlah_latih = hasil_waktu_latih['latih']|length %}
-						{% set jumlah_uji = hasil_waktu_uji['uji']|length %}
-						{% if jumlah_latih != 0 or jumlah_uji !=0 %}
-						  	<li class="nav-item">
-						    	<a class="nav-link" href="#" id="lihat_waktu_dan_data">Waktu dan Data</a>
-						  	</li>
-						{% endif %}
+					  	<li class="nav-item">
+					    	<a class="nav-link" href="#" id="lihat_waktu_dan_data">Waktu dan Data</a>
+					  	</li>
 					</ul>
 				</div>
 
@@ -119,7 +150,7 @@
 								{% for i in range(files['jumlah_data']) %}
 									<tr style="text-align: left;">
 										<td>{{ i + 1 }}</td>
-										<td style="width: 150px !important;"> {{ files['data_uji'][i][1] }}</td>
+										<td style="width: 100px !important; word-wrap: break-word !important;"> {{ files['data_uji'][i][1] }}</td>
 										<td style="width: 100px;  max-height: 100px !important;">
 											<div class="gallery-block cards-gallery">
 												<div class="card border-0 transform-on-hover" style="max-height: 100px !important;">
@@ -184,53 +215,30 @@
 					</div>
 				</div>
 
+
+
+
+				{% set jumlah_uji = jumlah_data_teruji|length %}
 				<div class="row" style="margin-top: 2%; margin-bottom: 3%;" id="waktu_dan_data">
 					<div class="col-md-12 heading">
-						<h4><strong>Daftar Waktu dan Data Pelatihan dan Pengujian</strong></h4>
+						<h4><strong>Daftar Waktu dan Jumlah Data Pengujian</strong></h4>
 					</div>
-
-					{% if jumlah_latih != 0 %}
-					<div class="col-md-12">
-						<table class="table table-bordered" style="text-align: center;">
-							<thead class="thead-light">
-								<tr><th colspan="3">Hasil Waktu dan Data Pelatihan</th></tr>
-								<tr>
-									<th>No</th>
-									<th>Waktu</th>
-									<th>Jumlah Data</th>
-								</tr>
-							</thead>
-							<tbody>
-								{% for i in range(jumlah_latih): %}
-									{% for key, value in hasil_waktu_latih['latih'][i].items(): %}
-										<tr>
-											<td>{{ i+1 }}</td>
-											<td>{{ key }}</td>
-											<td>{{ value }}</td>
-										</tr>
-									{% endfor %}
-								{% endfor %}
-							</tbody>
-						</table>
-					</div>
-					{% endif %}
 
 					{% if jumlah_uji != 0 %}
-						<div class="col-md-12" style="margin-top: 3%;">
+						<div class="col-md-6" style="margin-top: 3%;">
 							<table class="table table-bordered" style="text-align: center;">
 								<thead class="thead-light">
 									<tr>
 										<th colspan="3">Hasil Waktu dan Data Pengujian</th>
 									</tr>
 									<tr>
-										<th>No</th>
-										<th>Waktu</th>
+										<th>Waktu (Menit)</th>
 										<th>Jumlah Data</th>
 									</tr>
 								</thead>
 								<tbody>
 									{% for i in range(jumlah_uji): %}
-										{% for key, value in hasil_waktu_uji['uji'][i].items(): %}
+										{% for key, value in jumlah_data_teruji[i].items(): %}
 											<tr>
 												<td>{{ key }}</td>
 												<td>{{ value }}</td>
@@ -239,6 +247,12 @@
 									{% endfor %}
 								</tbody>
 							</table>
+						</div>
+
+						<div class="col-md-6" style="margin-top: 3%;">
+							<div class="grafik img-fluid">
+								<img src="{{ url_for('static', filename='data/grafik/' + direktori + '.png') }}" alt="Grafik">
+							</div>
 						</div>
 					{% endif %}
 				</div>
@@ -275,8 +289,12 @@
 			});
 
 			UI = {
-				latih_uji: function() {
-					$('#form-latih-uji').submit();
+				latih: function() {
+					$('#form-latih').submit();
+					return false;
+				},
+				uji: function() {
+					$('#form-uji').submit();
 					return false;
 				}
 			};

@@ -2,12 +2,109 @@
     <div class="container">
       	<div class="section text-center" style="margin: auto 0 !important;">
 
+      		<div class="row" style="text-align: left;">
+
+				<!-- Pelatihan -->
+				<div class="col-md-4 heading">
+					<h3>Pelatihan</h3>
+					<div>
+						{% with messages = get_flashed_messages(category_filter=["pelatihan"]) %}
+							{% if messages %}
+							<div class="alert alert-success">
+								{%- for message in messages %}
+									{{ message }}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
+
+						{% with msg_error = get_flashed_messages(category_filter=["error_pelatihan"]) %}
+							{% if msg_error %}
+							<div class="alert alert-danger">
+								{%- for msg_e in msg_error %}
+									{{ msg_e }}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
+					</div>
+
+					<form id="form-latih" action="{{ url_for('.pelatihan') }}" method="POST" enctype="multipart/form-data">
+						<div class="form-group">
+					    	<label for="Unggah Data">Unggah Data </label>
+					    	<p class="text-danger" style="font-size: 12px;">* Data dalam format zip</p>
+					    	<input type="file" name="zip_file" multiple="" class="form-control-file" id="zip_file">
+						</div>
+						<input type="submit" name="latih_uji" class="btn btn-primary" value="Latih" onclick="UI.latih(); return false;">
+					</form>
+				</div>
+				<!-- /Pelatihan -->
+
+
+				<!-- Pengujian1 -->
+				<div class="col-md-4 heading">
+
+					<h3>Pengujian 1</h3>
+					<div>
+						{% with messages = get_flashed_messages(category_filter=["pengujian1"]) %}
+							{% if messages %}
+							<div class="alert alert-success">
+								{%- for message in messages %}
+									{{ message }}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
+
+						{% with msg_error = get_flashed_messages(category_filter=["error_pengujian1"]) %}
+							{% if msg_error %}
+							<div class="alert alert-danger">
+								{%- for msg_e in msg_error %}
+									{{ msg_e }}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
+					</div>
+
+					<form id="form-uji" action="{{ url_for('.pengujian1') }}" method="POST" enctype="multipart/form-data">
+						<input type="submit" name="pengujian1" class="btn btn-primary" value="Uji" onclick="UI.uji(); return false;">
+					</form> 
+				</div>
+				<!-- /Pengujian1 -->
+
+
+				<!-- Pengujian2 -->
+				<div class="col-md-4 heading">
+					<h3>Pengujian 2</h3>
+					<div>
+					{% with messages2 = get_flashed_messages(category_filter=["pengujian2"]) %}
+						{% if messages2 %}
+							<div class="alert alert-success">
+								{%- for msg in messages2 %}
+									{{ msg }}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
+					</div>
+					<form action="{{ url_for('.pengujian2') }}" method="POST">
+						<div class="form-group">
+					    	<p class="text-danger" style="font-size: 12px;">* Klasifikasi dengan beberapa metode berbeda</p>
+							<input type="submit" name="pengujian2" class="btn btn-primary" value="Uji">
+						</div>
+					</form> 
+				</div>
+				<!-- /Pengujian2 -->
+
+			</div>
+
 			<style type="text/css">
 				table{width: 100%}
 				.foto{width:100px; height:100px;}
 			</style>
 
-			<div class="row" style="margin-top: -5%;">
+			<div class="row" style="margin-top: 5%;">
 				<div class="col-md-12 heading">
 					<h3><strong>Hasil Pengujian</strong></h3>
 				</div>
@@ -48,6 +145,13 @@
 				</div>
 			</div>
 
+			<div class="row">
+				<div class="col-md-6 offset-md-2" style="margin-top: 3%;">
+					<div class="grafik img-fluid">
+						<img src="{{ url_for('static', filename='data/grafik/metode_klasifikasi.png') }}" alt="Grafik">
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </section>
