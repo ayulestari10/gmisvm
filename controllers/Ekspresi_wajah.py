@@ -739,7 +739,7 @@ class Ekspresi_wajah:
 		## cek waktu_sekarang apakah lebih dari 5 menit
 		if session['waktu_sekarang'] >= (60 * 5):
 			flash('Waktu pengujian telah mencapai 5 menit, proses dihentikan!')
-			return file_name_o, jarak_all_o, hasil_all_o
+			return file_name_o, jarak_all_o, hasil_all_o, jumlah_data_teruji
 
 
 		waktu_selesai = time.time()
