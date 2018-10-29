@@ -2,156 +2,76 @@
     <div class="container">
       	<div class="section text-center" style="margin: auto 0 !important;">
 
-      		<div class="row" style="text-align: left;">
-
-				<!-- Pelatihan -->
-				<div class="col-md-4 heading">
-					<h3>Pelatihan</h3>
+			<div class="row" style="text-align: center;">
+				<div class="col-md-4 offset-md-4 heading">
+					<h3>Pengujian</h3>
 					<div>
-						{% with messages = get_flashed_messages(category_filter=["pelatihan"]) %}
+						{% with messages = get_flashed_messages() %}
 							{% if messages %}
 							<div class="alert alert-success">
-								{%- for message in messages %}
+								{% for message in messages %}
 									{{ message }}
-								{% endfor -%}
-							</div>
-							{% endif %}
-						{% endwith %}
-
-						{% with msg_error = get_flashed_messages(category_filter=["error_pelatihan"]) %}
-							{% if msg_error %}
-							<div class="alert alert-danger">
-								{%- for msg_e in msg_error %}
-									{{ msg_e }}
-								{% endfor -%}
+								{% endfor %}
 							</div>
 							{% endif %}
 						{% endwith %}
 					</div>
 
-					<form id="form-latih" action="{{ url_for('.pelatihan') }}" method="POST" enctype="multipart/form-data">
+					<form action="{{ url_for('.pengujian') }}" method="POST" enctype="multipart/form-data">
 						<div class="form-group">
-					    	<label for="Unggah Data">Unggah Data </label>
-					    	<p class="text-danger" style="font-size: 12px;">* Data dalam format zip</p>
-					    	<input type="file" name="zip_file" multiple="" class="form-control-file" id="zip_file">
+					    	<label for="Unggah Data" style="text-align: left !important;">Unggah Data</label> <br>
+					    	<input type="file" name="foto" multiple="">
 						</div>
-						<input type="submit" name="latih_uji" class="btn btn-primary" value="Latih" onclick="UI.latih(); return false;">
-					</form>
-				</div>
-				<!-- /Pelatihan -->
-
-
-				<!-- Pengujian1 -->
-				<div class="col-md-4 heading">
-
-					<h3>Pengujian 1</h3>
-					<div>
-						{% with messages = get_flashed_messages(category_filter=["pengujian1"]) %}
-							{% if messages %}
-							<div class="alert alert-success">
-								{%- for message in messages %}
-									{{ message }}
-								{% endfor -%}
-							</div>
-							{% endif %}
-						{% endwith %}
-
-						{% with msg_error = get_flashed_messages(category_filter=["error_pengujian1"]) %}
-							{% if msg_error %}
-							<div class="alert alert-danger">
-								{%- for msg_e in msg_error %}
-									{{ msg_e }}
-								{% endfor -%}
-							</div>
-							{% endif %}
-						{% endwith %}
-					</div>
-
-					<form id="form-uji" action="{{ url_for('.pengujian1') }}" method="POST" enctype="multipart/form-data">
-						<input type="submit" name="pengujian1" class="btn btn-primary" value="Uji" onclick="UI.uji(); return false;">
+						<input type="submit" name="uji" class="btn btn-primary" value="Uji">
 					</form> 
-				</div>
-				<!-- /Pengujian1 -->
-
-
-				<!-- Pengujian2 -->
-				<div class="col-md-4 heading">
-					<h3>Pengujian 2</h3>
-					<div>
-					{% with messages2 = get_flashed_messages(category_filter=["pengujian2"]) %}
-						{% if messages2 %}
-							<div class="alert alert-success">
-								{%- for msg in messages2 %}
-									{{ msg }}
-								{% endfor -%}
-							</div>
-							{% endif %}
-						{% endwith %}
-					</div>
-					<form action="{{ url_for('.pengujian2') }}" method="POST">
-						<div class="form-group">
-					    	<p class="text-danger" style="font-size: 12px;">* Klasifikasi dengan beberapa metode berbeda</p>
-							<input type="submit" name="pengujian2" class="btn btn-primary" value="Uji">
-						</div>
-					</form> 
-				</div>
-				<!-- /Pengujian2 -->
-
-			</div>
-
-			<style type="text/css">
-				table{width: 100%}
-				.foto{width:100px; height:100px;}
-			</style>
-
-			<div class="row" style="margin-top: 5%;">
-				<div class="col-md-12 heading">
-					<h3><strong>Hasil Pengujian</strong></h3>
 				</div>
 			</div>
 
-			<div class="row" id="hasil" style="margin-top: 2%;">
-				<div class="col-md-12">
-					<table class="table table-bordered" style="text-align: center;">
-						<thead class="thead-light">
-							<tr>
-								<th rowspan="2">Metode <br> Klasifikasi</th>
-								<th colspan="9">Rata-Rata Hasil Akurasi Setiap K- <i>Fold Cross Validation</i></th>
-								<th rowspan="2">Rata-Rata</th>
-							</tr>
-							<tr>
-								<th>K=2</th>
-								<th>K=3</th>
-								<th>K=4</th>
-								<th>K=5</th>
-								<th>K=6</th>
-								<th>K=7</th>
-								<th>K=8</th>
-								<th>K=9</th>
-								<th>K=10</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% for key, value in semua_hasil.items(): %}
+			{% if hasil %}
+			<hr><hr>
+				<div class="row">
+					<div class="col-md-12 ml-auto mr-auto">
+						<h2 class="title"><strong>Hasil</strong></h2>
+					</div>
+				</div>
+				<div class="row" style="margin-top: 2%;">
+					<div class="col-md-6">
+						<img src="{{ url_for('static', filename='data/testing/' + hasil) }}" style="width: 100%;" width = "400" >
+					</div>
+				</div>
+				
+				<div class="row" style="margin-top: 4%; text-align: left;">
+					<div class="col-md-12 ml-auto mr-auto">
+						<table class="table table-responsive">
+							<thead>
+								<th>Code</th>
+								<th>Ciri 1</th>
+								<th>Ciri 2</th>
+								<th>Ciri 3</th>
+								<th>Ciri 4</th>
+								<th>Ciri 5</th>
+								<th>Ciri 6</th>
+								<th>Ciri 7</th>
+							</thead>
+							<tbody>
 								<tr>
-									<td>{{ key }}</td>
-									{% for i in range(10): %}
-										<td>{{ value[i] }}</td>
+									<td><b>Koding Sendiri</b></td>
+									{% for x in ciri %}
+										<td>{{ x }}</td>
 									{% endfor %}
 								</tr>
-							{% endfor %}
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="col-md-6 offset-md-2" style="margin-top: 3%;">
-					<div class="grafik img-fluid">
-						<img src="{{ url_for('static', filename='data/grafik/metode_klasifikasi.png') }}" alt="Grafik">
+								<tr>
+									<td><b>OpenCV</b></td>
+									{% for x in ciricv %}
+										<td>{{ x }}</td>
+									{% endfor %}
+								</tr>
+							</tbody>
+						</table>
 					</div>
 				</div>
-			</div>
+			{% endif %}
+
 		</div>
 	</div>
 </section>

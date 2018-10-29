@@ -65,12 +65,16 @@ class Ekspresi_wajah:
 		if request.method == 'POST':
 		
 			f = request.files['zip_file']
-			print(f"Filename = {f.filename}")
+
+			if f.filename == '':
+				flash('Tidak ada data yang diunggah!', category='error_pelatihan')
+				return Ekspresi_wajah.RT.tampilan_latih_uji() 
 			
-			if f.filename[-3:] != 'zip':
-				print(f"Filename[-3:] = {f.filename[-3:]}")
+			zip_filename = f.filename[-3:]
+
+			if zip_filename != 'zip':
 				flash('Data yang diunggah harus dalam bentuk zip!', category='error_pelatihan')
-				return Ekspresi_wajah.RT.tampilan_latih_uji2() 
+				return Ekspresi_wajah.RT.tampilan_latih_uji() 
 
 			filename = 'data/' + secure_filename(strftime("%Y-%m-%d-%H-%M-%S") + '_' + f.filename)
 			f.save(filename)
