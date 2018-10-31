@@ -14,22 +14,23 @@ control Praproses
 activate Peneliti
 Peneliti -> UI : latih()
 activate UI
-UI -> Ekspresi_wajah : latih_uji()
+UI -> Ekspresi_wajah : pelatihan()
 activate Ekspresi_wajah
-	opt request.method == 'POST'
+	
+	opt jika menekan tombol latih
 
-		opt zip_filename != 'zip'
+		opt jika nama file != 'zip'
 			Ekspresi_wajah -> Render_template : tampilan_latih_uji()
 			activate Render_template
 			deactivate Render_template
 		end
 	
-		loop i in range(len(dir1))
-			loop file in files
+		loop for i in range(len(dir1))
+			loop for file in files
 				Ekspresi_wajah -> Deteksi_wajah : resize_image(berkas, file, direktori, dir2)
 				activate Deteksi_wajah
 				Deteksi_wajah  --> Ekspresi_wajah : path
-				Ekspresi_wajah -> Deteksi_wajah : deteksi(ket, path, direktori, dir2)
+				Ekspresi_wajah -> Deteksi_wajah : deteksi('pelatihan', path, direktori, dir2)
 
 				Deteksi_wajah -> OpenCV : deteksi(path)
 				activate OpenCV
@@ -66,11 +67,11 @@ activate Ekspresi_wajah
 				activate Database
 				deactivate Database
 
-				Peneliti -> Render_template : tampilan_latih_uji()
+				Ekspresi_wajah -> Render_template : tampilan_latih_uji()
+				deactivate Ekspresi_wajah
 				activate Render_template
 				deactivate Render_template
 			end
-			deactivate Ekspresi_wajah
 		end
   
 	end

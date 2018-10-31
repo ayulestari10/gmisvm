@@ -18,8 +18,6 @@ class Deteksi_wajah:
 
 		if dir2 == 'uji':
 			path = 'data/resize/'+ direktori
-		elif dir2 == 'testing':
-			path = 'data/testing'
 		else:
 			path = 'data/resize/'+ direktori + '/' + dir2
 
@@ -46,22 +44,22 @@ class Deteksi_wajah:
 		return path_wajah
 
 
-	def deteksi_multi_face(self, path, nama_file, ket):
+	# def deteksi_multi_face(self, path, nama_file, ket):
 		# Resize
-		path_resize			= self.resize_image(path, nama_file, 'uji', 'uji')
+		# path_resize			= self.resize_image(path, nama_file, 'uji', 'uji')
 
 		# deteksi wajah
-		faces, img 			= Deteksi_wajah.OC.deteksi(path_resize)
+		# faces, img 			= Deteksi_wajah.OC.deteksi(path_resize)
 
-		if ket == 'sendiri':
-			direktori 			= strftime("%Y-%m-%d_%H-%M-%S")
-			path2 				= 'static/data/latih_uji/' + direktori
-			if os.path.exists(path2) is False:
-				os.mkdir(path2)
-			return faces, img, direktori, path2
+		# if ket == 'sendiri':
+		# 	direktori 			= strftime("%Y-%m-%d_%H-%M-%S")
+		# 	path2 				= 'static/data/latih_uji/' + direktori
+		# 	if os.path.exists(path2) is False:
+		# 		os.mkdir(path2)
+		# 	return faces, img, direktori, path2
 
-		else: 
-			return faces, img
+		# else: 
+		# 	return faces, img
 
 
 

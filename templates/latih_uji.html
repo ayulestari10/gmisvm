@@ -31,11 +31,11 @@
 
 					<form id="form-latih" action="{{ url_for('.pelatihan') }}" method="POST" enctype="multipart/form-data">
 						<div class="form-group">
-					    	<label for="Unggah Data">Unggah Data </label>
+					    	<label for="Unggah Data">Unggah Data</label>
 					    	<p class="text-danger" style="font-size: 12px;">* Data dalam format zip</p>
 					    	<input type="file" name="zip_file" multiple="" class="form-control-file" id="zip_file" required>
 						</div>
-						<input type="submit" name="latih_uji" class="btn btn-primary" value="Latih" onclick="UI.latih(); return false;">
+						<input type="submit" name="pelatihan" class="btn btn-primary" value="Latih" onclick="UI.latih(); return false;">
 					</form>
 				</div>
 				<!-- /Pelatihan -->
