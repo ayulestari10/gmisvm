@@ -47,12 +47,8 @@ activate Ekspresi_wajah
 				create control GMI
 				Ekspresi_wajah -> GMI : <<GMI(piksel_biner)>>
 				activate GMI
-				GMI -> GMI : hitungMomenNormalisasi()
-				activate GMI
-				deactivate GMI
-				GMI -> GMI : hitungCiri()
-				activate GMI
-				deactivate GMI
+				Ekspresi_wajah -> GMI : hitungMomenNormalisasi()
+				Ekspresi_wajah -> GMI : hitungCiri()
 				GMI --> Ekspresi_wajah : ciri
 				deactivate GMI
 				Ekspresi_wajah -> Database : insert_ciri_pelatihan('ciri_pelatihan', kelas, ciri, 'S')

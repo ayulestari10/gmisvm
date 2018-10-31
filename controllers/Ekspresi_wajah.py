@@ -178,12 +178,12 @@ class Ekspresi_wajah:
 				'N'		: semua_hasil_o['natural']
 			})
 
-		print(f"hasil_final_s = {hasil_final_s} dan jumlah = {len(hasil_final_s)} dan tipe = {type(hasil_final_s)}")
-		print("___")
-		print("___")
-		print("___")
+		# print(f"hasil_final_s = {hasil_final_s} dan jumlah = {len(hasil_final_s)} dan tipe = {type(hasil_final_s)}")
+		# print("___")
+		# print("___")
+		# print("___")
 
-		print(f"hasil_final_o = {hasil_final_o} dan jumlah = {len(hasil_final_o)} dan tipe = {type(hasil_final_o)}")
+		# print(f"hasil_final_o = {hasil_final_o} dan jumlah = {len(hasil_final_o)} dan tipe = {type(hasil_final_o)}")
 
 		files = {
 			'jumlah_file_name_s'	: len(file_name_s),
@@ -243,9 +243,9 @@ class Ekspresi_wajah:
 					h_s['WS'] = value
 			hasil_s.append(h_s)
 
-			print(f"Hasil S ke-{i} = {hasil_s[i]} dan jumlah={len(hasil_s[i])}")
-			print(f"Target akhir ke-{i} = {target_akhir[i]} dan jumlah={len(target_akhir[i])}")
-			print(f"-==-")
+			# print(f"Hasil S ke-{i} = {hasil_s[i]} dan jumlah={len(hasil_s[i])}")
+			# print(f"Target akhir ke-{i} = {target_akhir[i]} dan jumlah={len(target_akhir[i])}")
+			# print(f"-==-")
 
 		hasil_o = []
 		for i in range(jumlah_data):
@@ -259,9 +259,9 @@ class Ekspresi_wajah:
 					h_o['WO'] = value
 			hasil_o.append(h_o)
 
-			print(f"hasil_o ke-{i} = {hasil_o[i]} dan jumlah={len(hasil_o[i])}")
-			print(f"Target akhir ke-{i} = {target_akhir[i]} dan jumlah={len(target_akhir[i])}")
-			print(f"-==-")
+			# print(f"hasil_o ke-{i} = {hasil_o[i]} dan jumlah={len(hasil_o[i])}")
+			# print(f"Target akhir ke-{i} = {target_akhir[i]} dan jumlah={len(target_akhir[i])}")
+			# print(f"-==-")
 
 		akurasi_s = []
 		for i in range(jumlah_data):
@@ -275,11 +275,10 @@ class Ekspresi_wajah:
 			# jika hasil_s tidak ada pada target maka akurasi key nya 0
 			for k in target_akhir[i].keys():
 				if any(k in d for d in hasil_s[i].keys()) == False and k != 'WT':
-					print(f"hahuy == {k}")
 					a_s[k] = 0
 
 			akurasi_s.append(a_s)
-			print(f"akurasi_s ke-{i} = {akurasi_s[i]} dan jumlah={len(akurasi_s[i])}")
+			# print(f"akurasi_s ke-{i} = {akurasi_s[i]} dan jumlah={len(akurasi_s[i])}")
 
 		akurasi_o = []
 		for i in range(jumlah_data):
@@ -287,10 +286,13 @@ class Ekspresi_wajah:
 			for key,value in  hasil_o[i].items():
 				if key == 'WO':
 					a_o[key] = (hasil_o[i][key]/target_akhir[i]['WT']) * 100 if target_akhir[i]['WT'] != 0 else 0
-
-			for key,value in hasil_o[i].items():
 				if key != 'WO':
-					a_o[key] = (hasil_o[i][key]/target[i][key]) * 100 if target[i][key] != 0 else 0
+					a_o[key] = 100 if hasil_o[i][key] > target[i][key] else ((hasil_o[i][key]/target[i][key]) * 100 if target[i][key] != 0 else 0)
+
+			# jika hasil_o tidak ada pada target maka akurasi key nya 0
+			for k in target_akhir[i].keys():
+				if any(k in d for d in hasil_o[i].keys()) == False and k != 'WT':
+					a_o[k] = 0
 			akurasi_o.append(a_o)
 
 		jW = 0
@@ -376,35 +378,40 @@ class Ekspresi_wajah:
 					aN += value
 
 		rata2_akurasi_o = {
-			'WO'		: aW/jW if jW != 0 else 0,
-			'B'			: aB/jB if jB != 0 else 0,
-			'S'			: aS/jS if jS != 0 else 0,
-			'M'			: aM/jM if jM != 0 else 0,
-			'J'			: aJ/jJ if jJ != 0 else 0,
-			'K'			: aK/jK if jK != 0 else 0,
-			'T'			: aT/jT if jT != 0 else 0,
-			'N'			: aN/jN if jN != 0 else 0
+			'WO'		: aW/jW if jW != 0 else int(0),
+			'B'			: aB/jB if jB != 0 else int(0),
+			'S'			: aS/jS if jS != 0 else int(0),
+			'M'			: aM/jM if jM != 0 else int(0),
+			'J'			: aJ/jJ if jJ != 0 else int(0),
+			'K'			: aK/jK if jK != 0 else int(0),
+			'T'			: aT/jT if jT != 0 else int(0),
+			'N'			: aN/jN if jN != 0 else int(0)
 		}
 
 		r_all_s = []
-		for i in range(jumlah_data):
-			for key, value in rata2_akurasi_s.items():
-				if key in akurasi_s[i].keys():
-					v = round(value, 2)
-					r_all_s.append(key + '=' + str(v))
+		for key, value in rata2_akurasi_s.items():
+			if type(value) == float and value == 0.0:
+				v = round(value, 2)
+				r_all_s.append(key + '=' + str(v))
+			if value != 0:
+				v = round(value, 2)
+				r_all_s.append(key + '=' + str(v))
 
 		r_all_o = []
-		for i in range(jumlah_data):
-			for key, value in rata2_akurasi_o.items():
-				if key in akurasi_o[i].keys():
-					v = round(value, 2)
-					r_all_o.append(key + '=' + str(v))
+		for key, value in rata2_akurasi_o.items():
+			if type(value) == float and value == 0.0:
+				v = round(value, 2)
+				r_all_o.append(key + '=' + str(v))
+			if value != 0:
+				v = round(value, 2)
+				r_all_o.append(key + '=' + str(v))
+
 
 		akurasi = {
 			's'			: akurasi_s,
 			'o'			: akurasi_o,
-			'rata_s'	: set(r_all_s),
-			'rata_o'	: set(r_all_o)
+			'rata_s'	: r_all_s,
+			'rata_o'	: r_all_o
 		}
 		
 		t = []
@@ -420,8 +427,8 @@ class Ekspresi_wajah:
 					# sumbu y
 					s.append(value)
 		
-		print(f"t = {t} dan jumlah = {len(t)} dan tipe = {type(t)}")
-		print(f"s = {s} dan jumlah = {len(s)} dan tipe = {type(s)}")
+		# print(f"t = {t} dan jumlah = {len(t)} dan tipe = {type(t)}")
+		# print(f"s = {s} dan jumlah = {len(s)} dan tipe = {type(s)}")
 
 		plt.plot(t, s, linestyle='-', marker='o', color='b')
 
@@ -433,10 +440,11 @@ class Ekspresi_wajah:
 		plt.savefig(path)
 		
 
-		return render_template('layout.html', data = { 'view' : 'latih_uji', 'title' : 'Pengujian dan Pelatihan'}, jarak = jarak, files = files, target = target, semua_hasil_s = hasil_final_s, semua_hasil_o = hasil_final_o, waktu = waktu, akurasi = akurasi, jumlah_data_teruji = jumlah_data_teruji, direktori = direktori)
+		return Ekspresi_wajah.RT.tampilan_pengujian1(jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi, jumlah_data_teruji, direktori)
 
 
 	def uji_ciri_sendiri(id_file, image, nama_file):
+
 		waktu_mulai 		= time.time()
 
 		jarak_all_s 		= []
@@ -591,6 +599,7 @@ class Ekspresi_wajah:
 
 
 	def uji_ciri_opencv(id_file, image, nama_file, directory, id_pengujian_update, waktu_s):
+
 		jarak_all_o 		= []
 
 		file_name_o 		= []
@@ -725,12 +734,13 @@ class Ekspresi_wajah:
 		print(f"Waktu sekarang di o = {round(session['waktu_sekarang'], 3)}s")
 
 		## setiap 12 detik
-		if int(session['waktu_sekarang'] / (60 * 1)) == len(session['penanda_menit']):
-			durasi_menit 		= round(session['waktu_sekarang'], 3)/60
+		if int(session['waktu_sekarang'] / (60 * 0.1)) == len(session['penanda_menit']):
+			durasi_menit 		= round(round(session['waktu_sekarang'], 3)/60, 3)
+			key_durasi 			= str(durasi_menit).replace('.', ',')
 			jumlah_data_teruji 	= {
-				round(durasi_menit, 3) : session['jumlah_data_uji']
+				key_durasi : session['jumlah_data_uji']
 			}
-			session['penanda_menit'].append(str(round(durasi_menit, 0)))
+			session['penanda_menit'].append(key_durasi)
 
 		print(f"Jumlah penanda menit = {session['penanda_menit'] } dan jumlah =  {len(session['penanda_menit'] )}")
 
@@ -783,18 +793,33 @@ class Ekspresi_wajah:
 
 
 		# data euclidean ciri pelatihan dan ciri uji sendiri
-		results = []
+		results_s = []
 		for data in data_jarak_s:
 			distances = {}
 			for jarak in data:
 				distances[jarak[0]] = Ekspresi_wajah.distance(jarak[1:])
-			results.append(distances)
+			results_s.append(distances)
 
-		print(results)
+		print(results_s)
 
-		for hasil in results:
+		for hasil in results_s:
 			jarak_min = min(hasil, key=hasil.get)
 			print(f"Jarak minimum = {jarak_min} : {hasil[jarak_min]}")
+
+		# data euclidean ciri pelatihan dan ciri uji OpenCV
+		results_o = []
+		for data in data_jarak_o:
+			distances = {}
+			for jarak in data:
+				distances[jarak[0]] = Ekspresi_wajah.distance(jarak[1:])
+			results_o.append(distances)
+
+		print(results_o)
+
+		for hasil in results_o:
+			jarak_min = min(hasil, key=hasil.get)
+			print(f"Jarak minimum = {jarak_min} : {hasil[jarak_min]}")
+
 
 		return Ekspresi_wajah.RT.tampilan_detail(ciri_all_s, ciri_all_o, data_pengujian, data_jarak_s, data_jarak_o, hasil_s, hasil_o)
 
@@ -970,17 +995,6 @@ class Ekspresi_wajah:
 
 		return Ekspresi_wajah.RT.tampilan_pengujian2(semua_hasil)
 
-	def encode_class(labels):
-		dct = {
-			"bahagia": 0,
-			"sedih": 1,
-			"marah": 2,
-			"jijik": 3,
-			"kaget": 4,
-			"takut": 5,
-			"natural": 6
-		}
-		return [dct[str(label)] for label in labels]
 
 	def hitung_jarak(data1, data2):
 		data = abs(data1-data2)

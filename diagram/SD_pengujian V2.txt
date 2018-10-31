@@ -64,21 +64,15 @@ UI -> Ekspresi_wajah : pengujian1()
 			create control GMI
 			Ekspresi_wajah -> GMI : <<GMI(sub_face)>>
 			activate GMI
-			GMI -> GMI : hitungMomenNormalisasi()
-			activate GMI
-			deactivate GMI
-			GMI -> GMI : hitungCiri()
-			activate GMI
-			deactivate GMI
+			Ekspresi_wajah -> GMI : hitungMomenNormalisasi()
+			Ekspresi_wajah -> GMI : hitungCiri()
 			GMI --> Ekspresi_wajah : ciri
 			deactivate GMI
 
 			create control Klasifikasi
 			Ekspresi_wajah -> Klasifikasi : <<Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)>>
 			activate Klasifikasi
-			Klasifikasi -> Klasifikasi : classify([ciri])
-			activate Klasifikasi
-			deactivate Klasifikasi
+			Ekspresi_wajah -> Klasifikasi : classify([ciri])
 			Klasifikasi --> Ekspresi_wajah : ekspresi
 			deactivate Klasifikasi
 

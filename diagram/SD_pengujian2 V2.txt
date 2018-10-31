@@ -108,8 +108,15 @@ activate Ekspresi_wajah
 	deactivate Database
 
 	Ekspresi_wajah --> Ekspresi_wajah : file_name_o, jarak_all_o, hasil_all_o, jumlah_data_teruji
+	deactivate Ekspresi_wajah
+
+
+	Ekspresi_wajah -> Render_template : tampilan_pengujian1(jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi, jumlah_data_teruji, direktori)
 
 	deactivate Ekspresi_wajah
+	
+	activate Render_template
+	deactivate Render_template
 
 
 @enduml
