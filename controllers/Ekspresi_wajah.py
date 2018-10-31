@@ -270,7 +270,7 @@ class Ekspresi_wajah:
 				if key == 'WS':
 					a_s[key] = (hasil_s[i][key]/target_akhir[i]['WT']) * 100 if target_akhir[i]['WT'] != 0 else 0
 				if key != 'WS':
-					a_s[key] = (hasil_s[i][key]/target[i][key]) * 100 if target[i][key] != 0 else 0
+					a_s[key] = 100 if hasil_s[i][key] > target[i][key] else ((hasil_s[i][key]/target[i][key]) * 100 if target[i][key] != 0 else 0)
 
 			# jika hasil_s tidak ada pada target maka akurasi key nya 0
 			for k in target_akhir[i].keys():
@@ -781,7 +781,21 @@ class Ekspresi_wajah:
 			data_jarak_s.append(Ekspresi_wajah.Db.select_data_jarak(id_ciri_s[i]))
 			data_jarak_o.append(Ekspresi_wajah.Db.select_data_jarak(id_ciri_o[i]))
 
-	
+
+		# data euclidean ciri pelatihan dan ciri uji sendiri
+		results = []
+		for data in data_jarak_s:
+			distances = {}
+			for jarak in data:
+				distances[jarak[0]] = Ekspresi_wajah.distance(jarak[1:])
+			results.append(distances)
+
+		print(results)
+
+		for hasil in results:
+			jarak_min = min(hasil, key=hasil.get)
+			print(f"Jarak minimum = {jarak_min} : {hasil[jarak_min]}")
+
 		return Ekspresi_wajah.RT.tampilan_detail(ciri_all_s, ciri_all_o, data_pengujian, data_jarak_s, data_jarak_o, hasil_s, hasil_o)
 
 
@@ -971,5 +985,8 @@ class Ekspresi_wajah:
 	def hitung_jarak(data1, data2):
 		data = abs(data1-data2)
 		return data
+
+	def distance(data):
+		return np.linalg.norm(data)
 
 
