@@ -7,7 +7,7 @@ if (Menekan tombol) then (**Browse**)
 | Sistem |
 :Menampilkan kotak dialog pencarian berkas;
 |                                      Peneliti |
-:Memilih berkas citra yang akan dilakukan pelatihan;
+:Memilih berkas citra\nyang akan dilakukan pelatihan;
 |                                      Peneliti |
 :Menekan tombol Latih;
 | Sistem |
