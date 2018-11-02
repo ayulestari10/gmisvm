@@ -183,12 +183,12 @@
 										</td>
 										<td>
 											{% for key, value in akurasi['s'][i].items(): %}
-												{{ key + '=' + value|int|string + '%'}}</br>
+												{{ key + '=' + value|round|string + '%'}}</br>
 											{% endfor %}
 										</td>
 										<td>
 											{% for key, value in akurasi['o'][i].items(): %}
-												{{ key + '=' + value|int|string + '%'}}</br>
+												{{ key + '=' + value|round|string + '%'}}</br>
 											{% endfor %}
 										</td>
 										<td>

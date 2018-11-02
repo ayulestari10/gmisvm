@@ -139,15 +139,7 @@ class Database:
 			print("Error first row pengujian")
 			return None
 
-	def select_sejumlah_data_latih(self, ket, kelas, jumlah):
-		try:
-			self.cur.execute("SELECT * FROM ciri_pelatihan WHERE ket='" + ket + "' AND kelas='" + kelas +  "' ORDER BY id_ciri_pelatihan ASC LIMIT " + str(jumlah))
-			self.db.commit()
-			data = self.cur.fetchall()
-			return data
-		except:
-			print("Error select sejumlah data uji")
-			return None
+	
 
 	def select_data_jarak(self, id_ciri_pengujian):
 		try:
@@ -236,5 +228,15 @@ class Database:
 			self.db.commit()
 		except:
 			print("Error ID")
+			return None
+
+	def select_sejumlah_data_latih(self, ket, kelas, jumlah):
+		try:
+			self.cur.execute("SELECT * FROM ciri_pelatihan WHERE ket='" + ket + "' AND kelas='" + kelas +  "' ORDER BY id_ciri_pelatihan ASC LIMIT " + str(jumlah))
+			self.db.commit()
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select sejumlah data uji")
 			return None
 

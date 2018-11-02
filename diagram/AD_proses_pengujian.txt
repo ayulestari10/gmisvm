@@ -2,34 +2,18 @@
 | Peneliti |
 start
 
-:Memilih menu latih dan uji;
+:Menekan tombol Uji;
+
 | Sistem |
-:Menampilkan halaman latih dan uji;
-| Peneliti |
-:Menekan tombol pada unggah data;
-| Sistem |
-:Menampilkan kotak dialog pencarian berkas;
-| Peneliti |
-:Memilih berkas citra yang akan dilakukan pelatihan;
-| Peneliti |
-:Menekan tombol latih dan uji;
-| Sistem |
-:Melakukan deteksi wajah pada data latih;
-| Sistem |
+:Membaca piksel citra data uji;
+:Mengubah ukuran citra;
+:Melakukan deteksi wajah;
 :Melakukan praproses wajah;
-| Sistem |
 :Melakukan ekstraksi ciri wajah dengan Geometric Moment Invariants;
-| Sistem |
-:Menyimpan kumpulan ciri dan kelasnya ke dalam database;
-| Sistem |
-:Melakukan deteksi wajah pada data uji;
-| Sistem |
-:Melakukan praproses wajah;
-| Sistem |
-:Melakukan ekstraksi ciri wajah dengan Geometric Moment Invariants;
-| Sistem |
+:Menyimpan ciri dan kelas wajah;
+:Mengambil ciri dan kelas wajah data latih;
 :Melakukan klasifikasi ekspresi wajah;
-| Sistem |
+:Menyimpan hasil pengujian;
 :Menampilkan hasil pengujian;
 
 
