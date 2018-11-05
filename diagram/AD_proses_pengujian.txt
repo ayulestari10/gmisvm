@@ -2,7 +2,7 @@
 | Peneliti |
 start
 
-:Menekan tombol Uji;
+:Menekan tombol Uji untuk pengujian pertama;
 
 | Sistem |
 :Membaca piksel citra data uji;
@@ -16,6 +16,13 @@ start
 :Menyimpan hasil pengujian;
 :Menampilkan hasil pengujian;
 
+| Peneliti |
+:Menekan tombol Uji untuk pengujian kedua;
+
+| Sistem |
+:Mengambil ciri dan kelas wajah data latih;
+:Melakukan teknik K-Fold Cross Validation untuk beberapa metode klasifikasi;
+:Menampilkan hasil pengujian;
 
 stop
 @enduml
