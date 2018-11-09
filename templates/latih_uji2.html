@@ -1,0 +1,117 @@
+<section style="min-height: 600px !important;">
+    <div class="container">
+      	<div class="section text-center" style="margin: auto 0 !important;">
+
+			<div class="row" style="text-align: left;">
+
+				<div class="col-md-6 heading">
+					<h3>Pengujian dan Pelatihan</h3>
+					<div>
+					{% with messages2 = get_flashed_messages(category_filter=["latih_uji2"]) %}
+						{% if messages2 %}
+							<div class="alert alert-success">
+								{%- for msg in messages2 %}
+									{{ msg }}
+								{% endfor -%}
+							</div>
+							{% endif %}
+						{% endwith %}
+					</div>
+					<form action="{{ url_for('.uji_data') }}" method="POST">
+						<div class="form-group">
+					    	<p class="text-danger" style="font-size: 12px;">* Fitur ini untuk jumlah data latih dan ekspresi yang berbeda</p>
+							<input type="submit" name="uji_data" class="btn btn-primary" value="Latih dan Uji">
+						</div>
+					</form> 
+				</div>
+			</div>
+
+
+			<style type="text/css">
+				table{width: 100%}
+				.foto{width:100px; height:100px;}
+			</style>
+
+			{% if rata_rata %}
+			<div style="margin-top: 5%;">
+				<hr><hr>
+			</div>
+				<div class="row">
+					<div class="col-md-12 heading">
+						<h3><strong>Hasil Pengujian</strong></h3>
+					</div>
+				</div>
+				
+				<div class="row" style="margin-top: 2%;">
+					<div class="col-md-12">
+						<table class="table table-bordered" style="text-align: center;">
+							<thead class="thead-light">
+								<tr>
+									<th rowspan="2" style="width: 50px !important;">No</th>
+									<th colspan="2">Jumlah</th>
+									<th rowspan="2" style="width: 100px;">Ekspresi</th>
+									<th colspan="2">Rata-Rata Akurasi</th>
+								</tr>
+								<tr>
+									<th style="width: 100px;">Data <br>Latih</th>
+									<th style="width: 100px;">Data <br>Uji</th>
+									<th>Ciri dari <br> Kode Sendiri</th>
+									<th>Ciri dari OpenCV</th> 
+								</tr>
+							</thead>
+							<tbody>
+								{% set jumlah_pengujian = rata_rata|length %}
+								{% for i in range(jumlah_pengujian) %}
+									<tr>
+										<td>{{ i + 1 }}</td>
+										<td>
+											{{ rata_rata[i]['jumlah_data_latih_s'] }}
+										</td>
+										<td>
+											{{ rata_rata[i]['jumlah_data_uji'] }}
+										</td> 
+										<td>
+											{% set jumlah_ekspresi = rata_rata[i]['ekspresi']|length %}
+											{% for j_e in range(jumlah_ekspresi): %}
+												{{ rata_rata[i]['ekspresi'][j_e] }}
+											{% endfor %}
+										</td>  
+										<td>
+											{% set jumlah_akurasi_s = rata_rata[i]['rata_s']|length %}
+											{% for a_s in range(jumlah_akurasi_s): %}
+												{{ rata_rata[i]['rata_s'][a_s]|string + '%' }} <br>
+											{% endfor %}
+										</td>
+										<td>
+											{% set jumlah_akurasi_o = rata_rata[i]['rata_o']|length %}
+											{% for a_o in range(jumlah_akurasi_o): %}
+												{{ rata_rata[i]['rata_o'][a_o]|string + '%' }} <br>
+											{% endfor %}
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+</section>
+
+<script type="text/javascript">
+	var UI;
+	window.onload = function() {
+		$(document).ready(function() {
+
+			UI = {
+				latih_uji: function() {
+					$('#form-latih-uji').submit();
+					return false;
+				}
+			};
+
+		});
+	};
+	
+</script>

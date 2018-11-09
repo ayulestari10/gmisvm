@@ -140,9 +140,9 @@ class Database:
 			print("Error first row")
 			return None
 
-	def select_avg(self, table, kelas):
+	def select_avg(self, table, kelas, ket):
 		try:
-			query = "SELECT AVG(ciri1) AS avg_ciri1, AVG(ciri2) AS avg_ciri2, AVG(ciri3) AS avg_ciri3, AVG(ciri4) AS avg_ciri4, AVG(ciri5) AS avg_ciri5, AVG(ciri6) AS avg_ciri6, AVG(ciri7) AS avg_ciri7 FROM " + table + " WHERE kelas='" + kelas + "'"
+			query = "SELECT AVG(ciri1) AS avg_ciri1, AVG(ciri2) AS avg_ciri2, AVG(ciri3) AS avg_ciri3, AVG(ciri4) AS avg_ciri4, AVG(ciri5) AS avg_ciri5, AVG(ciri6) AS avg_ciri6, AVG(ciri7) AS avg_ciri7 FROM " + table + " WHERE kelas='" + kelas + "' AND ket ='" + ket + "'"
 			self.cur.execute(query)
 			self.db.commit()
 			data_rata_rata = self.cur.fetchall()
@@ -171,4 +171,104 @@ class Database:
 			return data
 		except:
 			print("Error select hasil ciri pengujian o")
+			return None
+
+	
+
+	############################################################################################################
+
+	def select_hasil_pengujian_s(self, id_ciri_pengujian_s):
+		try:
+			query = "Select pengujian.hasil_sendiri as hasil from pengujian inner join ciri_pengujian on ciri_pengujian.id_ciri_pengujian = pengujian.id_ciri_pengujian_s where ciri_pengujian.id_ciri_pengujian = " + str(id_ciri_pengujian_s)
+			self.cur.execute(query)
+			self.db.commit()
+			ekspresi = self.cur.fetchall()
+			return ekspresi
+		except:
+			print("Error select hasil pengujian s")
+			return None
+
+	def select_hasil_pengujian_o(self, id_ciri_pengujian_o):
+		try:
+			query = "Select pengujian.hasil_sendiri as hasil from pengujian inner join ciri_pengujian on ciri_pengujian.id_ciri_pengujian = pengujian.id_ciri_pengujian_o where ciri_pengujian.id_ciri_pengujian = " + str(id_ciri_pengujian_o)
+			self.cur.execute(query)
+			self.db.commit()
+			ekspresi = self.cur.fetchall()
+			return ekspresi
+		except:
+			print("Error select hasil pengujian o")
+			return None
+
+	def select_tampil_hasil_ekstraksi_ciri_s(self, id_ciri1, id_ciri2):
+		try:
+			query = "SELECT id_ciri_pengujian, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7, pengujian.hasil_sendiri as hasil FROM `ciri_pengujian` inner join pengujian on pengujian.id_ciri_pengujian_s = ciri_pengujian.id_ciri_pengujian WHERE id_ciri_pengujian BETWEEN " + str(id_ciri1) + " AND "  + str(id_ciri2)
+			self.cur.execute(query)
+			self.db.commit()
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select tampil hasil ekstraksi ciri s")
+			return None
+
+	def select_tampil_hasil_ekstraksi_ciri_o(self, id_ciri1, id_ciri2):
+		try:
+			query = "SELECT id_ciri_pengujian, ciri1, ciri2, ciri3, ciri4, ciri5, ciri6, ciri7, pengujian.hasil_sendiri as hasil FROM `ciri_pengujian` inner join pengujian on pengujian.id_ciri_pengujian_o = ciri_pengujian.id_ciri_pengujian WHERE id_ciri_pengujian BETWEEN " + str(id_ciri1) + " AND "  + str(id_ciri2)
+			self.cur.execute(query)
+			self.db.commit()
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select tampil hasil ekstraksi ciri o")
+			return None
+
+
+	def select_data_uji2(self):
+		try:
+			self.cur.execute("SELECT * FROM file_uji2")
+			self.db.commit()
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select file uji 2")
+			return None
+
+	def select_data_uji_limit(self, jumlah):
+		try:
+			self.cur.execute("SELECT * FROM file_uji order by id_file LIMIT " + str(jumlah))
+			self.db.commit()
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select file uji limit")
+			return None
+
+	def select_data_uji_query(self, query):
+		try:
+			self.cur.execute(query)
+			self.db.commit()
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select file uji query")
+			return None
+
+	def select_data_pengujian_tertentu(self, kolom, id1, id2, id_file):
+		try:
+			query = "SELECT "+ kolom +", direktori FROM `pengujian` WHERE id_pengujian BETWEEN "+ str(id1) +" and "+ str(id2) +" and id_file =" + str(id_file)
+			self.cur.execute(query)
+			self.db.commit()
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select data pengujian tertentu")
+			return None
+
+	def select_sejumlah_data_latih(self, ket, kelas, jumlah):
+		try:
+			self.cur.execute("SELECT * FROM ciri_pelatihan WHERE ket='" + ket + "' AND kelas='" + kelas +  "' ORDER BY id_ciri_pelatihan ASC LIMIT " + str(jumlah))
+			self.db.commit()
+			data = self.cur.fetchall()
+			return data
+		except:
+			print("Error select sejumlah data uji")
 			return None
