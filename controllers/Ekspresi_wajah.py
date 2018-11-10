@@ -950,12 +950,17 @@ class Ekspresi_wajah:
 		return Ekspresi_wajah.RT.tampilan_pengujian2(semua_hasil)
 
 
+	
+
 	##########################################################################################################
+	##########################################################################################################
+
+
 
 
 	@page.route(f'{base}/analisis', methods=['GET', 'POST'])
 	def analisis():
-		Ekspresi_wajah.simpan_gambar()
+		Ekspresi_wajah.visualisasi_data_latih()
 
 		return "Analisis"
 
@@ -1060,12 +1065,14 @@ class Ekspresi_wajah:
 		# kum_ekspresi	= ['bahagia', 'sedih', 'kaget', 'takut', 'natural']
 		# query 			= "SELECT * FROM `file_uji` WHERE (jumlah_sedih != 0 or jumlah_bahagia != 0 or jumlah_natural != 0 or jumlah_kaget != 0 or jumlah_takut != 0) and jumlah_marah = 0 and jumlah_jijik = 0"
 
-		# Percobaan Ke-2
-		jumlah 			= [68]
-		kum_ekspresi	= ['bahagia', 'sedih', 'natural']
+		# Percobaan Ke-2 hingga Ke-5
+		# jumlah 			= [68]
+		# kum_ekspresi	= ['bahagia', 'sedih', 'natural']
 		# query 			= "SELECT * FROM `file_uji` WHERE (jumlah_sedih != 0 or jumlah_bahagia != 0 or jumlah_natural != 0) and jumlah_marah = 0 and jumlah_jijik = 0 and jumlah_kaget = 0 and jumlah_takut = 0"
 
-
+		# Semua Ekspresi
+		jumlah 			= [30, 50, 68]
+		kum_ekspresi	= ['bahagia', 'sedih']
 
 		data_latih_s	= []
 		data_latih_o	= []
@@ -1600,35 +1607,38 @@ class Ekspresi_wajah:
 
 		from sklearn.decomposition import PCA
 
-		pca = PCA(n_components=2).fit(data_s)
-		data2D = pca.transform(data_s)
-		data2D = 1000 * data2D
-		x_std = np.std(data2D[:, 0])
-		y_std = np.std(data2D[:, 1])
-
-		plt.xlabel("Komponen 1")
-		plt.ylabel("Komponen 2")
-		plt.title("Distribusi Titik Data Citra Grafik 2D Kode Sendiri")
-
-		for label in set(label_s):
-			plt.scatter(data2D[csv_s[csv_s[2] == label].index.values][:,0], data2D[csv_s[csv_s[2] == label].index.values][:,1], c=color_s[csv_s[csv_s[2] == label].index.values], label=labels[label], edgecolors='black')
-		plt.legend(loc="upper left")
-		plt.xlim((-5, 25))
-		plt.ylim((-1, 0))
-		plt.grid()
-		plt.show()
-
-		# pca = PCA(n_components=2).fit(data_o)
-		# data2D = pca.transform(data_o)
+		# pca = PCA(n_components=2).fit(data_s)
+		# data2D = pca.transform(data_s)
+		# # data2D = 1000 * data2D
 		# x_std = np.std(data2D[:, 0])
 		# y_std = np.std(data2D[:, 1])
 
 		# plt.xlabel("Komponen 1")
 		# plt.ylabel("Komponen 2")
-		# plt.title("Distribusi Titik Data Citra Grafik 2D OpenCV")
+		# plt.title("Distribusi Titik Data Latih dari Ciri Kode Sendiri Pada Grafik 2D")
 
-		# for label in set(label_o):
-		#  plt.scatter(data2D[csv_o[csv_o[2] == label].index.values][:,0], data2D[csv_o[csv_o[2] == label].index.values][:,1], c=color_o[csv_o[csv_o[2] == label].index.values], label=labels[label], edgecolors='black')
-		# plt.legend(loc="lower right")
+		# for label in set(label_s):
+		# 	plt.scatter(data2D[csv_s[csv_s[2] == label].index.values][:,0], data2D[csv_s[csv_s[2] == label].index.values][:,1], c=color_s[csv_s[csv_s[2] == label].index.values], label=labels[label], edgecolors='black')
+		# plt.legend(loc="lower left")
+		# plt.xlim((-5, 25))
+		# plt.ylim((-1, 0.01))
 		# plt.grid()
 		# plt.show()
+
+		pca = PCA(n_components=2).fit(data_o)
+		data2D = pca.transform(data_o)
+		# data2D = 1000 * data2D
+		x_std = np.std(data2D[:, 0])
+		y_std = np.std(data2D[:, 1])
+
+		plt.xlabel("Komponen 1")
+		plt.ylabel("Komponen 2")
+		plt.title("Distribusi Titik Data Latih dari Ciri OpenCV Pada Grafik 2D")
+
+		for label in set(label_o):
+			plt.scatter(data2D[csv_o[csv_o[2] == label].index.values][:,0], data2D[csv_o[csv_o[2] == label].index.values][:,1], c=color_o[csv_o[csv_o[2] == label].index.values], label=labels[label], edgecolors='black')
+		plt.legend(loc="upper left")
+		# plt.xlim((-5, 25))
+		# plt.ylim((-1, 0.01))
+		plt.grid()
+		plt.show()
