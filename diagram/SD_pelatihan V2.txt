@@ -63,12 +63,12 @@ activate Ekspresi_wajah
 				activate Database
 				deactivate Database
 
-				Ekspresi_wajah -> Render_template : tampilan_latih_uji()
-				deactivate Ekspresi_wajah
-				activate Render_template
-				deactivate Render_template
 			end
 		end
   
 	end
+				Ekspresi_wajah -> Render_template : tampilan_latih_uji()
+				deactivate Ekspresi_wajah
+				activate Render_template
+				deactivate Render_template
 @enduml

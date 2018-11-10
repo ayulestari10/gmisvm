@@ -44,32 +44,9 @@ class Deteksi_wajah:
 		return path_wajah
 
 
-	# def deteksi_multi_face(self, path, nama_file, ket):
-		# Resize
-		# path_resize			= self.resize_image(path, nama_file, 'uji', 'uji')
-
-		# deteksi wajah
-		# faces, img 			= Deteksi_wajah.OC.deteksi(path_resize)
-
-		# if ket == 'sendiri':
-		# 	direktori 			= strftime("%Y-%m-%d_%H-%M-%S")
-		# 	path2 				= 'static/data/latih_uji/' + direktori
-		# 	if os.path.exists(path2) is False:
-		# 		os.mkdir(path2)
-		# 	return faces, img, direktori, path2
-
-		# else: 
-		# 	return faces, img
-
-
-
 	############################################################################
 
-	def hitung_error(self, data1, data2):
-		# MAE (Mean Absolute Error)
-		E = (np.sum(np.abs(data1 - data2)) )/ 7
-		print(f"Nilai Mean Absolute Error = {E}")
-
+	
 
 	# fungsi untuk mengambil piksel sub window
 	def get_sliding_window(self, matrix, x, y, size = 24):
@@ -184,7 +161,6 @@ class Deteksi_wajah:
 		D = sliding_window[br_x + chunk_x, br_y + chunk_y]
 
 		black += D + A - (B + C)
-		print(f"black: {D} + {A} - ({B} + {C})")
 
 		return abs(black - white)
 

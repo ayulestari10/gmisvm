@@ -57,46 +57,7 @@ activate Ekspresi_wajah
 		Ekspresi_wajah -> Database : select_first_row()
 		Database --> Ekspresi_wajah : data
 		Ekspresi_wajah -> Database : update_pengujian(data_pengujian)
-		deactivate Database
-
-		
-		loop for i in range(7)
-			Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(cv[i], rata_rata_ciri_o['bahagia'][i]])
-			activate Ekspresi_wajah
-			Ekspresi_wajah --> Ekspresi_wajah : data
-			deactivate Ekspresi_wajah
-			Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciricv[i], rata_rata_ciri_o['sedih'][i]])
-			activate Ekspresi_wajah
-			Ekspresi_wajah --> Ekspresi_wajah : data
-			deactivate Ekspresi_wajah
-			Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciricv[i], rata_rata_ciri_o['marah'][i]])
-			activate Ekspresi_wajah
-			Ekspresi_wajah --> Ekspresi_wajah : data
-			deactivate Ekspresi_wajah
-			Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciricv[i], rata_rata_ciri_o['jijik'][i]])
-			activate Ekspresi_wajah
-			Ekspresi_wajah --> Ekspresi_wajah : data
-			deactivate Ekspresi_wajah
-			Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciricv[i], rata_rata_ciri_o['kaget'][i]])
-			activate Ekspresi_wajah
-			Ekspresi_wajah --> Ekspresi_wajah : data
-			deactivate Ekspresi_wajah
-			Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciricv[i], rata_rata_ciri_o['takut'][i]])
-			activate Ekspresi_wajah
-			Ekspresi_wajah --> Ekspresi_wajah : data
-			deactivate Ekspresi_wajah
-			Ekspresi_wajah -> Ekspresi_wajah : hitung_jarak(ciricv[i], rata_rata_ciri_o['natural'][i]])
-			activate Ekspresi_wajah
-			Ekspresi_wajah --> Ekspresi_wajah : data
-			deactivate Ekspresi_wajah
-		end
-
-		loop for s in range(7)
-			Ekspresi_wajah -> Database : insert_jarak_ciri(id_ciri_pengujian_o, kumpulan_ekspresi[i], kumpulan_jarak[i])
-			activate Database
-			deactivate Database
-		end
-		
+		deactivate Database		
 	end
 
 
@@ -107,11 +68,11 @@ activate Ekspresi_wajah
 	Ekspresi_wajah -> Database : insert_hasil(hasil_all_o)
 	deactivate Database
 
-	Ekspresi_wajah --> Ekspresi_wajah : file_name_o, jarak_all_o, hasil_all_o, jumlah_data_teruji
+	Ekspresi_wajah --> Ekspresi_wajah : file_name_o, hasil_all_o, jumlah_data_teruji
 	deactivate Ekspresi_wajah
 
 
-	Ekspresi_wajah -> Render_template : tampilan_pengujian1(jarak, files, target, hasil_final_s, hasil_final_o, waktu, akurasi, jumlah_data_teruji, direktori)
+	Ekspresi_wajah -> Render_template : tampilan_pengujian1(files, target, hasil_final_s, hasil_final_o, waktu, akurasi, jumlah_data_teruji, direktori)
 
 	deactivate Ekspresi_wajah
 	

@@ -67,8 +67,8 @@
 						{% endwith %}
 					</div>
 
-					<form id="form-uji" action="{{ url_for('.pengujian1') }}" method="POST" enctype="multipart/form-data">
-						<input type="submit" name="pengujian1" class="btn btn-primary" value="Uji" onclick="UI.uji(); return false;">
+					<form id="form-uji1" action="{{ url_for('.pengujian1') }}" method="POST" enctype="multipart/form-data">
+						<input type="submit" name="pengujian1" class="btn btn-primary" value="Uji" onclick="UI.uji1(); return false;">
 					</form> 
 				</div>
 				<!-- /Pengujian1 -->
@@ -88,10 +88,10 @@
 							{% endif %}
 						{% endwith %}
 					</div>
-					<form action="{{ url_for('.pengujian2') }}" method="POST">
+					<form id="form-uji2" action="{{ url_for('.pengujian2') }}" method="POST">
 						<div class="form-group">
 					    	<p class="text-danger" style="font-size: 12px;">* Klasifikasi dengan beberapa metode berbeda</p>
-							<input type="submit" name="pengujian2" class="btn btn-primary" value="Uji">
+							<input type="submit" name="pengujian2" class="btn btn-primary" id="lihat_uji2" value="Uji" onclick="UI.uji2(); return false;">
 						</div>
 					</form> 
 				</div>
@@ -162,9 +162,7 @@
 										</td>  
 										<td>
 											{% for key, value in target[i].items(): %}
-												{% if value != 0: %}
-													{{ key + '=' + value|string}}</br>
-												{% endif %}
+												{{ key + '=' + value|string}}</br>
 											{% endfor %}
 										</td>
 										<td>
@@ -216,8 +214,6 @@
 				</div>
 
 
-
-
 				{% set jumlah_uji = jumlah_data_teruji|length %}
 				<div class="row" style="margin-top: 2%; margin-bottom: 3%;" id="waktu_dan_data">
 					<div class="col-md-12 heading">
@@ -258,6 +254,64 @@
 				</div>
 
 			{% endif %}
+
+
+			{% set jumlah_semua_hasil = semua_hasil|length %}
+			{% if jumlah_semua_hasil != 0 %}
+				<div style="margin-top: 5%;">
+					<hr><hr>
+				</div>
+				<div id="pengujian2">
+					<div class="row" style="margin-top: 5%;">
+						<div class="col-md-12 heading">
+							<h3><strong>Hasil Pengujian</strong></h3>
+						</div>
+					</div>
+
+					<div class="row" id="hasil" style="margin-top: 2%;">
+						<div class="col-md-12">
+							<table class="table table-bordered" style="text-align: center;">
+								<thead class="thead-light">
+									<tr>
+										<th rowspan="2">Metode <br> Klasifikasi</th>
+										<th colspan="9">Rata-Rata Hasil Akurasi Setiap K- <i>Fold Cross Validation</i></th>
+										<th rowspan="2">Rata-Rata</th>
+									</tr>
+									<tr>
+										<th>K=2</th>
+										<th>K=3</th>
+										<th>K=4</th>
+										<th>K=5</th>
+										<th>K=6</th>
+										<th>K=7</th>
+										<th>K=8</th>
+										<th>K=9</th>
+										<th>K=10</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for key, value in semua_hasil.items(): %}
+										<tr>
+											<td>{{ key }}</td>
+											{% for i in range(10): %}
+												<td>{{ value[i] }}</td>
+											{% endfor %}
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-6 offset-md-2" style="margin-top: 3%;">
+							<div class="grafik img-fluid">
+								<img src="{{ url_for('static', filename='data/grafik/metode_klasifikasi.png') }}" alt="Grafik">
+							</div>
+						</div>
+					</div>
+				</div>
+			{% endif %}
 		</div>
 	</div>
 </section>
@@ -288,15 +342,25 @@
 
 			});
 
+			$('#lihat_uji2').click(function(){
+			    $('#waktu_dan_data').hide();
+			    $('#hasil').hide();
+				$('#pengujian2').show();
+			});
+
 			UI = {
 				latih: function() {
 					$('#form-latih').submit();
 					return false;
 				},
-				uji: function() {
-					$('#form-uji').submit();
+				uji1: function() {
+					$('#form-uji1').submit();
 					return false;
-				}
+				},
+				uji2: function() {
+					$('#form-uji2').submit();
+					return false;
+				},
 			};
 
 		});
