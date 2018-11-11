@@ -16,6 +16,5 @@ class OpenCV:
 	def gmi_OpenCV(self, piksel_biner):
 		momen 		= cv2.moments(piksel_biner)
 		ciricv 		= cv2.HuMoments(momen).flatten()
-		print(f"Ciricv = {type(ciricv)}")
 
 		return ciricv

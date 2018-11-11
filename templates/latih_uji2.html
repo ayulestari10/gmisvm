@@ -4,7 +4,7 @@
 
 			<div class="row" style="text-align: left;">
 
-				<div class="col-md-6 heading">
+				<div class="col-md-4 offset-md-4 heading">
 					<h3>Pengujian dan Pelatihan</h3>
 					<div>
 					{% with messages2 = get_flashed_messages(category_filter=["latih_uji2"]) %}
@@ -14,8 +14,8 @@
 									{{ msg }}
 								{% endfor -%}
 							</div>
-							{% endif %}
-						{% endwith %}
+						{% endif %}
+					{% endwith %}
 					</div>
 					<form action="{{ url_for('.uji_data') }}" method="POST">
 						<div class="form-group">
@@ -98,20 +98,3 @@
 		</div>
 	</div>
 </section>
-
-<script type="text/javascript">
-	var UI;
-	window.onload = function() {
-		$(document).ready(function() {
-
-			UI = {
-				latih_uji: function() {
-					$('#form-latih-uji').submit();
-					return false;
-				}
-			};
-
-		});
-	};
-	
-</script>

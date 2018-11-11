@@ -52,13 +52,14 @@ class Deteksi_wajah:
 	def get_sliding_window(self, matrix, x, y, size = 24):
 		return matrix[x:x+size, y:y+size]
 
-	def rectangle_a(self, sliding_window, x, y, size=(1, 2)):
+	def rectangle_a(self, sliding_window, x, y, size=(1, 2)): # size (1,4)
 		A = sliding_window[x - 1, y - 1]
 		B = sliding_window[x - 1, (y + size[1]  - 1) // 2]
 		C = sliding_window[x + size[0] - 1, y - 1]
 		D = sliding_window[x + size[0] - 1, (y + size[1] - 1) // 2]
 
 		black = D + A - (B + C)
+		print(f"hitam = {D} + {A} - {B} + {C}")
 
 		A = sliding_window[x - 1, ((y + size[1]) - 1) // 2]
 		B = sliding_window[x - 1, (y + size[1]) - 1]
@@ -66,8 +67,12 @@ class Deteksi_wajah:
 		D = sliding_window[x + size[0] - 1, (y + size[1]) - 1]
 
 		white = D + A - (B + C)
+		print(f"putih = {D} + {A} - {B} + {C}")
 
-		return abs(black - white)
+		hasil = abs(black - white)
+		print(f"hasil = {hasil}\n")
+
+		return hasil
 
 	def rectangle_b(self, sliding_window, x, y, size=(2, 1)):
 		A = sliding_window[x - 1, y - 1]
@@ -180,16 +185,57 @@ class Deteksi_wajah:
 		# sliding_window = self.get_sliding_window(im, 0, 0)
 		# integral_image = self.integral_image(sliding_window)
 
+		# im = np.array([
+		# 	[2, 6, 13, 18, 26],
+		# 	[3, 12, 20, 32, 47],
+		# 	[8, 23, 40, 57, 78],
+		# 	[16, 40, 67, 90, 118],
+		# 	[26, 62, 97, 123, 157]
+		# ])
+
 		im = np.array([
-			[2, 6, 13, 18, 26],
-			[3, 12, 20, 32, 47],
-			[8, 23, 40, 57, 78],
-			[16, 40, 67, 90, 118],
-			[26, 62, 97, 123, 157]
+			[2, 4, 7, 5, 8],
+			[1, 5, 1, 7, 7],
+			[5, 6, 9, 5, 6],
+			[8, 9, 10, 6, 7],
+			[10, 12, 8, 3, 6]
 		])
 
-		print(self.rectangle_d(im, 1, 1, (2, 2)))
+		print("Deteksi Wajah dengan Metode Viola Jones")
+		print(f"\nMisalkan, sub window yang telah dipraproses ke citra gray scale untuk deteksi wajah berupa matriks 5 x 5 berikut ini")
+		print(f"Matriks =\n{im}")
+		print("\n1. Ubah sub window ke dalam citra integral")
+		im_integral = self.integral_image(im)
+		print(f"matriks =\n{im_integral}")
+		print("\n2. Menghitung fitur Haar")
+		print("- Hitung fitur Haar tipe pertama")
+		
+		tipe_1 = []
+		# tipe_1.append(self.rectangle_a(im_integral, 0, 0, (1,2) )) # minimal untuk ukuran x=1, y=2
+		# tipe_1.append(self.rectangle_a(im_integral, 0, 1, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 0, 2, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 0, 3, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 1, 0, (1,2) )) 
+		tipe_1.append(self.rectangle_a(im_integral, 1, 1, (1,2) ))
+		tipe_1.append(self.rectangle_a(im_integral, 1, 2, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 1, 3, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 2, 0, (1,2) )) 
+		# tipe_1.append(self.rectangle_a(im_integral, 2, 1, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 2, 2, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 2, 3, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 3, 0, (1,2) )) 
+		# tipe_1.append(self.rectangle_a(im_integral, 3, 1, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 3, 2, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 3, 3, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 4, 0, (1,2) )) 
+		# tipe_1.append(self.rectangle_a(im_integral, 4, 1, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 4, 2, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 4, 3, (1,2) ))
 
+		
+		tipe_1.append(self.rectangle_a(im_integral, 1, 1, (1,4) ))		
+
+		print(f"Tipe 1 = {tipe_1} dan jumlah fitur tipe 1 = {len(tipe_1)}")
 
 		# im2 = np.array([
 		# 	[228,	10, 	10]

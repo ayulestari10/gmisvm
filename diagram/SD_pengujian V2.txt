@@ -27,7 +27,7 @@ UI -> Ekspresi_wajah : pengujian1()
 
 	loop for i in range(jumlah_data)
 
-		Ekspresi_wajah -> Ekspresi_wajah : uji_ciri_sendiri(id_file, path, nama_file)
+		Ekspresi_wajah -> Ekspresi_wajah : uji_ciri_sendiri(id_file, path, nama_file, data_latih)
 		activate Ekspresi_wajah
 
 		Ekspresi_wajah -> Deteksi_wajah : resize_image(image, nama_file, 'uji', 'uji')
@@ -40,12 +40,20 @@ UI -> Ekspresi_wajah : pengujian1()
 		OpenCV --> Ekspresi_wajah : faces, img
 		deactivate OpenCV
 
-		Ekspresi_wajah -> Database : select_ciri('ciri_pelatihan', 'S')
-		activate Database
-		Database --> Ekspresi_wajah : kumpulan_ciri
+		alt if len(data_latih) == 0
+			Ekspresi_wajah -> Database : select_ciri('ciri_pelatihan', 'S')
+			activate Database
+			Database --> Ekspresi_wajah : kumpulan_ciri
 
-		Ekspresi_wajah -> Database : select_kelas('ciri_pelatihan', 'S')
-		Database --> Ekspresi_wajah : kumpulan_kelas
+			Ekspresi_wajah -> Database : select_kelas('ciri_pelatihan', 'S')
+			Database --> Ekspresi_wajah : kumpulan_kelas
+
+		else
+			Ekspresi_wajah-> Ekspresi_wajah: ambil_data(data_latih)
+			activate Ekspresi_wajah
+			deactivate Ekspresi_wajah
+			Ekspresi_wajah --> Ekspresi_wajah : kumpulan_kelas, kumpulan_ciri
+		end
 
 		loop for kelas_s in kumpulan_kelas_s
 			Ekspresi_wajah -> Database : select_avg('ciri_pelatihan', kelas_s)
@@ -93,7 +101,7 @@ UI -> Ekspresi_wajah : pengujian1()
 		Ekspresi_wajah -> Database : insert_hasil(hasil_all_s)
 		deactivate Database
 
-		Ekspresi_wajah --> Ekspresi_wajah :file_name_s, directory, hasil_all_s, id_pengujian_update
+		Ekspresi_wajah --> Ekspresi_wajah :file_name_s, directory, hasil_all_s, id_pengujian_update, id_ciri_s
 
 		deactivate Ekspresi_wajah
 
@@ -101,23 +109,30 @@ UI -> Ekspresi_wajah : pengujian1()
 
 	
 
+		Ekspresi_wajah -> Ekspresi_wajah : uji_ciri_opencv(id_file, path, nama_file, direktori, id_pengujian_update, semua_hasil_s['waktu'], data_latih)
 
-	Ekspresi_wajah -> Ekspresi_wajah : uji_ciri_opencv(id_file, path, nama_file, direktori, id_pengujian_update, semua_hasil_s['waktu'])
+		activate Ekspresi_wajah
 
-	activate Ekspresi_wajah
+		Ekspresi_wajah -> OpenCV : deteksi(path)
+		activate OpenCV
+		OpenCV --> Ekspresi_wajah : faces, img
+		deactivate OpenCV
 
-	Ekspresi_wajah -> OpenCV : deteksi(path)
-	activate OpenCV
-	OpenCV --> Ekspresi_wajah : faces, img
-	deactivate OpenCV
+	alt if len(data_latih) == 0
+		Ekspresi_wajah -> Database : select_ciri('ciri_pelatihan', 'O')
+		activate Database
+		Database --> Ekspresi_wajah : kumpulan_ciri
 
-	Ekspresi_wajah -> Database : select_ciri('ciri_pelatihan', 'O')
-	activate Database
-	Database --> Ekspresi_wajah : kumpulan_ciri
+		Ekspresi_wajah -> Database : select_kelas('ciri_pelatihan', 'O')
+		Database --> Ekspresi_wajah : kumpulan_kelas
+		
 
-	Ekspresi_wajah -> Database : select_kelas('ciri_pelatihan', 'O')
-	Database --> Ekspresi_wajah : kumpulan_kelas
-	
+	else
+		Ekspresi_wajah-> Ekspresi_wajah: ambil_data(data_latih)
+		activate Ekspresi_wajah
+		deactivate Ekspresi_wajah
+		Ekspresi_wajah --> Ekspresi_wajah : kumpulan_kelas, kumpulan_ciri
+	end
 
 	loop for kelas_o in kumpulan_kelas_o
 		Ekspresi_wajah -> Database : select_avg('ciri_pelatihan', kelas_o)
@@ -160,7 +175,7 @@ UI -> Ekspresi_wajah : pengujian1()
 	Ekspresi_wajah -> Database : insert_hasil(hasil_all_o)
 	deactivate Database
 
-	Ekspresi_wajah --> Ekspresi_wajah : file_name_o, hasil_all_o, jumlah_data_teruji
+	Ekspresi_wajah --> Ekspresi_wajah : file_name_o, hasil_all_o, jumlah_data_teruji, id_ciri_o
 	deactivate Ekspresi_wajah
 
 	end
