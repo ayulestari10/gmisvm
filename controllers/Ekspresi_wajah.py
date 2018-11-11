@@ -97,8 +97,11 @@ class Ekspresi_wajah:
 				jenis_kelas	 	= dir1[i]
 				file_name		= os.listdir('data/pelatihan/' + direktori + '/' + dir2)[0]	
 				files			= os.listdir('data/pelatihan/' + direktori + '/' + dir2)
-				
+				print(f"Kelas {jenis_kelas} sedang dilakukan pelatihan.")
+				i = 0 
 				for file in files:
+					i += 1
+
 					berkas 		= cwd + '\\data\\pelatihan\\' + direktori + '\\' + dir2 + '\\' + file
 					path 		= Ekspresi_wajah.Dw.resize_image(berkas, file, direktori, dir2)
 					
@@ -118,9 +121,10 @@ class Ekspresi_wajah:
 					ciricv 		= Ekspresi_wajah.OC.gmi_OpenCV(piksel_biner)
 					Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciricv, 'O')
 
+					print(f"Ciri kelas ekspresi {jenis_kelas} pada data ke-{i} berhasil disimpan.")
 
 			flash('Data berhasil dilatih!', category='pelatihan')
-
+			print('Data berhasil dilatih!')
 		return Ekspresi_wajah.RT.tampilan_latih_uji() 
 
 
@@ -155,7 +159,7 @@ class Ekspresi_wajah:
 			id_file 	= data_uji[i][0]
 			nama_file	= data_uji[i][1]
 
-			file_name__s, direktori, semua_hasil_s, id_pengujian_update, id_ciri_s = Ekspresi_wajah.uji_ciri_sendiri(id_file, path, nama_file, 0)
+			file_name__s, direktori, semua_hasil_s, id_pengujian_update, id_ciri_s = Ekspresi_wajah.uji_ciri_sendiri(id_file, path, nama_file, [])
 			
 			if i == 0:
 				waktu_mulai_uji = semua_hasil_s['waktu']
@@ -178,7 +182,7 @@ class Ekspresi_wajah:
 				'N'		: semua_hasil_s['natural']
 			})
  
-			file_name_o, semua_hasil_o, jumlah_data_teruji_o, id_ciri_o = Ekspresi_wajah.uji_ciri_opencv(id_file, path, nama_file, direktori, id_pengujian_update, semua_hasil_s['waktu'], 0)
+			file_name_o, semua_hasil_o, jumlah_data_teruji_o, id_ciri_o = Ekspresi_wajah.uji_ciri_opencv(id_file, path, nama_file, direktori, id_pengujian_update, semua_hasil_s['waktu'], [])
 			
 			semua_id_pengujian_o.append(id_ciri_o)
 			jumlah_data_teruji.append(jumlah_data_teruji_o)
@@ -1035,10 +1039,14 @@ class Ekspresi_wajah:
 		print(f"Ciri dari OpenCV = {ciri_pengujian_o}")
 		print(f" ciri_pengujian_s[0][6] = { ciri_pengujian_s[6]}")
 		print(f" ciri_pengujian_o[0][6] = { ciri_pengujian_o[6]}")
-		Ekspresi_wajah.hitung_error(ciri_pengujian_s, ciri_pengujian_o)
+		Ekspresi_wajah.hitung_error(ciri_pengujian_s[1], ciri_pengujian_o[1])
 
 	def hitung_error(data1, data2):
 		# Mean Absolute Error (MAE)
+		nilai = np.abs(data1 - data2)
+		print(f"data1 = {data1}")
+		print(f"data2 = {data2}")
+		print(f"nilai = {nilai}")
 		ciri = np.sum(np.abs(data1 - data2))/7
 		print(f"ciri = {ciri}")
 		E = (np.sum(np.abs(data1 - data2)) )/ 7

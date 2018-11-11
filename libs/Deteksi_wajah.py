@@ -32,15 +32,14 @@ class Deteksi_wajah:
 
 	def deteksi(self, ket, path, dir1, dir2):
 
-		faces, img = Deteksi_wajah.OC.deteksi(path)
-		
+		faces, img 	= Deteksi_wajah.OC.deteksi(path)
+		path_wajah 	= os.getcwd() + '\\data\\'+ ket +'\\' + dir1 + '\\' + dir2 + '\\' + '01.png'
+
 		for f in faces:
 			x, y, w, h 		= [v for v in f]
 			sub_face 		= img[y:y+h, x:x+w]
 
-			path_wajah 	= 'data/'+ ket +'/' + dir1 + '/' + dir2 + '/' + '01.png'
 			cv2.imwrite(path_wajah, sub_face)
-
 		return path_wajah
 
 
