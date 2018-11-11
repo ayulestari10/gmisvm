@@ -1,0 +1,32 @@
+<section style="min-height: 600px !important;">
+    <div class="container">
+      	<div class="section text-center" style="margin: auto 0 !important;">
+
+			<div class="row" style="text-align: left;">
+
+				<div class="col-md-4 offset-md-4 heading">
+					<h3>Sebaran Ciri Data Latih</h3>
+				</div>
+			</div>
+
+			{% if path_s %}
+				<style type="text/css">
+					.grafik{
+						width: 500px; height: 400px;
+					}
+					.grafik img{
+						width: 100%; height: 100%;
+					}
+				</style>
+				<div class="row" style="margin-top: 5%;">
+					<div class="col-md-6">
+						<img src="{{ url_for('static', filename=path_s) }}" alt="Gambar Sebaran Ciri dari Kode Sendiri" class="grafik">
+					</div>
+					<div class="col-md-6">
+						<img src="{{ url_for('static', filename=path_o) }}" alt="Gambar Sebaran Ciri dari OpenCV" class="grafik">
+					</div>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+</section>
