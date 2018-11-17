@@ -30,10 +30,12 @@ UI -> Ekspresi_wajah : pengujian1()
 		Ekspresi_wajah -> Ekspresi_wajah : uji_ciri_sendiri(id_file, path, nama_file, data_latih)
 		activate Ekspresi_wajah
 
-		Ekspresi_wajah -> Deteksi_wajah : resize_image(image, nama_file, 'uji', 'uji')
-		activate Deteksi_wajah
-		Deteksi_wajah --> Ekspresi_wajah : path
-		deactivate Deteksi_wajah
+		opt if os.path.isfile(fname) != True
+			Ekspresi_wajah -> Deteksi_wajah : resize_image(image, nama_file, 'uji', 'uji')
+			activate Deteksi_wajah
+			Deteksi_wajah --> Ekspresi_wajah : path
+			deactivate Deteksi_wajah
+		end
 
 		Ekspresi_wajah -> OpenCV : deteksi(path)
 		activate OpenCV
@@ -47,21 +49,15 @@ UI -> Ekspresi_wajah : pengujian1()
 
 			Ekspresi_wajah -> Database : select_kelas('ciri_pelatihan', 'S')
 			Database --> Ekspresi_wajah : kumpulan_kelas
+			deactivate Database
 
-		else
+		else Else
 			Ekspresi_wajah-> Ekspresi_wajah: ambil_data(data_latih)
 			activate Ekspresi_wajah
 			deactivate Ekspresi_wajah
 			Ekspresi_wajah --> Ekspresi_wajah : kumpulan_kelas, kumpulan_ciri
 		end
-
-		loop for kelas_s in kumpulan_kelas_s
-			Ekspresi_wajah -> Database : select_avg('ciri_pelatihan', kelas_s)
-			Database --> Ekspresi_wajah : data_rata_rata
-			deactivate Database
-		end
-
-		
+	
 
 		loop for i, f in enumerate(faces)
 			Ekspresi_wajah -> Praproses : biner(path_wajah)
@@ -125,19 +121,14 @@ UI -> Ekspresi_wajah : pengujian1()
 
 		Ekspresi_wajah -> Database : select_kelas('ciri_pelatihan', 'O')
 		Database --> Ekspresi_wajah : kumpulan_kelas
+		deactivate Database
 		
 
-	else
+	else Else
 		Ekspresi_wajah-> Ekspresi_wajah: ambil_data(data_latih)
 		activate Ekspresi_wajah
 		deactivate Ekspresi_wajah
 		Ekspresi_wajah --> Ekspresi_wajah : kumpulan_kelas, kumpulan_ciri
-	end
-
-	loop for kelas_o in kumpulan_kelas_o
-		Ekspresi_wajah -> Database : select_avg('ciri_pelatihan', kelas_o)
-		Database --> Ekspresi_wajah : data_rata_rata
-		deactivate Database
 	end
 		
 

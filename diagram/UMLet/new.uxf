@@ -4,10 +4,10 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>360</x>
-      <y>48</y>
-      <w>474</w>
-      <h>162</h>
+      <x>294</x>
+      <y>42</y>
+      <w>534</w>
+      <h>168</h>
     </coordinates>
     <panel_attributes>Ekspresi_wajah
 --
@@ -22,16 +22,17 @@
 - latih_uji() : Render_template
 - pelatihan() : Render_template
 - pengujian1() : Render_template
-- uji_ciri_sendiri(id_file: int, image: string, nama_file: string) : tuple
-- uji_ciri_opencv(id_file: int, image: string, nama_file: string, directory: string, id_pengujian_update: list, waktu_s: string) : tuple
+- uji_ciri_sendiri(id_file: int, image: string, nama_file: string, data_latih: list) : tuple
+- uji_ciri_opencv(id_file: int, image: string, nama_file: string, directory: string, id_pengujian_update: list, waktu_s: string, data_latih: list) : tuple
 - hasil_detail(id_file: string, waktu: string) : Render_template
-- pengujian2() : Render_template</panel_attributes>
+- pengujian2() : Render_template
+- ambil_data_latih(data_latih: list) : tuple</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>474</x>
+      <x>408</x>
       <y>528</y>
       <w>324</w>
       <h>54</h>
@@ -47,10 +48,10 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>66</x>
-      <y>48</y>
+      <x>0</x>
+      <y>42</y>
       <w>174</w>
-      <h>210</h>
+      <h>216</h>
     </coordinates>
     <panel_attributes>GMI
 --
@@ -80,7 +81,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>66</x>
+      <x>0</x>
       <y>366</y>
       <w>336</w>
       <h>216</h>
@@ -112,7 +113,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>66</x>
+      <x>0</x>
       <y>600</y>
       <w>732</w>
       <h>78</h>
@@ -124,13 +125,13 @@
 - tampilan_latih_uji() : function
 - tampilan_pengujian1(files: dictionary, target: list, semua_hasil_s: list, hasil_final_o: list, waktu: list, akurasi: dictionary, jumlah_data_teruji: list, direktori: string): function
 - tampilan_pengujian2(semua_hasil: dictionary) : function
-- tampilan_detail(ciri_all_s: list, ciri_all_o: list, data_pengujian: tuple, data_jarak_s: list, data_jarak_o: list, hasil_s: list, hasil_o: list) : function</panel_attributes>
+- tampilan_detail(ciri_all_s: list, ciri_all_o: list, data_pengujian: tuple, hasil_s: list, hasil_o: list) : function</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>564</x>
+      <x>498</x>
       <y>444</y>
       <w>234</w>
       <h>72</h>
@@ -148,7 +149,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>624</x>
+      <x>558</x>
       <y>372</y>
       <w>174</w>
       <h>60</h>
@@ -165,7 +166,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>234</x>
+      <x>168</x>
       <y>126</y>
       <w>138</w>
       <h>18</h>
@@ -176,7 +177,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>534</x>
+      <x>468</x>
       <y>204</y>
       <w>18</w>
       <h>336</h>
@@ -187,7 +188,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>252</x>
+      <x>186</x>
       <y>204</y>
       <w>156</w>
       <h>174</h>
@@ -198,7 +199,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>450</x>
+      <x>384</x>
       <y>204</y>
       <w>18</w>
       <h>408</h>
@@ -209,7 +210,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>582</x>
+      <x>516</x>
       <y>204</y>
       <w>18</w>
       <h>252</h>
@@ -220,7 +221,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>618</x>
+      <x>552</x>
       <y>204</y>
       <w>18</w>
       <h>180</h>
@@ -231,7 +232,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>648</x>
+      <x>582</x>
       <y>312</y>
       <w>150</w>
       <h>48</h>
@@ -246,7 +247,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>660</x>
+      <x>594</x>
       <y>204</y>
       <w>18</w>
       <h>120</h>
@@ -257,7 +258,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>690</x>
+      <x>624</x>
       <y>240</y>
       <w>108</w>
       <h>60</h>
@@ -274,7 +275,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>738</x>
+      <x>672</x>
       <y>204</y>
       <w>18</w>
       <h>48</h>
