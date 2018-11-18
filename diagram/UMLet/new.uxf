@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="14.3.0">
-  <zoom_level>6</zoom_level>
+  <zoom_level>9</zoom_level>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>294</x>
-      <y>42</y>
-      <w>534</w>
-      <h>168</h>
+      <x>441</x>
+      <y>0</y>
+      <w>711</w>
+      <h>252</h>
     </coordinates>
     <panel_attributes>Ekspresi_wajah
 --
@@ -23,7 +23,7 @@
 - pelatihan() : Render_template
 - pengujian1() : Render_template
 - uji_ciri_sendiri(id_file: int, image: string, nama_file: string, data_latih: list) : tuple
-- uji_ciri_opencv(id_file: int, image: string, nama_file: string, directory: string, id_pengujian_update: list, waktu_s: string, data_latih: list) : tuple
+- uji_ciri_opencv(id_file: int, image: string, nama_file: string, direktori: string, id_pengujian_update: list, data_latih: list) : tuple
 - hasil_detail(id_file: string, waktu: string) : Render_template
 - pengujian2() : Render_template
 - ambil_data_latih(data_latih: list) : tuple</panel_attributes>
@@ -32,10 +32,10 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>408</x>
-      <y>528</y>
-      <w>324</w>
-      <h>54</h>
+      <x>612</x>
+      <y>729</y>
+      <w>486</w>
+      <h>81</h>
     </coordinates>
     <panel_attributes>Deteksi_wajah
 --
@@ -49,9 +49,9 @@
     <id>UMLClass</id>
     <coordinates>
       <x>0</x>
-      <y>42</y>
-      <w>174</w>
-      <h>216</h>
+      <y>0</y>
+      <w>261</w>
+      <h>324</h>
     </coordinates>
     <panel_attributes>GMI
 --
@@ -82,9 +82,9 @@
     <id>UMLClass</id>
     <coordinates>
       <x>0</x>
-      <y>366</y>
-      <w>336</w>
-      <h>216</h>
+      <y>486</y>
+      <w>504</w>
+      <h>324</h>
     </coordinates>
     <panel_attributes>Database
 --
@@ -98,10 +98,10 @@
 - insert_ciri_pelatihan(table: string, kelas: string, ciri: array, ket: string): void
 - insert_pengujian(data: dictionary): void
 - update_pengujian(data : dictionary): void
-- select_hasil(col: string, id_file: int, waktu: string) : tuple
+- select_hasil(col: string, id_file: int, direktori: string) : tuple
 - insert_hasil(data : dictionary) : void
 - select_data_uji() : tuple
-- select_data_pengujian(id_file: int, waktu: string) : tuple
+- select_data_pengujian(id_file: int, direktori: string) : tuple
 - select_ciri_pengujian(id_ciri_pengujian: int, ket: string) : array
 - select_pengujian_first_row() : tuple
 - select_first_row() : tuple
@@ -114,16 +114,16 @@
     <id>UMLClass</id>
     <coordinates>
       <x>0</x>
-      <y>600</y>
-      <w>732</w>
-      <h>78</h>
+      <y>837</y>
+      <w>1098</w>
+      <h>117</h>
     </coordinates>
     <panel_attributes>Render_template
 --
 
 --
 - tampilan_latih_uji() : function
-- tampilan_pengujian1(files: dictionary, target: list, semua_hasil_s: list, hasil_final_o: list, waktu: list, akurasi: dictionary, jumlah_data_teruji: list, direktori: string): function
+- tampilan_pengujian1(files: dictionary, target: list, semua_hasil_s: list, hasil_final_o: list, akurasi: dictionary, jumlah_data_teruji: list, semua_direktori: list): function
 - tampilan_pengujian2(semua_hasil: dictionary) : function
 - tampilan_detail(ciri_all_s: list, ciri_all_o: list, data_pengujian: tuple, hasil_s: list, hasil_o: list) : function</panel_attributes>
     <additional_attributes/>
@@ -131,10 +131,10 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>498</x>
-      <y>444</y>
-      <w>234</w>
-      <h>72</h>
+      <x>747</x>
+      <y>603</y>
+      <w>351</w>
+      <h>108</h>
     </coordinates>
     <panel_attributes>OpenCV
 --
@@ -149,10 +149,10 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>558</x>
-      <y>372</y>
-      <w>174</w>
-      <h>60</h>
+      <x>837</x>
+      <y>495</y>
+      <w>261</w>
+      <h>90</h>
     </coordinates>
     <panel_attributes>Klasifikasi
 --
@@ -166,10 +166,10 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>168</x>
+      <x>252</x>
       <y>126</y>
-      <w>138</w>
-      <h>18</h>
+      <w>207</w>
+      <h>27</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>210.0;10.0;10.0;10.0</additional_attributes>
@@ -177,10 +177,10 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>468</x>
-      <y>204</y>
-      <w>18</w>
-      <h>336</h>
+      <x>702</x>
+      <y>243</y>
+      <w>27</w>
+      <h>504</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;540.0</additional_attributes>
@@ -188,10 +188,10 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>186</x>
-      <y>204</y>
-      <w>156</w>
-      <h>174</h>
+      <x>279</x>
+      <y>243</y>
+      <w>234</w>
+      <h>261</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>240.0;10.0;10.0;270.0</additional_attributes>
@@ -199,10 +199,10 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>384</x>
-      <y>204</y>
-      <w>18</w>
-      <h>408</h>
+      <x>576</x>
+      <y>243</y>
+      <w>27</w>
+      <h>612</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;660.0</additional_attributes>
@@ -210,10 +210,10 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>516</x>
-      <y>204</y>
-      <w>18</w>
-      <h>252</h>
+      <x>774</x>
+      <y>243</y>
+      <w>27</w>
+      <h>378</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;400.0</additional_attributes>
@@ -221,10 +221,10 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>552</x>
-      <y>204</y>
-      <w>18</w>
-      <h>180</h>
+      <x>828</x>
+      <y>243</y>
+      <w>27</w>
+      <h>270</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;280.0</additional_attributes>
@@ -232,10 +232,10 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>582</x>
-      <y>312</y>
-      <w>150</w>
-      <h>48</h>
+      <x>873</x>
+      <y>405</y>
+      <w>225</w>
+      <h>72</h>
     </coordinates>
     <panel_attributes>Praproses
 --
@@ -247,10 +247,10 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>594</x>
-      <y>204</y>
-      <w>18</w>
-      <h>120</h>
+      <x>891</x>
+      <y>243</y>
+      <w>27</w>
+      <h>180</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;180.0</additional_attributes>
@@ -258,10 +258,10 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>624</x>
-      <y>240</y>
-      <w>108</w>
-      <h>60</h>
+      <x>936</x>
+      <y>297</y>
+      <w>162</w>
+      <h>90</h>
     </coordinates>
     <panel_attributes>UI
 --
@@ -275,10 +275,10 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>672</x>
-      <y>204</y>
-      <w>18</w>
-      <h>48</h>
+      <x>1008</x>
+      <y>243</y>
+      <w>27</w>
+      <h>72</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
