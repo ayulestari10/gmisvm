@@ -115,10 +115,14 @@ class Ekspresi_wajah:
 					gmi 		= GMI(piksel_biner) 
 					gmi.hitungMomenNormalisasi()
 					ciri 		= gmi.hitungCiri()
+					# ciri 		= Ekspresi_wajah.truncate_float(ciri, 3)
+
 					kelas 		= jenis_kelas
 					Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciri, 'S')
 
 					ciricv 		= Ekspresi_wajah.OC.gmi_OpenCV(piksel_biner)
+					# ciricv 		= Ekspresi_wajah.truncate_float(ciricv, 3)
+
 					Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciricv, 'O')
 
 					print(f"Ciri kelas ekspresi {jenis_kelas} pada data ke-{i} berhasil disimpan.")
@@ -126,6 +130,16 @@ class Ekspresi_wajah:
 			flash('Data berhasil dilatih!', category='pelatihan')
 			print('Data berhasil dilatih!')
 		return Ekspresi_wajah.RT.tampilan_latih_uji() 
+
+	# def truncate_float(f, n):
+	# 	for i in range(len(f)):
+	# 		vstr = str(f[i])
+	# 		if len(vstr) > 5:
+	# 			vstr = vstr[:n * -1]
+	# 		f[i] = float(vstr)
+	# 	return f
+
+	# def expand_float(fstr):
 
 
 	@page.route(f'{base}/pengujian1', methods=['GET', 'POST'])
@@ -143,7 +157,7 @@ class Ekspresi_wajah:
 		semua_hasil_o 	= []
 		hasil_final_o 	= []
 		target 			= []
-		data_uji 		= Ekspresi_wajah.Db.select_data_uji()
+		data_uji 		= Ekspresi_wajah.Db.select_data_uji_limit(5)
 		jumlah_data 	= len(data_uji)
 		jumlah_data_teruji = []
 		cwd				= os.getcwd()
@@ -983,7 +997,7 @@ class Ekspresi_wajah:
 
 	@page.route(f'{base}/analisis', methods=['GET', 'POST'])
 	def analisis():
-		Ekspresi_wajah.visualisasi_data_latih()
+		Ekspresi_wajah.Dw.deteksi_vj()
 
 		return "Analisis"
 

@@ -52,16 +52,16 @@ class Deteksi_wajah:
 		return matrix[x:x+size, y:y+size]
 
 	def rectangle_a(self, sliding_window, x, y, size=(1, 2)): # size (1,4)
-		A = sliding_window[x - 1, y - 1]
-		B = sliding_window[x - 1, (y + size[1]  - 1) // 2]
-		C = sliding_window[x + size[0] - 1, y - 1]
+		A = 0 if x <= 0 or y <= 0 else sliding_window[x - 1, y - 1]
+		B = 0 if x <= 0 else sliding_window[x - 1, (y + size[1]  - 1) // 2]
+		C = 0 if y <= 0 else sliding_window[x + size[0] - 1, y - 1]
 		D = sliding_window[x + size[0] - 1, (y + size[1] - 1) // 2]
 
 		black = D + A - (B + C)
 		print(f"hitam = {D} + {A} - {B} + {C}")
 
-		A = sliding_window[x - 1, ((y + size[1]) - 1) // 2]
-		B = sliding_window[x - 1, (y + size[1]) - 1]
+		A = 0 if x <= 0 else sliding_window[x - 1, ((y + size[1]) - 1) // 2]
+		B = 0 if x <= 0 else sliding_window[x - 1, (y + size[1]) - 1]
 		C = sliding_window[x + size[0] - 1, ((y + size[1]) - 1) // 2]
 		D = sliding_window[x + size[0] - 1, (y + size[1]) - 1]
 
@@ -74,16 +74,16 @@ class Deteksi_wajah:
 		return hasil
 
 	def rectangle_b(self, sliding_window, x, y, size=(2, 1)):
-		A = sliding_window[x - 1, y - 1]
-		B = sliding_window[x - 1, y + size[1]  - 1]
-		C = sliding_window[(x + size[0] - 1) // 2, y - 1]
+		A = 0 if x <= 0 or y <= 0 else sliding_window[x - 1, y - 1]
+		B = 0 if x <= 0 else sliding_window[x - 1, y + size[1]  - 1]
+		C = 0 if y <= 0 else sliding_window[(x + size[0] - 1) // 2, y - 1]
 		D = sliding_window[(x + size[0] - 1) // 2, y + size[1] - 1]
 
 		black = D + A - (B + C)
 
-		A = sliding_window[(x + size[0] - 1) // 2, y - 1]
+		A = 0 if y <= 0 else sliding_window[(x + size[0] - 1) // 2, y - 1]
 		B = sliding_window[(x + size[0] - 1) // 2, y + size[1] - 1]
-		C = sliding_window[x + size[0] - 1, y - 1]
+		C = 0 if y <= 0 else sliding_window[x + size[0] - 1, y - 1]
 		D = sliding_window[x + size[0] - 1, (y + size[1]) - 1]
 
 		white = D + A - (B + C)
@@ -102,22 +102,22 @@ class Deteksi_wajah:
 		br_x = x + size[0] - 1
 		br_y = y + chunk_size - 1
 
-		A = sliding_window[ul_x, ul_y]
-		B = sliding_window[ur_x, ur_y]
-		C = sliding_window[bl_x, bl_y]
+		A = 0 if x <= 0 or y <= 0 else sliding_window[ul_x, ul_y]
+		B = 0 if x <= 0 else sliding_window[ur_x, ur_y]
+		C = 0 if y <= 0 else sliding_window[bl_x, bl_y]
 		D = sliding_window[br_x, br_y]
 
 		black = D + A - (B + C)
 
-		A = sliding_window[ul_x, ul_y + chunk_size]
-		B = sliding_window[ur_x, ur_y + chunk_size]
+		A = 0 if x <= 0 else sliding_window[ul_x, ul_y + chunk_size]
+		B = 0 if x <= 0 else sliding_window[ur_x, ur_y + chunk_size]
 		C = sliding_window[bl_x, bl_y + chunk_size]
 		D = sliding_window[br_x, br_y + chunk_size]
 
 		white = D + A - (B + C)
 
-		A = sliding_window[ul_x, ul_y + (chunk_size * 2)]
-		B = sliding_window[ur_x, ur_y + (chunk_size * 2)]
+		A = 0 if x <= 0 else sliding_window[ul_x, ul_y + (chunk_size * 2)]
+		B = 0 if x <= 0 else sliding_window[ur_x, ur_y + (chunk_size * 2)]
 		C = sliding_window[bl_x, bl_y + (chunk_size * 2)]
 		D = sliding_window[br_x, br_y + (chunk_size * 2)]
 
@@ -138,23 +138,23 @@ class Deteksi_wajah:
 		br_x = x + chunk_x - 1
 		br_y = y + chunk_y - 1
 
-		A = sliding_window[ul_x, ul_y]
-		B = sliding_window[ur_x, ur_y]
-		C = sliding_window[bl_x, bl_y]
+		A = 0 if x <= 0 or y <= 0 else sliding_window[ul_x, ul_y]
+		B = 0 if x <= 0 else sliding_window[ur_x, ur_y]
+		C = 0 if y <= 0 else sliding_window[bl_x, bl_y]
 		D = sliding_window[br_x, br_y]
 
 		black = D + A - (B + C)
 
-		A = sliding_window[ul_x, ul_y + chunk_y]
-		B = sliding_window[ur_x, ur_y + chunk_y]
+		A = 0 if x <= 0 else sliding_window[ul_x, ul_y + chunk_y]
+		B = 0 if x <= 0 else sliding_window[ur_x, ur_y + chunk_y]
 		C = sliding_window[bl_x, bl_y + chunk_y]
 		D = sliding_window[br_x, br_y + chunk_y]
 
 		white = D + A - (B + C)
 
-		A = sliding_window[ul_x + chunk_x, ul_y]
+		A = 0 if y <= 0 else sliding_window[ul_x + chunk_x, ul_y]
 		B = sliding_window[ur_x + chunk_x, ur_y]
-		C = sliding_window[bl_x + chunk_x, bl_y]
+		C = 0 if y <= 0 else sliding_window[bl_x + chunk_x, bl_y]
 		D = sliding_window[br_x + chunk_x, br_y]
 
 		white += D + A - (B + C)
@@ -215,8 +215,8 @@ class Deteksi_wajah:
 		# tipe_1.append(self.rectangle_a(im_integral, 0, 2, (1,2) ))
 		# tipe_1.append(self.rectangle_a(im_integral, 0, 3, (1,2) ))
 		# tipe_1.append(self.rectangle_a(im_integral, 1, 0, (1,2) )) 
-		tipe_1.append(self.rectangle_a(im_integral, 1, 1, (1,2) ))
-		tipe_1.append(self.rectangle_a(im_integral, 1, 2, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 1, 1, (1,2) ))
+		# tipe_1.append(self.rectangle_a(im_integral, 1, 2, (1,2) ))
 		# tipe_1.append(self.rectangle_a(im_integral, 1, 3, (1,2) ))
 		# tipe_1.append(self.rectangle_a(im_integral, 2, 0, (1,2) )) 
 		# tipe_1.append(self.rectangle_a(im_integral, 2, 1, (1,2) ))
@@ -232,7 +232,7 @@ class Deteksi_wajah:
 		# tipe_1.append(self.rectangle_a(im_integral, 4, 3, (1,2) ))
 
 		
-		tipe_1.append(self.rectangle_a(im_integral, 1, 1, (1,4) ))		
+		tipe_1.append(self.rectangle_d(im_integral, 0, 0, (2,2) ))		
 
 		print(f"Tipe 1 = {tipe_1} dan jumlah fitur tipe 1 = {len(tipe_1)}")
 
