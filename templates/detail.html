@@ -20,7 +20,7 @@
 				</div>
 			</div>
 			
-			{% set dir 			= data_pengujian[0][7] %}
+			{% set dir 			= data_pengujian[0][6] %}
 			{% set name_hasil_s = dir + '_Hasil_Sendiri.png' %}
 			{% set name_hasil_o = dir + '_Hasil_OpenCV.png' %}
 			{% set jumlah_wajah	= data_pengujian|length %}
@@ -106,7 +106,6 @@
 								<tr>
 									<td>{{ i + 1 }}</td>
 									<td style="width: 100px;">
-										{% set dir = data_pengujian[0][7] %}
 										{% set name = i ~ '_.png' %} 
 										<img src="{{ url_for('static', filename='data/latih_uji/') }}{{ dir }}/{{ name }}" class="foto2" alt="Gambar">
 									</td>

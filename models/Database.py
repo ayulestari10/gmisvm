@@ -55,7 +55,7 @@ class Database:
 
 	def insert_pengujian(self, data):
 		try:
-			self.cur.execute("INSERT INTO pengujian(id_file, id_ciri_pengujian_s, waktu, hasil_sendiri, direktori) VALUES (%s, %s, %s, %s, %s)" % ("'" + data['id_file'] + "'", "'" + data['id_ciri_pengujian_s'] + "'", "'" + data['waktu'] + "'", "'" + data['hasil_sendiri'] + "'", "'" + data['direktori'] + "'"))
+			self.cur.execute("INSERT INTO pengujian(id_file, id_ciri_pengujian_s, hasil_sendiri, direktori) VALUES (%s, %s, %s, %s)" % ("'" + data['id_file'] + "'", "'" + data['id_ciri_pengujian_s'] + "'", "'" + data['hasil_sendiri'] + "'", "'" + data['direktori'] + "'"))
 			self.db.commit()
 		except:
 			print("error pengujian")
@@ -70,9 +70,9 @@ class Database:
 			print("error update pengujian")
 			self.db.rollback()
 
-	def select_hasil(self, col, id_file, waktu):
+	def select_hasil(self, col, id_file, direktori):
 		try:
-			self.cur.execute("SELECT "+ col +" FROM pengujian WHERE id_file = '" + str(id_file) + "' AND waktu = '" + waktu + "'")
+			self.cur.execute("SELECT "+ col +" FROM pengujian WHERE id_file = '" + str(id_file) + "' AND direktori = '" + direktori + "'")
 			data_hasil = self.cur.fetchall()
 			return data_hasil
 		except:
@@ -98,9 +98,9 @@ class Database:
 			print("Error select file uji")
 			return None
 
-	def select_data_pengujian(self, id_file, waktu):
+	def select_data_pengujian(self, id_file, direktori):
 		try:
-			self.cur.execute("SELECT * FROM pengujian WHERE id_file = '" + str(id_file) + "' AND waktu = '" + waktu + "'")
+			self.cur.execute("SELECT * FROM pengujian WHERE id_file = '" + str(id_file) + "' AND direktori = '" + direktori + "'")
 			self.db.commit()
 			data = self.cur.fetchall()
 			return data
@@ -153,7 +153,7 @@ class Database:
 
 	def select_hasil_ciri_pengujian_s(self, waktu_mulai, waktu_akhir):
 		try:
-			query = "SELECT ciri_pengujian.id_ciri_pengujian as id_ciri_pengujian, ciri_pengujian.ciri1, ciri_pengujian.ciri2, ciri_pengujian.ciri3, ciri_pengujian.ciri4, ciri_pengujian.ciri5, ciri_pengujian.ciri6, ciri_pengujian.ciri7, pengujian.hasil_sendiri as kelas FROM ciri_pengujian inner join pengujian on pengujian.id_ciri_pengujian_s = ciri_pengujian.id_ciri_pengujian where pengujian.waktu BETWEEN '"+ waktu_mulai +"' AND '"+ waktu_akhir +"';"
+			query = "SELECT ciri_pengujian.id_ciri_pengujian as id_ciri_pengujian, ciri_pengujian.ciri1, ciri_pengujian.ciri2, ciri_pengujian.ciri3, ciri_pengujian.ciri4, ciri_pengujian.ciri5, ciri_pengujian.ciri6, ciri_pengujian.ciri7, pengujian.hasil_sendiri as kelas FROM ciri_pengujian inner join pengujian on pengujian.id_ciri_pengujian_s = ciri_pengujian.id_ciri_pengujian where pengujian.direktori BETWEEN '"+ waktu_mulai +"' AND '"+ waktu_akhir +"';"
 			self.cur.execute(query)
 			self.db.commit()
 			data = self.cur.fetchall()
@@ -164,7 +164,7 @@ class Database:
 
 	def select_hasil_ciri_pengujian_o(self, waktu_mulai, waktu_akhir):
 		try:
-			query = "SELECT  ciri_pengujian.id_ciri_pengujian as id_ciri_pengujian, ciri_pengujian.ciri1, ciri_pengujian.ciri2, ciri_pengujian.ciri3, ciri_pengujian.ciri4, ciri_pengujian.ciri5, ciri_pengujian.ciri6, ciri_pengujian.ciri7, pengujian.hasil_opencv as kelas FROM ciri_pengujian inner join pengujian on pengujian.id_ciri_pengujian_o = ciri_pengujian.id_ciri_pengujian where pengujian.waktu BETWEEN '"+ waktu_mulai +"' AND '"+ waktu_akhir +"';"
+			query = "SELECT  ciri_pengujian.id_ciri_pengujian as id_ciri_pengujian, ciri_pengujian.ciri1, ciri_pengujian.ciri2, ciri_pengujian.ciri3, ciri_pengujian.ciri4, ciri_pengujian.ciri5, ciri_pengujian.ciri6, ciri_pengujian.ciri7, pengujian.hasil_opencv as kelas FROM ciri_pengujian inner join pengujian on pengujian.id_ciri_pengujian_o = ciri_pengujian.id_ciri_pengujian where pengujian.direktori BETWEEN '"+ waktu_mulai +"' AND '"+ waktu_akhir +"';"
 			self.cur.execute(query)
 			self.db.commit()
 			data = self.cur.fetchall()

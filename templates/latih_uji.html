@@ -181,16 +181,16 @@
 										</td>
 										<td>
 											{% for key, value in akurasi['s'][i].items(): %}
-												{{ key + '=' + value|round|string + '%'}}</br>
+												{{ key + '=' + value + '%'}}</br>
 											{% endfor %}
 										</td>
 										<td>
 											{% for key, value in akurasi['o'][i].items(): %}
-												{{ key + '=' + value|round|string + '%'}}</br>
+												{{ key + '=' + value + '%'}}</br>
 											{% endfor %}
 										</td>
 										<td>
-											<a href="http://localhost:5000/ekspresi-wajah/hasil_detail/{{ files['data_uji'][i][0] }}/{{ waktu[i] }}" class="btn btn-primary"><i class="fa fa-info"></i> DETAIL</a>
+											<a href="http://localhost:5000/ekspresi-wajah/hasil_detail/{{ files['data_uji'][i][0] }}/{{ semua_direktori[i] }}" class="btn btn-primary"><i class="fa fa-info"></i> DETAIL</a>
 										</td> 
 									</tr>
 								{% endfor %}
@@ -247,7 +247,7 @@
 
 						<div class="col-md-6" style="margin-top: 3%;">
 							<div class="grafik img-fluid">
-								<img src="{{ url_for('static', filename='data/grafik/' + direktori + '.png') }}" alt="Grafik">
+								<img src="{{ url_for('static', filename='data/grafik/' + semua_direktori[0] + '.png') }}" alt="Grafik">
 							</div>
 						</div>
 					{% endif %}
