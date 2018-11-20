@@ -80,6 +80,7 @@ class Deteksi_wajah:
 		D = sliding_window[(x + size[0] - 1) // 2, y + size[1] - 1]
 
 		black = D + A - (B + C)
+		print(f"hitam = {D} + {A} - {B} + {C}")
 
 		A = 0 if y <= 0 else sliding_window[(x + size[0] - 1) // 2, y - 1]
 		B = sliding_window[(x + size[0] - 1) // 2, y + size[1] - 1]
@@ -87,8 +88,12 @@ class Deteksi_wajah:
 		D = sliding_window[x + size[0] - 1, (y + size[1]) - 1]
 
 		white = D + A - (B + C)
+		print(f"putih = {D} + {A} - {B} + {C}")
 
-		return abs(black - white)
+		hasil = abs(black - white)
+		print(f"hasil = {hasil}\n")
+
+		return hasil
 
 	def rectangle_c(self, sliding_window, x, y, size=(1, 3)):
 		chunk_size = size[1] // 3
@@ -108,6 +113,7 @@ class Deteksi_wajah:
 		D = sliding_window[br_x, br_y]
 
 		black = D + A - (B + C)
+		print(f"hitam = {D} + {A} - {B} + {C}")
 
 		A = 0 if x <= 0 else sliding_window[ul_x, ul_y + chunk_size]
 		B = 0 if x <= 0 else sliding_window[ur_x, ur_y + chunk_size]
@@ -115,6 +121,7 @@ class Deteksi_wajah:
 		D = sliding_window[br_x, br_y + chunk_size]
 
 		white = D + A - (B + C)
+		print(f"putih = {D} + {A} - {B} + {C}")
 
 		A = 0 if x <= 0 else sliding_window[ul_x, ul_y + (chunk_size * 2)]
 		B = 0 if x <= 0 else sliding_window[ur_x, ur_y + (chunk_size * 2)]
@@ -122,8 +129,12 @@ class Deteksi_wajah:
 		D = sliding_window[br_x, br_y + (chunk_size * 2)]
 
 		black += D + A - (B + C)
+		print(f"hitam = {D} + {A} - {B} + {C}")
 
-		return abs(black - white)
+		hasil = abs(black - white)
+		print(f"hasil = {hasil}\n")
+
+		return hasil
 
 	def rectangle_d(self, sliding_window, x, y, size=(2, 2)):
 		chunk_x = size[0] // 2
@@ -144,6 +155,7 @@ class Deteksi_wajah:
 		D = sliding_window[br_x, br_y]
 
 		black = D + A - (B + C)
+		print(f"hitam = {D} + {A} - {B} + {C}")
 
 		A = 0 if x <= 0 else sliding_window[ul_x, ul_y + chunk_y]
 		B = 0 if x <= 0 else sliding_window[ur_x, ur_y + chunk_y]
@@ -151,6 +163,7 @@ class Deteksi_wajah:
 		D = sliding_window[br_x, br_y + chunk_y]
 
 		white = D + A - (B + C)
+		print(f"putih = {D} + {A} - {B} + {C}")
 
 		A = 0 if y <= 0 else sliding_window[ul_x + chunk_x, ul_y]
 		B = sliding_window[ur_x + chunk_x, ur_y]
@@ -158,6 +171,7 @@ class Deteksi_wajah:
 		D = sliding_window[br_x + chunk_x, br_y]
 
 		white += D + A - (B + C)
+		print(f"putih = {D} + {A} - {B} + {C}")
 
 		A = sliding_window[ul_x + chunk_x, ul_y + chunk_y]
 		B = sliding_window[ur_x + chunk_x, ur_y + chunk_y]
@@ -165,25 +179,24 @@ class Deteksi_wajah:
 		D = sliding_window[br_x + chunk_x, br_y + chunk_y]
 
 		black += D + A - (B + C)
+		print(f"hitam = {D} + {A} - {B} + {C}")
 
-		return abs(black - white)
+		hasil = abs(black - white)
+		print(f"hasil = {hasil}\n")
+
+		return hasil
 
 	def deteksi_vj(self):
 		# Praproses Ke Gray Scale
-
-		image = "D:\\bahagia.png"
-
+		# image = "D:\\bahagia.png"
 		# im = self.resize_image(image)
-
 		# im 	= Image.open(image)
 		# im	= im.convert('L') 
 		# im 	= np.array(im)
-
 		# im = np.random.randint(255, size=(24, 24))
 		# print(im)
 		# sliding_window = self.get_sliding_window(im, 0, 0)
 		# integral_image = self.integral_image(sliding_window)
-
 		# im = np.array([
 		# 	[2, 6, 13, 18, 26],
 		# 	[3, 12, 20, 32, 47],
@@ -191,6 +204,7 @@ class Deteksi_wajah:
 		# 	[16, 40, 67, 90, 118],
 		# 	[26, 62, 97, 123, 157]
 		# ])
+
 
 		im = np.array([
 			[2, 4, 7, 5, 8],
@@ -210,38 +224,60 @@ class Deteksi_wajah:
 		print("- Hitung fitur Haar tipe pertama")
 		
 		tipe_1 = []
-		# tipe_1.append(self.rectangle_a(im_integral, 0, 0, (1,2) )) # minimal untuk ukuran x=1, y=2
-		# tipe_1.append(self.rectangle_a(im_integral, 0, 1, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 0, 2, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 0, 3, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 1, 0, (1,2) )) 
-		# tipe_1.append(self.rectangle_a(im_integral, 1, 1, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 1, 2, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 1, 3, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 2, 0, (1,2) )) 
-		# tipe_1.append(self.rectangle_a(im_integral, 2, 1, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 2, 2, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 2, 3, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 3, 0, (1,2) )) 
-		# tipe_1.append(self.rectangle_a(im_integral, 3, 1, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 3, 2, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 3, 3, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 4, 0, (1,2) )) 
-		# tipe_1.append(self.rectangle_a(im_integral, 4, 1, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 4, 2, (1,2) ))
-		# tipe_1.append(self.rectangle_a(im_integral, 4, 3, (1,2) ))
+		tipe_1.append(self.rectangle_a(im_integral, 0, 0, (1,2) )) # minimal untuk ukuran x=1, y=2
+		tipe_1.append(self.rectangle_a(im_integral, 0, 1, (1,2) ))
+		tipe_1.append(self.rectangle_a(im_integral, 0, 2, (1,2) ))
+		tipe_1.append(self.rectangle_a(im_integral, 0, 3, (1,2) ))
+		tipe_1.append(self.rectangle_a(im_integral, 1, 0, (1,2) )) 
+		tipe_1.append(self.rectangle_a(im_integral, 1, 1, (1,2) ))
+		tipe_1.append(self.rectangle_a(im_integral, 1, 2, (1,2) ))
+		tipe_1.append(self.rectangle_a(im_integral, 1, 3, (1,2) ))
 
+
+		print("\n- Hitung fitur Haar tipe kedua")
 		
-		tipe_1.append(self.rectangle_d(im_integral, 0, 0, (2,2) ))		
+		tipe_2 = []
+		tipe_2.append(self.rectangle_b(im_integral, 0, 0, (2,1) )) # minimal untuk ukuran x=2, y=1
+		tipe_2.append(self.rectangle_b(im_integral, 0, 1, (2,1) ))
+		tipe_2.append(self.rectangle_b(im_integral, 0, 2, (2,1) ))
+		tipe_2.append(self.rectangle_b(im_integral, 0, 3, (2,1) ))
+		tipe_2.append(self.rectangle_b(im_integral, 2, 0, (2,1) )) 
+		tipe_2.append(self.rectangle_b(im_integral, 2, 1, (2,1) ))
+		tipe_2.append(self.rectangle_b(im_integral, 2, 2, (2,1) ))
+		tipe_2.append(self.rectangle_b(im_integral, 2, 3, (2,1) ))
 
-		print(f"Tipe 1 = {tipe_1} dan jumlah fitur tipe 1 = {len(tipe_1)}")
+		print("\n- Hitung fitur Haar tipe ketiga")
+		
+		tipe_3 = []
+		tipe_3.append(self.rectangle_c(im_integral, 0, 0, (1,3) )) # minimal untuk ukuran x=2, y=1
+		tipe_3.append(self.rectangle_c(im_integral, 0, 1, (1,3) ))
+		tipe_3.append(self.rectangle_c(im_integral, 0, 2, (1,3) ))
+		tipe_3.append(self.rectangle_c(im_integral, 1, 0, (1,3) )) 
+		tipe_3.append(self.rectangle_c(im_integral, 1, 1, (1,3) ))
+		tipe_3.append(self.rectangle_c(im_integral, 1, 2, (1,3) ))
+		tipe_3.append(self.rectangle_c(im_integral, 2, 0, (1,3) )) 
+		tipe_3.append(self.rectangle_c(im_integral, 2, 1, (1,3) ))
 
-		# im2 = np.array([
-		# 	[228,	10, 	10]
-		# 	[30, 	10, 	228],
-		# 	[128, 	20, 	220],
-		# 	[111, 	20, 	218],
-		# ])
+		print("\n- Hitung fitur Haar tipe keempat")
+		
+		tipe_4 = []
+		tipe_4.append(self.rectangle_d(im_integral, 0, 0, (2,2) )) # minimal untuk ukuran x=2, y=1
+		tipe_4.append(self.rectangle_d(im_integral, 0, 1, (2,2) ))
+		tipe_4.append(self.rectangle_d(im_integral, 0, 2, (2,2) ))
+		tipe_4.append(self.rectangle_d(im_integral, 0, 3, (2,2) )) 
+		tipe_4.append(self.rectangle_d(im_integral, 1, 0, (2,2) ))
+		tipe_4.append(self.rectangle_d(im_integral, 1, 1, (2,2) ))
+		tipe_4.append(self.rectangle_d(im_integral, 1, 2, (2,2) )) 
+		tipe_4.append(self.rectangle_d(im_integral, 1, 3, (2,2) ))
+
+		print(f"Fitur Haar Tipe 1 = {tipe_1} dan jumlah fitur tipe 1 = {len(tipe_1)}")
+		print(f"Fitur Haar Tipe 2 = {tipe_2} dan jumlah fitur tipe 2 = {len(tipe_2)}")
+		print(f"Fitur Haar Tipe 3 = {tipe_3} dan jumlah fitur tipe 3 = {len(tipe_3)}")
+		print(f"Fitur Haar Tipe 4 = {tipe_4} dan jumlah fitur tipe 4 = {len(tipe_4)}\n")
+
+		return "Deteksi Wajah"
+
+
 
 	def integral_image(self, im):
 		for x, row in enumerate(im):
