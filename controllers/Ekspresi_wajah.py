@@ -978,13 +978,14 @@ class Ekspresi_wajah:
 			print(f"t = {t} dan tipe = {type(t)}")
 			t = np.array(t)
 			
-			plt.plot([1, 2, 3, 4, 5, 6, 7], t, linestyle='-', marker='o', color='b')
-			plt.xticks([1, 2, 3, 4, 5, 6, 7], ['MC', 'DC', 'RS', 'GNB', 'NC', 'MLP', 'SGD'])
+			plt.plot([0, 1, 2, 3, 4, 5, 6], t, linestyle='-', marker='o', color='b')
+			plt.xticks([0, 1, 2, 3, 4, 5, 6], ['MC', 'DC', 'RS', 'GNB', 'NC', 'MLP', 'SGD'])
 
 			plt.xlabel('Metode Klasifikasi')
 			plt.ylabel('Rata-Rata Akurasi')
 			plt.title('Perbandingan Metode Klasifikasi dan Rata-Rata Akurasi')
 			plt.grid(True)
+			print(t)
 			path = os.getcwd() + '\\static\\data\\grafik\\metode_klasifikasi.png'
 			plt.savefig(path)
 
