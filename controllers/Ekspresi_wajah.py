@@ -985,8 +985,8 @@ class Ekspresi_wajah:
 			plt.ylabel('Rata-Rata Akurasi')
 			plt.title('Perbandingan Metode Klasifikasi dan Rata-Rata Akurasi')
 			plt.grid(True)
-			print(t)
 			path = os.getcwd() + '\\static\\data\\grafik\\metode_klasifikasi.png'
+			os.remove(path)
 			plt.savefig(path)
 
 		return Ekspresi_wajah.RT.tampilan_pengujian2(semua_hasil)
