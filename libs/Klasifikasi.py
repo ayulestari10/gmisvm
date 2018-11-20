@@ -6,7 +6,7 @@ class Klasifikasi:
 	def __init__(self, ciri, kelas):
 		self.encoder = LabelEncoder()
 		self.encoder.fit(kelas)
-		self.clf = LinearSVC(random_state=8816)
+		self.clf = LinearSVC(random_state=1000)
 		self.clf.fit(ciri, self.encoder.transform(kelas))
 
 	def classify(self, ciri):

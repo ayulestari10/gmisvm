@@ -115,13 +115,11 @@ class Ekspresi_wajah:
 					gmi 		= GMI(piksel_biner) 
 					gmi.hitungMomenNormalisasi()
 					ciri 		= gmi.hitungCiri()
-					# ciri 		= Ekspresi_wajah.truncate_float(ciri, 3)
 
 					kelas 		= jenis_kelas
 					Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciri, 'S')
 
 					ciricv 		= Ekspresi_wajah.OC.gmi_OpenCV(piksel_biner)
-					# ciricv 		= Ekspresi_wajah.truncate_float(ciricv, 3)
 
 					Ekspresi_wajah.Db.insert_ciri_pelatihan('ciri_pelatihan', kelas, ciricv, 'O')
 
@@ -130,20 +128,6 @@ class Ekspresi_wajah:
 			flash('Data berhasil dilatih!', category='pelatihan')
 			print('Data berhasil dilatih!')
 		return Ekspresi_wajah.RT.tampilan_latih_uji() 
-
-	def truncate_float(f, n):
-		for i in range(len(f)):
-			vstr = Ekspresi_wajah.float_to_str(f[i])
-			if len(vstr) > 5:
-				vstr = vstr[:n * -1]
-			f[i] = float(vstr)
-		return f
-
-	def float_to_str(f, precision = 20):
-		ctx = decimal.Context() # 0.0009592950218446467
-		ctx.prec = precision
-		v = ctx.create_decimal(repr(f))
-		return format(v, 'f')
 
 
 	@page.route(f'{base}/pengujian1', methods=['GET', 'POST'])
@@ -216,11 +200,11 @@ class Ekspresi_wajah:
 			})
 
 			# cek jika pengujian lebih dari 5 menit maka berhenti
-			# if session['waktu_sekarang'] >= (60 * 5):
-			# 	print("================================================Waktu pengujian telah mencapai 5 menit, proses dihentikan!")
-			# 	flash('Waktu pengujian telah mencapai 5 menit, proses dihentikan!')
-			# 	jumlah_data = i
-			# 	break;
+			if session['waktu_sekarang'] >= (60 * 5):
+				print("\n\nWaktu pengujian telah mencapai 5 menit, proses dihentikan!")
+				flash('Waktu pengujian telah mencapai 5 menit, proses dihentikan!', category='error_pengujian1')
+				jumlah_data = i
+				break;
 
 		files = {
 			'jumlah_file_name_s'	: len(file_name_s),
@@ -611,15 +595,15 @@ class Ekspresi_wajah:
 			gmi.hitungMomenNormalisasi()
 			ciri 		= gmi.hitungCiri()
 			
-			print("TRUNCATE FLOATING POINTS")
-			ciri   		= Ekspresi_wajah.truncate_float(ciri, 3)
-			kumpulan_ciri_s_truncated = []
-			for idx, kumpulan_ciri in enumerate(kumpulan_ciri_s):
-				kumpulan_ciri_s_truncated.append(Ekspresi_wajah.truncate_float(kumpulan_ciri, 3))
+			# print("TRUNCATE FLOATING POINTS")
+			# ciri   		= Ekspresi_wajah.truncate_float(ciri, 3)
+			# kumpulan_ciri_s_truncated = []
+			# for idx, kumpulan_ciri in enumerate(kumpulan_ciri_s):
+			# 	kumpulan_ciri_s_truncated.append(Ekspresi_wajah.truncate_float(kumpulan_ciri, 3))
 
 			# klasifikasi sendiri
-			kl_s 		= Klasifikasi(kumpulan_ciri_s_truncated, kumpulan_kelas_s)
-			# kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)				
+			# kl_s 		= Klasifikasi(kumpulan_ciri_s_truncated, kumpulan_kelas_s)
+			kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)				
 			ekspresi_s 	= kl_s.classify([ciri])
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), Ekspresi_wajah.rectColor[ekspresi_s])
@@ -708,15 +692,15 @@ class Ekspresi_wajah:
 			# Deteksi Wajah
 			ciricv		= Ekspresi_wajah.OC.gmi_OpenCV(sub_face)
 
-			print("TRUNCATE FLOATING POINTS")
-			ciricv   	= Ekspresi_wajah.truncate_float(ciricv, 3)
-			kumpulan_ciri_o_truncated = []
-			for idx, kumpulan_ciri in enumerate(kumpulan_ciri_o):
-				kumpulan_ciri_o_truncated.append(Ekspresi_wajah.truncate_float(kumpulan_ciri, 3))
+			# print("TRUNCATE FLOATING POINTS")
+			# ciricv   	= Ekspresi_wajah.truncate_float(ciricv, 3)
+			# kumpulan_ciri_o_truncated = []
+			# for idx, kumpulan_ciri in enumerate(kumpulan_ciri_o):
+			# 	kumpulan_ciri_o_truncated.append(Ekspresi_wajah.truncate_float(kumpulan_ciri, 3))
 			
 			# Klasifikasi hasil ciri openCV
-			kl_o 		= Klasifikasi(kumpulan_ciri_o_truncated, kumpulan_kelas_o)
-			# kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)
+			# kl_o 		= Klasifikasi(kumpulan_ciri_o_truncated, kumpulan_kelas_o)
+			kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)
 			ekspresi_o 	= kl_o.classify([ciricv])
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), Ekspresi_wajah.rectColor[ekspresi_o])
@@ -838,8 +822,9 @@ class Ekspresi_wajah:
 		semua_hasil = {}
 		
 		if request.method == 'POST':
-			kumpulan_ciri_s 	= Ekspresi_wajah.Db.select_ciri('ciri_pelatihan', 'S')
-			kumpulan_kelas_s 	= Ekspresi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
+			kumpulan_ciri_s 	= Ekspresi_wajah.Db.select_ciri('ciri_pelatihan', 'O')
+			print(kumpulan_ciri_s[1])
+			kumpulan_kelas_s 	= Ekspresi_wajah.Db.select_kelas('ciri_pelatihan', 'O')
 
 			pembagi = [2, 3, 4, 5, 6, 7, 8, 9, 10] 
 
@@ -850,7 +835,7 @@ class Ekspresi_wajah:
 				k_scores 	= []
 
 				for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
-					clf 	= svm.LinearSVC()
+					clf 	= svm.LinearSVC(random_state=1)
 					clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
 					scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
 					k_scores.append(scores)
@@ -870,7 +855,7 @@ class Ekspresi_wajah:
 				k_scores 	= []
 
 				for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
-					clf 	= tree.DecisionTreeClassifier()
+					clf 	= tree.DecisionTreeClassifier(random_state=1)
 					clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
 					scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
 					k_scores.append(scores)
@@ -890,7 +875,7 @@ class Ekspresi_wajah:
 				k_scores 	= []
 
 				for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
-					clf 	= RandomForestClassifier()
+					clf 	= RandomForestClassifier(random_state=1)
 					clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
 					scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
 					k_scores.append(scores)
@@ -950,7 +935,7 @@ class Ekspresi_wajah:
 				k_scores 	= []
 
 				for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
-					clf 	= MLPClassifier()
+					clf 	= MLPClassifier(random_state=1)
 					clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
 					scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
 					k_scores.append(scores)
@@ -970,7 +955,7 @@ class Ekspresi_wajah:
 				k_scores 	= []
 
 				for j, (train_index, test_index) in enumerate(kf.split(kumpulan_ciri_s)):
-					clf 	= SGDClassifier()
+					clf 	= SGDClassifier(random_state=1)
 					clf.fit(kumpulan_ciri_s[train_index], kumpulan_kelas_s[train_index])
 					scores 	= round(clf.score(kumpulan_ciri_s[test_index], kumpulan_kelas_s[test_index]) * 100, 2)
 					k_scores.append(scores)
@@ -1127,8 +1112,8 @@ class Ekspresi_wajah:
 
 		if request.method == 'POST':
 
-			jumlah 			= [10]
-			kum_ekspresi	= ['bahagia', 'sedih']
+			jumlah 			= [68]
+			kum_ekspresi	= ['bahagia', 'sedih', 'marah', 'jijik', 'kaget', 'takut', 'natural']
 
 			data_latih_s	= []
 			data_latih_o	= []
@@ -1560,41 +1545,41 @@ class Ekspresi_wajah:
 
 		from sklearn.decomposition import PCA
 
-		# pca = PCA(n_components=2).fit(data_s)
-		# data2D = pca.transform(data_s)
-		# # data2D = 1000 * data2D
-		# x_std = np.std(data2D[:, 0])
-		# y_std = np.std(data2D[:, 1])
-
-		# plt.xlabel("Komponen 1")
-		# plt.ylabel("Komponen 2")
-		# plt.title("Distribusi Titik Data Latih dari Ciri Kode Sendiri Pada Grafik 2D")
-
-		# for label in set(label_s):
-		# 	plt.scatter(data2D[csv_s[csv_s[2] == label].index.values][:,0], data2D[csv_s[csv_s[2] == label].index.values][:,1], c=color_s[csv_s[csv_s[2] == label].index.values], label=labels[label], edgecolors='black')
-		# plt.legend(loc="lower left")
-		# # plt.xlim((-5, 25))
-		# # plt.ylim((-1, 0.01))
-		# plt.grid()
-		# plt.show()
-
-		pca = PCA(n_components=2).fit(data_o)
-		data2D = pca.transform(data_o)
+		pca = PCA(n_components=2, random_state=1).fit(data_s)
+		data2D = pca.transform(data_s)
 		# data2D = 1000 * data2D
 		x_std = np.std(data2D[:, 0])
 		y_std = np.std(data2D[:, 1])
 
 		plt.xlabel("Komponen 1")
 		plt.ylabel("Komponen 2")
-		plt.title("Distribusi Titik Data Latih dari Ciri OpenCV Pada Grafik 2D")
+		plt.title("Distribusi Titik Data Latih dari Ciri Kode Sendiri Pada Grafik 2D")
 
-		for label in set(label_o):
-			plt.scatter(data2D[csv_o[csv_o[2] == label].index.values][:,0], data2D[csv_o[csv_o[2] == label].index.values][:,1], c=color_o[csv_o[csv_o[2] == label].index.values], label=labels[label], edgecolors='black')
+		for label in set(label_s):
+			plt.scatter(data2D[csv_s[csv_s[2] == label].index.values][:,0], data2D[csv_s[csv_s[2] == label].index.values][:,1], c=color_s[csv_s[csv_s[2] == label].index.values], label=labels[label], edgecolors='black')
 		plt.legend(loc="lower left")
 		# plt.xlim((-5, 25))
 		# plt.ylim((-1, 0.01))
 		plt.grid()
 		plt.show()
+
+		# pca = PCA(n_components=2, random_state=1).fit(data_o)
+		# data2D = pca.transform(data_o)
+		# # data2D = 1000 * data2D
+		# x_std = np.std(data2D[:, 0])
+		# y_std = np.std(data2D[:, 1])
+
+		# plt.xlabel("Komponen 1")
+		# plt.ylabel("Komponen 2")
+		# plt.title("Distribusi Titik Data Latih dari Ciri OpenCV Pada Grafik 2D")
+
+		# for label in set(label_o):
+		# 	plt.scatter(data2D[csv_o[csv_o[2] == label].index.values][:,0], data2D[csv_o[csv_o[2] == label].index.values][:,1], c=color_o[csv_o[csv_o[2] == label].index.values], label=labels[label], edgecolors='black')
+		# plt.legend(loc="upper left")
+		# # plt.xlim((-5, 25))
+		# # plt.ylim((-1, 0.01))
+		# plt.grid()
+		# plt.show()
 
 	
 
@@ -1722,5 +1707,20 @@ class Ekspresi_wajah:
 		file_name_o		= direktori + '_Hasil_OpenCV.png'
 		cv2.imwrite(dir_file_name, img)
 
+
+
+	def truncate_float(f, n):
+		for i in range(len(f)):
+			vstr = Ekspresi_wajah.float_to_str(f[i])
+			if len(vstr) > 5:
+				vstr = vstr[:n * -1]
+			f[i] = float(vstr)
+		return f
+
+	def float_to_str(f, precision = 20):
+		ctx = decimal.Context() # 0.0009592950218446467
+		ctx.prec = precision
+		v = ctx.create_decimal(repr(f))
+		return format(v, 'f')
 
 
