@@ -157,7 +157,7 @@ class Ekspresi_wajah:
 		semua_hasil_o 	= []
 		hasil_final_o 	= []
 		target 			= []
-		data_uji 		= Ekspresi_wajah.Db.select_data_uji_limit(5)
+		data_uji 		= Ekspresi_wajah.Db.select_data_uji()
 		jumlah_data 	= len(data_uji)
 		jumlah_data_teruji = []
 		cwd				= os.getcwd()
@@ -491,72 +491,73 @@ class Ekspresi_wajah:
 		path_dir = os.getcwd()
 
 		# Simpan data pengujian ke csv
-		keys = hasil_pengujian_pertama[0].keys()
-		with open(path_dir + '\\hasil\\pengujian_pertama\\Hasil Pengujian '+ waktu_mulai_uji +'.csv', 'w', newline='') as output_file:
-			dict_writer = csv.DictWriter(output_file, keys)
-			dict_writer.writeheader()
-			dict_writer.writerows(hasil_pengujian_pertama)
+		if len(hasil_pengujian_pertama) != 0:
+			keys = hasil_pengujian_pertama[0].keys()
+			with open(path_dir + '\\hasil\\pengujian_pertama\\Hasil Pengujian '+ waktu_mulai_uji +'.csv', 'w', newline='') as output_file:
+				dict_writer = csv.DictWriter(output_file, keys)
+				dict_writer.writeheader()
+				dict_writer.writerows(hasil_pengujian_pertama)
 
-		with open(path_dir + '\\hasil\\pengujian_pertama\\Hasil Pengujian '+ waktu_mulai_uji +'.csv','a', newline='') as c:
-			for item in r_all_s:
-			    c.write(item + ',')
-			c.write('\n')
-			for item in r_all_o:
-				c.write(item + ',')
-			c.write('\n')
+			with open(path_dir + '\\hasil\\pengujian_pertama\\Hasil Pengujian '+ waktu_mulai_uji +'.csv','a', newline='') as c:
+				for item in r_all_s:
+				    c.write(item + ',')
+				c.write('\n')
+				for item in r_all_o:
+					c.write(item + ',')
+				c.write('\n')
 
-			data_waktu = []
-			for teruji in jumlah_data_teruji:
-				for key,value in teruji.items():
-					key_durasi = key.replace(',', '.')
-					data_waktu.append(str(key_durasi + '=' + str(value)))
+				data_waktu = []
+				for teruji in jumlah_data_teruji:
+					for key,value in teruji.items():
+						key_durasi = key.replace(',', '.')
+						data_waktu.append(str(key_durasi + '=' + str(value)))
 
-			for teruji in data_waktu:
-				c.write(teruji + ',')
+				for teruji in data_waktu:
+					c.write(teruji + ',')
 
-		# Simpan ciri pengujian s ke csv
-		data_ciri_s = Ekspresi_wajah.Db.select_hasil_ciri_pengujian_s(waktu_mulai_uji, waktu_akhir_uji)
-		with open(path_dir + '\\hasil\\ekstraksi_ciri\\Hasil Ekstraksi Ciri dari Kode Sendiri '+ waktu_mulai_uji +'.csv','w', newline='') as c:
-			c.write('No,')
-			c.write('ID Ciri Pengujian,')
-			c.write('Ciri 1,')
-			c.write('Ciri 2,')
-			c.write('Ciri 3,')
-			c.write('Ciri 4,')
-			c.write('Ciri 5,')
-			c.write('Ciri 6,')
-			c.write('Ciri 7,')
-			c.write('Kelas Terklasifikasi')
-			c.write('\n')
-			i = 0
-			for item in data_ciri_s:
-			    i += 1
-			    c.write(str(i) + ',')
-			    for ciri_s in item:
-			    	c.write(str(ciri_s) + ',')
-			    c.write('\n')
+			# Simpan ciri pengujian s ke csv
+			data_ciri_s = Ekspresi_wajah.Db.select_hasil_ciri_pengujian_s(waktu_mulai_uji, waktu_akhir_uji)
+			with open(path_dir + '\\hasil\\ekstraksi_ciri\\Hasil Ekstraksi Ciri dari Kode Sendiri '+ waktu_mulai_uji +'.csv','w', newline='') as c:
+				c.write('No,')
+				c.write('ID Ciri Pengujian,')
+				c.write('Ciri 1,')
+				c.write('Ciri 2,')
+				c.write('Ciri 3,')
+				c.write('Ciri 4,')
+				c.write('Ciri 5,')
+				c.write('Ciri 6,')
+				c.write('Ciri 7,')
+				c.write('Kelas Terklasifikasi')
+				c.write('\n')
+				i = 0
+				for item in data_ciri_s:
+				    i += 1
+				    c.write(str(i) + ',')
+				    for ciri_s in item:
+				    	c.write(str(ciri_s) + ',')
+				    c.write('\n')
 
-		# Simpan ciri pengujian o ke csv
-		data_ciri_o = Ekspresi_wajah.Db.select_hasil_ciri_pengujian_o(waktu_mulai_uji, waktu_akhir_uji)
-		with open(path_dir + '\\hasil\\ekstraksi_ciri\\Hasil Ekstraksi Ciri dari OpenCV '+ waktu_mulai_uji +'.csv','w', newline='') as c:
-			c.write('No,')
-			c.write('ID Ciri Pengujian,')
-			c.write('Ciri 1,')
-			c.write('Ciri 2,')
-			c.write('Ciri 3,')
-			c.write('Ciri 4,')
-			c.write('Ciri 5,')
-			c.write('Ciri 6,')
-			c.write('Ciri 7,')
-			c.write('Kelas Terklasifikasi')
-			c.write('\n')
-			i = 0
-			for item in data_ciri_o:
-			    i += 1
-			    c.write(str(i) + ',')
-			    for ciri_o in item:
-			    	c.write(str(ciri_o) + ',')
-			    c.write('\n')
+			# Simpan ciri pengujian o ke csv
+			data_ciri_o = Ekspresi_wajah.Db.select_hasil_ciri_pengujian_o(waktu_mulai_uji, waktu_akhir_uji)
+			with open(path_dir + '\\hasil\\ekstraksi_ciri\\Hasil Ekstraksi Ciri dari OpenCV '+ waktu_mulai_uji +'.csv','w', newline='') as c:
+				c.write('No,')
+				c.write('ID Ciri Pengujian,')
+				c.write('Ciri 1,')
+				c.write('Ciri 2,')
+				c.write('Ciri 3,')
+				c.write('Ciri 4,')
+				c.write('Ciri 5,')
+				c.write('Ciri 6,')
+				c.write('Ciri 7,')
+				c.write('Kelas Terklasifikasi')
+				c.write('\n')
+				i = 0
+				for item in data_ciri_o:
+				    i += 1
+				    c.write(str(i) + ',')
+				    for ciri_o in item:
+				    	c.write(str(ciri_o) + ',')
+				    c.write('\n')
 
 		return Ekspresi_wajah.RT.tampilan_pengujian1(files, target_akhir, hasil_final_s, hasil_final_o, akurasi, jumlah_data_teruji, semua_direktori)
 
@@ -987,6 +988,17 @@ class Ekspresi_wajah:
 		return Ekspresi_wajah.RT.tampilan_pengujian2(semua_hasil)
 
 
+
+
+
+
+
+
+
+
+
+
+
 	
 
 	##########################################################################################################
@@ -995,12 +1007,7 @@ class Ekspresi_wajah:
 
 
 
-	@page.route(f'{base}/analisis', methods=['GET', 'POST'])
-	def analisis():
-		Ekspresi_wajah.Dw.deteksi_vj()
-
-		return "Analisis"
-
+	@page.route(f'{base}/analisis_rata_rata_ciri', methods=['GET', 'POST'])
 	def analisis_rata_rata_ciri():
 		kumpulan_kelas_s = Ekspresi_wajah.Db.select_kelas('ciri_pelatihan', 'S')
 		kumpulan_kelas_o = Ekspresi_wajah.Db.select_kelas('ciri_pelatihan', 'O')
@@ -1061,7 +1068,7 @@ class Ekspresi_wajah:
 		hasil = (np.linalg.norm(data1 - data2)).astype(np.float)
 		return hasil
 
-	
+	@page.route(f'{base}/analisis_ciri', methods=['GET', 'POST'])
 	def analisis_ciri():
 		ciri_pengujian_s = Ekspresi_wajah.Db.select_ciri_pengujian(1, 'S')
 		ciri_pengujian_o = Ekspresi_wajah.Db.select_ciri_pengujian(3, 'O')
@@ -1091,7 +1098,7 @@ class Ekspresi_wajah:
 		RMSE = math.sqrt(np.sum((data1 - data2) ** 2)/7)
 		print(f"Nilai Root Mean Squared Error = {RMSE}")
 
-
+	@page.route(f'{base}/deteksi_wajah', methods=['GET', 'POST'])
 	def deteksi_wajah():
 		return Ekspresi_wajah.Dw.deteksi_vj()
 
@@ -1104,7 +1111,6 @@ class Ekspresi_wajah:
 
 			jumlah 			= [10]
 			kum_ekspresi	= ['bahagia', 'sedih']
-			print(f"Jumlah ekspresi = {len(kum_ekspresi)}")
 
 			data_latih_s	= []
 			data_latih_o	= []
@@ -1428,10 +1434,7 @@ class Ekspresi_wajah:
 				}
 
 				rata_rata.append(akurasi)
-			# 	rata.append(akurasi)
-			# print(f"rata_rata = {rata_rata} dan jumlah = {len(rata_rata)}")
-			# print(f"\nrata_hasil_s = {rata_hasil_s} dan jumlah = {len(rata_hasil_s)}")
-			# print(f"\nrata_hasil_o = {rata_hasil_o} dan jumlah = {len(rata_hasil_o)}")
+
 				pengujian_tambahan = []
 				for i in range(jumlah_data):
 					hasil_pengujian = {
@@ -1486,6 +1489,8 @@ class Ekspresi_wajah:
 
 		return render_template('layout.html', data = { 'view' : 'sebaran_data', 'title' : 'Sebaran Data'}, path_s = path_s, path_o = path_o)
 
+
+	@page.route(f'{base}/visualisasi_data', methods=['GET', 'POST'])
 	def visualisasi_data_latih():
 		data = pd.read_csv(os.getcwd() + '\\data\\ciri_pelatihan(1).csv', header=None)
 		data_s = []
@@ -1537,41 +1542,45 @@ class Ekspresi_wajah:
 
 		from sklearn.decomposition import PCA
 
-		pca = PCA(n_components=2).fit(data_s)
-		data2D = pca.transform(data_s)
-		# data2D = 1000 * data2D
-		x_std = np.std(data2D[:, 0])
-		y_std = np.std(data2D[:, 1])
-
-		plt.xlabel("Komponen 1")
-		plt.ylabel("Komponen 2")
-		plt.title("Distribusi Titik Data Latih dari Ciri Kode Sendiri Pada Grafik 2D")
-
-		for label in set(label_s):
-			plt.scatter(data2D[csv_s[csv_s[2] == label].index.values][:,0], data2D[csv_s[csv_s[2] == label].index.values][:,1], c=color_s[csv_s[csv_s[2] == label].index.values], label=labels[label], edgecolors='black')
-		plt.legend(loc="lower left")
-		# plt.xlim((-5, 25))
-		# plt.ylim((-1, 0.01))
-		plt.grid()
-		plt.show()
-
-		# pca = PCA(n_components=2).fit(data_o)
-		# data2D = pca.transform(data_o)
+		# pca = PCA(n_components=2).fit(data_s)
+		# data2D = pca.transform(data_s)
 		# # data2D = 1000 * data2D
 		# x_std = np.std(data2D[:, 0])
 		# y_std = np.std(data2D[:, 1])
 
 		# plt.xlabel("Komponen 1")
 		# plt.ylabel("Komponen 2")
-		# plt.title("Distribusi Titik Data Latih dari Ciri OpenCV Pada Grafik 2D")
+		# plt.title("Distribusi Titik Data Latih dari Ciri Kode Sendiri Pada Grafik 2D")
 
-		# for label in set(label_o):
-		# 	plt.scatter(data2D[csv_o[csv_o[2] == label].index.values][:,0], data2D[csv_o[csv_o[2] == label].index.values][:,1], c=color_o[csv_o[csv_o[2] == label].index.values], label=labels[label], edgecolors='black')
+		# for label in set(label_s):
+		# 	plt.scatter(data2D[csv_s[csv_s[2] == label].index.values][:,0], data2D[csv_s[csv_s[2] == label].index.values][:,1], c=color_s[csv_s[csv_s[2] == label].index.values], label=labels[label], edgecolors='black')
 		# plt.legend(loc="lower left")
 		# # plt.xlim((-5, 25))
 		# # plt.ylim((-1, 0.01))
 		# plt.grid()
 		# plt.show()
+
+		pca = PCA(n_components=2).fit(data_o)
+		data2D = pca.transform(data_o)
+		# data2D = 1000 * data2D
+		x_std = np.std(data2D[:, 0])
+		y_std = np.std(data2D[:, 1])
+
+		plt.xlabel("Komponen 1")
+		plt.ylabel("Komponen 2")
+		plt.title("Distribusi Titik Data Latih dari Ciri OpenCV Pada Grafik 2D")
+
+		for label in set(label_o):
+			plt.scatter(data2D[csv_o[csv_o[2] == label].index.values][:,0], data2D[csv_o[csv_o[2] == label].index.values][:,1], c=color_o[csv_o[csv_o[2] == label].index.values], label=labels[label], edgecolors='black')
+		plt.legend(loc="lower left")
+		# plt.xlim((-5, 25))
+		# plt.ylim((-1, 0.01))
+		plt.grid()
+		plt.show()
+
+	
+
+
 
 	def simpan_hasil():
 		path_dir = os.getcwd()

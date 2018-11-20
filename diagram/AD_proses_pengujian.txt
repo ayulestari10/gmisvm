@@ -2,7 +2,7 @@
 | Peneliti |
 start
 
-:Menekan tombol Uji untuk pengujian pertama;
+:Menekan tombol Uji untuk pengujian skenario pertama;
 
 | Sistem |
 :Membaca piksel citra data uji;
@@ -17,7 +17,7 @@ start
 :Menampilkan hasil pengujian;
 
 | Peneliti |
-:Menekan tombol Uji untuk pengujian kedua;
+:Menekan tombol Uji untuk pengujian skenario kedua;
 
 | Sistem |
 :Mengambil ciri dan kelas wajah data latih;
