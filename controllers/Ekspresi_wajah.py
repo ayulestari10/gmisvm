@@ -11,7 +11,7 @@ import cv2
 import matplotlib.pyplot as plt
 import pickle
 import csv
-import math
+import math, decimal
 
 import pandas as pd
 
@@ -131,15 +131,19 @@ class Ekspresi_wajah:
 			print('Data berhasil dilatih!')
 		return Ekspresi_wajah.RT.tampilan_latih_uji() 
 
-	# def truncate_float(f, n):
-	# 	for i in range(len(f)):
-	# 		vstr = str(f[i])
-	# 		if len(vstr) > 5:
-	# 			vstr = vstr[:n * -1]
-	# 		f[i] = float(vstr)
-	# 	return f
+	def truncate_float(f, n):
+		for i in range(len(f)):
+			vstr = Ekspresi_wajah.float_to_str(f[i])
+			if len(vstr) > 5:
+				vstr = vstr[:n * -1]
+			f[i] = float(vstr)
+		return f
 
-	# def expand_float(fstr):
+	def float_to_str(f, precision = 20):
+		ctx = decimal.Context() # 0.0009592950218446467
+		ctx.prec = precision
+		v = ctx.create_decimal(repr(f))
+		return format(v, 'f')
 
 
 	@page.route(f'{base}/pengujian1', methods=['GET', 'POST'])
@@ -607,8 +611,15 @@ class Ekspresi_wajah:
 			gmi.hitungMomenNormalisasi()
 			ciri 		= gmi.hitungCiri()
 			
+			print("TRUNCATE FLOATING POINTS")
+			ciri   		= Ekspresi_wajah.truncate_float(ciri, 3)
+			kumpulan_ciri_s_truncated = []
+			for idx, kumpulan_ciri in enumerate(kumpulan_ciri_s):
+				kumpulan_ciri_s_truncated.append(Ekspresi_wajah.truncate_float(kumpulan_ciri, 3))
+
 			# klasifikasi sendiri
-			kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)			
+			kl_s 		= Klasifikasi(kumpulan_ciri_s_truncated, kumpulan_kelas_s)
+			# kl_s 		= Klasifikasi(kumpulan_ciri_s, kumpulan_kelas_s)				
 			ekspresi_s 	= kl_s.classify([ciri])
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), Ekspresi_wajah.rectColor[ekspresi_s])
@@ -696,9 +707,16 @@ class Ekspresi_wajah:
 
 			# Deteksi Wajah
 			ciricv		= Ekspresi_wajah.OC.gmi_OpenCV(sub_face)
+
+			print("TRUNCATE FLOATING POINTS")
+			ciricv   	= Ekspresi_wajah.truncate_float(ciricv, 3)
+			kumpulan_ciri_o_truncated = []
+			for idx, kumpulan_ciri in enumerate(kumpulan_ciri_o):
+				kumpulan_ciri_o_truncated.append(Ekspresi_wajah.truncate_float(kumpulan_ciri, 3))
 			
 			# Klasifikasi hasil ciri openCV
-			kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)
+			kl_o 		= Klasifikasi(kumpulan_ciri_o_truncated, kumpulan_kelas_o)
+			# kl_o 		= Klasifikasi(kumpulan_ciri_o, kumpulan_kelas_o)
 			ekspresi_o 	= kl_o.classify([ciricv])
 
 			cv2.rectangle(img, (x,y), (x+w, y+h), Ekspresi_wajah.rectColor[ekspresi_o])
